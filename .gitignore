@@ -1,0 +1,8 @@
+*.exe
+*.log
+log.txt
+__pycache__/
+rust/target/
+.vscode/
+.idea/
+*.zip

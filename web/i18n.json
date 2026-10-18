@@ -1,0 +1,4302 @@
+{
+ "langs": [
+  {
+   "code": "uk",
+   "name": "Українська"
+  },
+  {
+   "code": "en",
+   "name": "English"
+  },
+  {
+   "code": "de",
+   "name": "Deutsch"
+  },
+  {
+   "code": "fr",
+   "name": "Français"
+  },
+  {
+   "code": "es",
+   "name": "Español"
+  },
+  {
+   "code": "pt",
+   "name": "Português (Brasil)"
+  },
+  {
+   "code": "pl",
+   "name": "Polski"
+  },
+  {
+   "code": "it",
+   "name": "Italiano"
+  },
+  {
+   "code": "tr",
+   "name": "Türkçe"
+  }
+ ],
+ "strings": {
+  "%s бере мікрофон з «%s», але туди зараз нічого не йде: обробку мікрофона вимкнено.": {
+   "de": "%s nimmt das Mikrofon von „%s“, aber dort kommt gerade nichts an: Die Mikrofonverarbeitung ist aus.",
+   "en": "%s takes its microphone from “%s”, but nothing is going there now: microphone processing is off.",
+   "es": "%s toma el micrófono de «%s», pero ahora no llega nada ahí: el procesamiento del micrófono está desactivado.",
+   "fr": "%s prend le micro sur « %s », mais rien n’y arrive pour l’instant : le traitement du micro est désactivé.",
+   "it": "%s prende il microfono da «%s», ma lì ora non arriva nulla: l’elaborazione del microfono è disattivata.",
+   "pl": "%s bierze mikrofon z „%s”, ale nic tam teraz nie trafia: przetwarzanie mikrofonu jest wyłączone.",
+   "pt": "%s usa o microfone de “%s”, mas nada está chegando lá agora: o processamento do microfone está desligado.",
+   "tr": "%s mikrofonu “%s” kaynağından alıyor, ancak şu anda oraya hiçbir şey gitmiyor: mikrofon işleme kapalı."
+  },
+  "(пристрій недоступний)": {
+   "de": "(Gerät nicht verfügbar)",
+   "en": "(device unavailable)",
+   "es": "(dispositivo no disponible)",
+   "fr": "(périphérique indisponible)",
+   "it": "(dispositivo non disponibile)",
+   "pl": "(urządzenie niedostępne)",
+   "pt": "(dispositivo indisponível)",
+   "tr": "(aygıt kullanılamıyor)"
+  },
+  "2,4 ГГц": {
+   "de": "2,4 GHz",
+   "en": "2.4 GHz",
+   "es": "2,4 GHz",
+   "fr": "2,4 GHz",
+   "it": "2,4 GHz",
+   "pl": "2,4 GHz",
+   "pt": "2,4 GHz",
+   "tr": "2,4 GHz"
+  },
+  "32-бітний плагін — потрібна 64-бітна версія": {
+   "de": "32-Bit-Plugin – eine 64-Bit-Version ist nötig",
+   "en": "32-bit plugin — a 64-bit version is required",
+   "es": "Plugin de 32 bits: se necesita la versión de 64 bits",
+   "fr": "Plugin 32 bits — une version 64 bits est nécessaire",
+   "it": "Plugin a 32 bit: serve la versione a 64 bit",
+   "pl": "Wtyczka 32-bitowa — potrzebna wersja 64-bitowa",
+   "pt": "Plugin de 32 bits — é necessária a versão de 64 bits",
+   "tr": "32 bit eklenti — 64 bit sürüm gerekli"
+  },
+  "Arcmix керує гучністю й вимкненням мікрофона, обраного на головному екрані. Discord, гра чи OBS беруть мікрофон, обраний у них самих. Щоб вони чули мікрофон з Arcmix разом із шумодавом, оберіть у них віртуальний кабель і ввімкніть тут обробку мікрофона: вона передає мікрофон у кабель.": {
+   "de": "Arcmix steuert Lautstärke und Stummschaltung des Mikrofons, das auf dem Hauptbildschirm gewählt ist. Discord, Spiele oder OBS verwenden das Mikrofon, das in ihnen selbst gewählt ist. Damit sie das Mikrofon aus Arcmix samt Rauschfilter hören, wähle dort ein virtuelles Kabel und schalte hier die Mikrofonverarbeitung ein: Sie leitet das Mikrofon in das Kabel.",
+   "en": "Arcmix controls the volume and muting of the microphone chosen on the main screen. Discord, games or OBS use the microphone chosen in their own settings. For them to hear the microphone from Arcmix with noise suppression, pick a virtual cable in them and turn on microphone processing here: it sends the microphone into the cable.",
+   "es": "Arcmix controla el volumen y el silencio del micrófono elegido en la pantalla principal. Discord, los juegos u OBS usan el micrófono elegido en su propia configuración. Para que oigan el micrófono de Arcmix con el antirruido, elige en ellos un cable virtual y activa aquí el procesamiento del micrófono: envía el micrófono al cable.",
+   "fr": "Arcmix gère le volume et la coupure du micro choisi sur l’écran principal. Discord, les jeux ou OBS utilisent le micro choisi dans leurs propres réglages. Pour qu’ils entendent le micro d’Arcmix avec l’anti-bruit, choisissez-y un câble virtuel et activez ici le traitement du micro : il envoie le micro dans le câble.",
+   "it": "Arcmix gestisce il volume e il silenziamento del microfono scelto nella schermata principale. Discord, i giochi o OBS usano il microfono scelto nelle loro impostazioni. Perché sentano il microfono di Arcmix con l’antirumore, scegli in essi un cavo virtuale e attiva qui l’elaborazione del microfono: invia il microfono nel cavo.",
+   "pl": "Arcmix steruje głośnością i wyciszaniem mikrofonu wybranego na ekranie głównym. Discord, gry czy OBS używają mikrofonu wybranego w ich własnych ustawieniach. Aby słyszały mikrofon z Arcmix razem z redukcją szumów, wybierz w nich kabel wirtualny i włącz tu przetwarzanie mikrofonu: przesyła ono mikrofon do kabla.",
+   "pt": "O Arcmix controla o volume e o silenciamento do microfone escolhido na tela principal. Discord, jogos ou OBS usam o microfone escolhido nas próprias configurações. Para que ouçam o microfone do Arcmix com o antirruído, escolha neles um cabo virtual e ligue aqui o processamento do microfone: ele envia o microfone para o cabo.",
+   "tr": "Arcmix, ana ekranda seçilen mikrofonun ses düzeyini ve sessize alınmasını yönetir. Discord, oyunlar veya OBS kendi ayarlarında seçilen mikrofonu kullanır. Arcmix'teki mikrofonu gürültü önlemeyle duymaları için onlarda sanal bir kablo seçin ve burada mikrofon işlemeyi açın: mikrofonu kabloya gönderir."
+  },
+  "Arcmix на GitHub": {
+   "de": "Arcmix auf GitHub",
+   "en": "Arcmix on GitHub",
+   "es": "Arcmix en GitHub",
+   "fr": "Arcmix sur GitHub",
+   "it": "Arcmix su GitHub",
+   "pl": "Arcmix na GitHubie",
+   "pt": "Arcmix no GitHub",
+   "tr": "GitHub'da Arcmix"
+  },
+  "Bluetooth при ввімкненні": {
+   "de": "Bluetooth beim Einschalten",
+   "en": "Bluetooth on power-up",
+   "es": "Bluetooth al encender",
+   "fr": "Bluetooth au démarrage",
+   "it": "Bluetooth all'accensione",
+   "pl": "Bluetooth po włączeniu",
+   "pt": "Bluetooth ao ligar",
+   "tr": "Açılışta Bluetooth"
+  },
+  "OpenChatMix на GitHub": {
+   "de": "OpenChatMix auf GitHub",
+   "en": "OpenChatMix on GitHub",
+   "es": "OpenChatMix en GitHub",
+   "fr": "OpenChatMix sur GitHub",
+   "it": "OpenChatMix su GitHub",
+   "pl": "OpenChatMix na GitHubie",
+   "pt": "OpenChatMix no GitHub",
+   "tr": "GitHub'da OpenChatMix"
+  },
+  "VST-плагіни": {
+   "de": "VST-Plugins",
+   "en": "VST plugins",
+   "es": "Plugins VST",
+   "fr": "Plugins VST",
+   "it": "Plugin VST",
+   "pl": "Wtyczki VST",
+   "pt": "Plugins VST",
+   "tr": "VST eklentileri"
+  },
+  "VST-плагіни для мікрофона": {
+   "de": "VST-Plugins fürs Mikrofon",
+   "en": "VST plugins for the mic",
+   "es": "Plugins VST para el micrófono",
+   "fr": "Plugins VST pour le micro",
+   "it": "Plugin VST per il microfono",
+   "pl": "Wtyczki VST do mikrofonu",
+   "pt": "Plugins VST para o microfone",
+   "tr": "Mikrofon için VST eklentileri"
+  },
+  "«%s» передає мікрофон з обробкою, тому для гри, чату й медіа не підходить: інакше співрозмовники чули б ваш звук. Кожній категорії потрібен свій кабель.": {
+   "de": "„%s“ überträgt das bearbeitete Mikrofon und eignet sich daher nicht für Spiel, Chat oder Medien: Deine Gesprächspartner würden deinen Sound hören. Jede Kategorie braucht ein eigenes Kabel.",
+   "en": "“%s” carries the processed microphone, so it cannot be used for game, chat or media: the people in your call would hear your sound. Each category needs its own cable.",
+   "es": "«%s» transmite el micrófono procesado, así que no sirve para juego, chat ni multimedia: tus interlocutores oirían tu sonido. Cada categoría necesita su propio cable.",
+   "fr": "« %s » transmet le micro traité et ne convient donc pas au jeu, au chat ni aux médias : vos interlocuteurs entendraient votre son. Chaque catégorie a besoin de son propre câble.",
+   "it": "«%s» trasmette il microfono elaborato, quindi non va bene per gioco, chat o media: chi è in chiamata sentirebbe il tuo audio. Ogni categoria ha bisogno del proprio cavo.",
+   "pl": "„%s” przesyła przetworzony mikrofon, więc nie nadaje się do gry, czatu ani multimediów: rozmówcy słyszeliby Twój dźwięk. Każda kategoria potrzebuje własnego kabla.",
+   "pt": "“%s” transmite o microfone processado, então não serve para jogo, chat ou mídia: quem está na chamada ouviria o seu som. Cada categoria precisa do próprio cabo.",
+   "tr": "“%s” işlenmiş mikrofonu taşıyor, bu yüzden oyun, sohbet veya medya için kullanılamaz: görüşmedekiler sesinizi duyardı. Her kategorinin kendi kablosu gerekir."
+  },
+  "Ідея": {
+   "de": "Idee",
+   "en": "Idea",
+   "es": "Idea",
+   "fr": "Idée",
+   "it": "Idea",
+   "pl": "Pomysł",
+   "pt": "Ideia",
+   "tr": "Fikir"
+  },
+  "Індикатор вимкненого мікрофона": {
+   "de": "Stummschalt-Anzeige",
+   "en": "Mic mute light",
+   "es": "Indicador de micrófono silenciado",
+   "fr": "Voyant micro coupé",
+   "it": "Spia microfono disattivato",
+   "pl": "Wskaźnik wyciszonego mikrofonu",
+   "pt": "Luz de microfone mudo",
+   "tr": "Mikrofon kapalı ışığı"
+  },
+  "Індикатор передавача": {
+   "de": "Sender-LED",
+   "en": "Transmitter LED",
+   "es": "LED del transmisor",
+   "fr": "Voyant de l'émetteur",
+   "it": "LED del trasmettitore",
+   "pl": "Dioda nadajnika",
+   "pt": "LED do transmissor",
+   "tr": "Verici LED'i"
+  },
+  "Індикатори": {
+   "de": "Pegelanzeigen",
+   "en": "Meters",
+   "es": "Medidores",
+   "fr": "Vumètres",
+   "it": "Indicatori",
+   "pl": "Wskaźniki",
+   "pt": "Medidores",
+   "tr": "Göstergeler"
+  },
+  "Авто": {
+   "de": "Auto",
+   "en": "Auto",
+   "es": "Auto",
+   "fr": "Auto",
+   "it": "Auto",
+   "pl": "Auto",
+   "pt": "Auto",
+   "tr": "Otomatik"
+  },
+  "Автовимкнення": {
+   "de": "Automatisch ausschalten",
+   "en": "Auto power-off",
+   "es": "Apagado automático",
+   "fr": "Arrêt automatique",
+   "it": "Spegnimento automatico",
+   "pl": "Automatyczne wyłączanie",
+   "pt": "Desligamento automático",
+   "tr": "Otomatik kapanma"
+  },
+  "Автоприглушення гри": {
+   "de": "Automatische Spielabsenkung",
+   "en": "Automatic game ducking",
+   "es": "Atenuación automática del juego",
+   "fr": "Atténuation automatique du jeu",
+   "it": "Attenuazione automatica del gioco",
+   "pl": "Automatyczne wyciszanie gry",
+   "pt": "Redução automática do jogo",
+   "tr": "Otomatik oyun kısma"
+  },
+  "Автопідсилення мікрофона": {
+   "de": "Automatische Mikrofonverstärkung",
+   "en": "Mic auto gain",
+   "es": "Ganancia automática del micrófono",
+   "fr": "Gain auto du micro",
+   "it": "Guadagno automatico microfono",
+   "pl": "Automatyczne wzmocnienie mikrofonu",
+   "pt": "Ganho automático do microfone",
+   "tr": "Otomatik mikrofon kazancı"
+  },
+  "Автор": {
+   "de": "Autor",
+   "en": "Author",
+   "es": "Autor",
+   "fr": "Auteur",
+   "it": "Autore",
+   "pl": "Autor",
+   "pt": "Autor",
+   "tr": "Geliştirici"
+  },
+  "Архів на робочому столі:": {
+   "de": "Archiv auf dem Desktop:",
+   "en": "Archive on the desktop:",
+   "es": "Archivo en el escritorio:",
+   "fr": "Archive sur le Bureau :",
+   "it": "Archivio sul desktop:",
+   "pl": "Archiwum na pulpicie:",
+   "pt": "Arquivo na área de trabalho:",
+   "tr": "Masaüstündeki arşiv:"
+  },
+  "База": {
+   "de": "Basis",
+   "en": "Base",
+   "es": "Base",
+   "fr": "Base",
+   "it": "Base",
+   "pl": "Baza",
+   "pt": "Base",
+   "tr": "Baz"
+  },
+  "Баланс": {
+   "de": "Balance",
+   "en": "Balance",
+   "es": "Balance",
+   "fr": "Équilibre",
+   "it": "Bilanciamento",
+   "pl": "Balans",
+   "pt": "Equilíbrio",
+   "tr": "Denge"
+  },
+  "Баланс Гра / Чат": {
+   "de": "Balance Spiel / Chat",
+   "en": "Game / Chat balance",
+   "es": "Balance juego / chat",
+   "fr": "Équilibre jeu / chat",
+   "it": "Bilanciamento gioco / chat",
+   "pl": "Balans gra / czat",
+   "pt": "Equilíbrio jogo / chat",
+   "tr": "Oyun / sohbet dengesi"
+  },
+  "Баланс гри й чату для будь-яких програм, еквалайзер, мікрофон і налаштування гарнітури.": {
+   "de": "Spiel-/Chat-Balance für beliebige Apps, Equalizer, Mikrofon und Headset-Einstellungen.",
+   "en": "Game and chat balance for any apps, an equalizer, mic tools and headset settings.",
+   "es": "Balance de juego y chat para cualquier aplicación, ecualizador, micrófono y ajustes de los auriculares.",
+   "fr": "Équilibre jeu / chat pour toutes les applications, égaliseur, micro et réglages du casque.",
+   "it": "Bilanciamento gioco / chat per qualsiasi app, equalizzatore, microfono e impostazioni delle cuffie.",
+   "pl": "Balans gry i czatu dla dowolnych aplikacji, korektor, mikrofon i ustawienia słuchawek.",
+   "pt": "Equilíbrio entre jogo e chat para qualquer app, equalizador, microfone e ajustes do headset.",
+   "tr": "Her uygulama için oyun ve sohbet dengesi, ekolayzer, mikrofon ve kulaklık ayarları."
+  },
+  "Баланс між грою і чатом змінює коліщатко на гарнітурі або повзунок у вікні. Позначте, які програми — це чат; решта вважатиметься грою.": {
+   "de": "Das Rad am Headset oder der Regler im Fenster stellt die Balance zwischen Spiel und Chat ein. Markiere, welche Apps Chat sind; alles andere zählt als Spiel.",
+   "en": "The dial on the headset or the slider in the window sets the balance between game and chat. Mark which apps are chat; everything else counts as game.",
+   "es": "La rueda de los auriculares o el control deslizante de la ventana ajusta el balance entre juego y chat. Marca qué aplicaciones son chat; el resto cuenta como juego.",
+   "fr": "La molette du casque ou le curseur de la fenêtre règle l'équilibre entre jeu et chat. Indiquez quelles applications sont du chat ; le reste compte comme jeu.",
+   "it": "La rotella sulle cuffie o il cursore nella finestra regola il bilanciamento tra gioco e chat. Indica quali app sono chat; il resto conta come gioco.",
+   "pl": "Pokrętło na słuchawkach lub suwak w oknie ustawia balans między grą a czatem. Zaznacz, które aplikacje to czat; reszta liczy się jako gra.",
+   "pt": "O botão giratório do headset ou o controle na janela ajusta o equilíbrio entre jogo e chat. Marque quais apps são chat; o resto conta como jogo.",
+   "tr": "Kulaklıktaki çark veya penceredeki kaydırıcı oyun ile sohbet arasındaki dengeyi ayarlar. Hangi uygulamaların sohbet olduğunu işaretleyin; geri kalanı oyun sayılır."
+  },
+  "Баланс: порівну": {
+   "de": "Balance: ausgeglichen",
+   "en": "Balance: equal",
+   "es": "Balance: igualar",
+   "fr": "Équilibre : égal",
+   "it": "Bilanciamento: pari",
+   "pl": "Balans: po równo",
+   "pt": "Equilíbrio: igual",
+   "tr": "Denge: eşit"
+  },
+  "Батарея": {
+   "de": "Akku",
+   "en": "Battery",
+   "es": "Batería",
+   "fr": "Batterie",
+   "it": "Batteria",
+   "pl": "Bateria",
+   "pt": "Bateria",
+   "tr": "Pil"
+  },
+  "Без звуку": {
+   "de": "Stumm",
+   "en": "Muted",
+   "es": "Silenciado",
+   "fr": "Coupé",
+   "it": "Silenziato",
+   "pl": "Wyciszone",
+   "pt": "Mudo",
+   "tr": "Kapalı"
+  },
+  "Більше": {
+   "de": "Mehr",
+   "en": "More",
+   "es": "Más",
+   "fr": "Plus",
+   "it": "Altro",
+   "pl": "Więcej",
+   "pt": "Mais",
+   "tr": "Daha fazla"
+  },
+  "Більше басу": {
+   "de": "Mehr Bass",
+   "en": "Bass boost",
+   "es": "Más graves",
+   "fr": "Plus de basses",
+   "it": "Più bassi",
+   "pl": "Więcej basu",
+   "pt": "Mais graves",
+   "tr": "Bas artırma"
+  },
+  "Більше гри": {
+   "de": "Mehr Spiel",
+   "en": "More game",
+   "es": "Más juego",
+   "fr": "Plus de jeu",
+   "it": "Più gioco",
+   "pl": "Więcej gry",
+   "pt": "Mais jogo",
+   "tr": "Daha çok oyun"
+  },
+  "Більше чату": {
+   "de": "Mehr Chat",
+   "en": "More chat",
+   "es": "Más chat",
+   "fr": "Plus de chat",
+   "it": "Più chat",
+   "pl": "Więcej czatu",
+   "pt": "Mais chat",
+   "tr": "Daha çok sohbet"
+  },
+  "Бічна кнопка миші": {
+   "de": "Seitliche Maustaste",
+   "en": "Side mouse button",
+   "es": "Botón lateral del ratón",
+   "fr": "Bouton latéral de la souris",
+   "it": "Tasto laterale del mouse",
+   "pl": "Boczny przycisk myszy",
+   "pt": "Botão lateral do mouse",
+   "tr": "Yan fare düğmesi"
+  },
+  "Версія": {
+   "de": "Version",
+   "en": "Version",
+   "es": "Versión",
+   "fr": "Version",
+   "it": "Versione",
+   "pl": "Wersja",
+   "pt": "Versão",
+   "tr": "Sürüm"
+  },
+  "Вивід (навушники)": {
+   "de": "Ausgabe (Kopfhörer)",
+   "en": "Output (headphones)",
+   "es": "Salida (auriculares)",
+   "fr": "Sortie (casque)",
+   "it": "Uscita (cuffie)",
+   "pl": "Wyjście (słuchawki)",
+   "pt": "Saída (fones)",
+   "tr": "Çıkış (kulaklık)"
+  },
+  "Вивід не може бути тим самим пристроєм, що й вхід.": {
+   "de": "Die Ausgabe darf nicht dasselbe Gerät wie der Eingang sein.",
+   "en": "The output can't be the same device as the input.",
+   "es": "La salida no puede ser el mismo dispositivo que la entrada.",
+   "fr": "La sortie ne peut pas être le même périphérique que l'entrée.",
+   "it": "L'uscita non può essere lo stesso dispositivo dell'ingresso.",
+   "pl": "Wyjście nie może być tym samym urządzeniem co wejście.",
+   "pt": "A saída não pode ser o mesmo dispositivo da entrada.",
+   "tr": "Çıkış, girişle aynı aygıt olamaz."
+  },
+  "Вигляд": {
+   "de": "Darstellung",
+   "en": "Appearance",
+   "es": "Apariencia",
+   "fr": "Apparence",
+   "it": "Aspetto",
+   "pl": "Wygląd",
+   "pt": "Aparência",
+   "tr": "Görünüm"
+  },
+  "Видалити": {
+   "de": "Löschen",
+   "en": "Delete",
+   "es": "Eliminar",
+   "fr": "Supprimer",
+   "it": "Elimina",
+   "pl": "Usuń",
+   "pt": "Excluir",
+   "tr": "Sil"
+  },
+  "Видалити?": {
+   "de": "Löschen?",
+   "en": "Delete?",
+   "es": "¿Eliminar?",
+   "fr": "Supprimer ?",
+   "it": "Eliminare?",
+   "pl": "Usunąć?",
+   "pt": "Excluir?",
+   "tr": "Silinsin mi?"
+  },
+  "Вийти": {
+   "de": "Beenden",
+   "en": "Quit",
+   "es": "Salir",
+   "fr": "Quitter",
+   "it": "Esci",
+   "pl": "Zamknij",
+   "pt": "Sair",
+   "tr": "Çık"
+  },
+  "Вийти з програми": {
+   "de": "App beenden",
+   "en": "Quit app",
+   "es": "Salir de la aplicación",
+   "fr": "Quitter l'application",
+   "it": "Esci dall'app",
+   "pl": "Zamknij aplikację",
+   "pt": "Sair do aplicativo",
+   "tr": "Uygulamadan çık"
+  },
+  "Вимикати мікрофон клавішами": {
+   "de": "Mikrofon per Tastenkürzel stummschalten",
+   "en": "Mute the mic with a hotkey",
+   "es": "Silenciar el micrófono con un atajo",
+   "fr": "Couper le micro avec un raccourci",
+   "it": "Disattiva il microfono con una scorciatoia",
+   "pl": "Wyciszaj mikrofon skrótem",
+   "pt": "Silenciar o microfone com um atalho",
+   "tr": "Mikrofonu kısayolla kapat"
+  },
+  "Вимк.": {
+   "de": "Aus",
+   "en": "Off",
+   "es": "Desact.",
+   "fr": "Désact.",
+   "it": "Off",
+   "pl": "Wył.",
+   "pt": "Desl.",
+   "tr": "Kapalı"
+  },
+  "Вимкнена функція зникає з вікна й не працює — програма легша.": {
+   "de": "Eine ausgeschaltete Funktion verschwindet aus dem Fenster und läuft nicht – die App bleibt schlanker.",
+   "en": "A feature that's off disappears from the window and doesn't run, so the app stays lighter.",
+   "es": "Una función desactivada desaparece de la ventana y no se ejecuta, así la aplicación es más ligera.",
+   "fr": "Une fonction désactivée disparaît de la fenêtre et ne tourne pas : l'application reste plus légère.",
+   "it": "Una funzione disattivata sparisce dalla finestra e non viene eseguita: l'app resta più leggera.",
+   "pl": "Wyłączona funkcja znika z okna i nie działa — aplikacja jest lżejsza.",
+   "pt": "Um recurso desligado some da janela e não é executado — o aplicativo fica mais leve.",
+   "tr": "Kapalı bir özellik pencereden kaybolur ve çalışmaz; uygulama daha hafif kalır."
+  },
+  "Вимкнення екрана": {
+   "de": "Bildschirm-Timeout",
+   "en": "Screen timeout",
+   "es": "Apagado de pantalla",
+   "fr": "Mise en veille de l'écran",
+   "it": "Spegnimento schermo",
+   "pl": "Wyłączanie ekranu",
+   "pt": "Desligamento da tela",
+   "tr": "Ekran zaman aşımı"
+  },
+  "Вимкнення мікрофона": {
+   "de": "Mikrofon stummschalten",
+   "en": "Muting the microphone",
+   "es": "Silenciar el micrófono",
+   "fr": "Coupure du micro",
+   "it": "Disattivazione del microfono",
+   "pl": "Wyciszanie mikrofonu",
+   "pt": "Silenciar o microfone",
+   "tr": "Mikrofonu kapatma"
+  },
+  "Вимкнено": {
+   "de": "Aus",
+   "en": "Off",
+   "es": "Desactivado",
+   "fr": "Désactivé",
+   "it": "Disattivato",
+   "pl": "Wyłączone",
+   "pt": "Desligado",
+   "tr": "Kapalı"
+  },
+  "Вимкнені в Windows": {
+   "de": "In Windows deaktiviert",
+   "en": "Disabled in Windows",
+   "es": "Desactivados en Windows",
+   "fr": "Désactivés dans Windows",
+   "it": "Disattivati in Windows",
+   "pl": "Wyłączone w Windows",
+   "pt": "Desativados no Windows",
+   "tr": "Windows'ta devre dışı"
+  },
+  "Вимкнути": {
+   "de": "Deaktivieren",
+   "en": "Disable",
+   "es": "Desactivar",
+   "fr": "Désactiver",
+   "it": "Disattiva",
+   "pl": "Wyłącz",
+   "pt": "Desativar",
+   "tr": "Devre dışı bırak"
+  },
+  "Вимкнути / увімкнути мікрофон": {
+   "de": "Mikrofon stumm / an",
+   "en": "Mute / unmute microphone",
+   "es": "Silenciar / activar micrófono",
+   "fr": "Couper / activer le micro",
+   "it": "Disattiva / attiva microfono",
+   "pl": "Wycisz / włącz mikrofon",
+   "pt": "Silenciar / ativar microfone",
+   "tr": "Mikrofonu kapat / aç"
+  },
+  "Вимкнути звук": {
+   "de": "Stumm",
+   "en": "Mute",
+   "es": "Silenciar",
+   "fr": "Couper le son",
+   "it": "Silenzia",
+   "pl": "Wycisz",
+   "pt": "Silenciar",
+   "tr": "Sesi kapat"
+  },
+  "Висока": {
+   "de": "Hoch",
+   "en": "High",
+   "es": "Alta",
+   "fr": "Élevée",
+   "it": "Alta",
+   "pl": "Wysoka",
+   "pt": "Alto",
+   "tr": "Yüksek"
+  },
+  "Високе підсилення": {
+   "de": "Hohe Verstärkung",
+   "en": "High gain",
+   "es": "Ganancia alta",
+   "fr": "Gain élevé",
+   "it": "Guadagno alto",
+   "pl": "Wysokie wzmocnienie",
+   "pt": "Ganho alto",
+   "tr": "Yüksek kazanç"
+  },
+  "Високий": {
+   "de": "Hoch",
+   "en": "High",
+   "es": "Alto",
+   "fr": "Élevé",
+   "it": "Alto",
+   "pl": "Wysoki",
+   "pt": "Alto",
+   "tr": "Yüksek"
+  },
+  "Вище": {
+   "de": "Nach oben",
+   "en": "Move up",
+   "es": "Subir",
+   "fr": "Monter",
+   "it": "Sposta su",
+   "pl": "W górę",
+   "pt": "Mover para cima",
+   "tr": "Yukarı taşı"
+  },
+  "Власна": {
+   "de": "Eigenes",
+   "en": "Custom",
+   "es": "Personalizado",
+   "fr": "Personnalisé",
+   "it": "Personalizzato",
+   "pl": "Własny",
+   "pt": "Personalizado",
+   "tr": "Özel"
+  },
+  "Власний": {
+   "de": "Eigene",
+   "en": "Custom",
+   "es": "Propio",
+   "fr": "Perso",
+   "it": "Personale",
+   "pl": "Własny",
+   "pt": "Próprio",
+   "tr": "Özel"
+  },
+  "Власний голос (вбудований мікрофон)": {
+   "de": "Sidetone (integriertes Mikrofon)",
+   "en": "Sidetone (built-in mic)",
+   "es": "Retorno de voz (micrófono integrado)",
+   "fr": "Retour micro (micro intégré)",
+   "it": "Sidetone (microfono integrato)",
+   "pl": "Odsłuch (wbudowany mikrofon)",
+   "pt": "Retorno de voz (microfone embutido)",
+   "tr": "Kendi sesi (dahili mikrofon)"
+  },
+  "Власний голос (мікрофон-штанга)": {
+   "de": "Sidetone (Bügelmikrofon)",
+   "en": "Sidetone (boom mic)",
+   "es": "Retorno de voz (micrófono de brazo)",
+   "fr": "Retour micro (micro perche)",
+   "it": "Sidetone (microfono ad asta)",
+   "pl": "Odsłuch (mikrofon na pałąku)",
+   "pt": "Retorno de voz (microfone de haste)",
+   "tr": "Kendi sesi (çubuk mikrofon)"
+  },
+  "Встановлено найновішу версію": {
+   "de": "Du hast die neueste Version",
+   "en": "You have the latest version",
+   "es": "Tienes la última versión",
+   "fr": "Vous avez la dernière version",
+   "it": "Hai l’ultima versione",
+   "pl": "Masz najnowszą wersję",
+   "pt": "Você tem a versão mais recente",
+   "tr": "En son sürümü kullanıyorsunuz"
+  },
+  "Встановіть Microsoft Edge WebView2 Runtime. Поки що відкриваю у браузері.": {
+   "de": "Bitte installiere die Microsoft Edge WebView2 Runtime. Vorerst wird der Browser geöffnet.",
+   "en": "Please install Microsoft Edge WebView2 Runtime. Opening in the browser for now.",
+   "es": "Instala Microsoft Edge WebView2 Runtime. Por ahora se abre en el navegador.",
+   "fr": "Installez Microsoft Edge WebView2 Runtime. Ouverture dans le navigateur en attendant.",
+   "it": "Installa Microsoft Edge WebView2 Runtime. Per ora apro nel browser.",
+   "pl": "Zainstaluj Microsoft Edge WebView2 Runtime. Na razie otwieram w przeglądarce.",
+   "pt": "Instale o Microsoft Edge WebView2 Runtime. Por enquanto, abrindo no navegador.",
+   "tr": "Lütfen Microsoft Edge WebView2 Runtime'ı yükleyin. Şimdilik tarayıcıda açılıyor."
+  },
+  "Відкрити вікно": {
+   "de": "Fenster öffnen",
+   "en": "Open window",
+   "es": "Abrir ventana",
+   "fr": "Ouvrir la fenêtre",
+   "it": "Apri finestra",
+   "pl": "Otwórz okno",
+   "pt": "Abrir janela",
+   "tr": "Pencereyi aç"
+  },
+  "Відкрити налаштування звуку Windows": {
+   "de": "Windows-Soundeinstellungen öffnen",
+   "en": "Open Windows sound settings",
+   "es": "Abrir la configuración de sonido de Windows",
+   "fr": "Ouvrir les paramètres audio de Windows",
+   "it": "Apri le impostazioni audio di Windows",
+   "pl": "Otwórz ustawienia dźwięku Windows",
+   "pt": "Abrir configurações de som do Windows",
+   "tr": "Windows ses ayarlarını aç"
+  },
+  "Відкриті програми — оберіть, щоб додати до групи «%s»": {
+   "de": "Geöffnete Apps – wähle eine, um sie zu „%s“ hinzuzufügen",
+   "en": "Open apps — pick one to add it to “%s”",
+   "es": "Aplicaciones abiertas: elige una para añadirla a «%s»",
+   "fr": "Applications ouvertes — choisissez-en une à ajouter à « %s »",
+   "it": "App aperte: scegline una da aggiungere a «%s»",
+   "pl": "Otwarte aplikacje — wybierz, aby dodać do grupy „%s”",
+   "pt": "Aplicativos abertos — escolha um para adicionar a “%s”",
+   "tr": "Açık uygulamalar — “%s” grubuna eklemek için seçin"
+  },
+  "Відкріпити вікно": {
+   "de": "Fenster lösen",
+   "en": "Unpin window",
+   "es": "Desanclar ventana",
+   "fr": "Détacher la fenêtre",
+   "it": "Sblocca finestra",
+   "pl": "Odepnij okno",
+   "pt": "Desafixar janela",
+   "tr": "Pencereyi serbest bırak"
+  },
+  "Відтінок": {
+   "de": "Farbton",
+   "en": "Hue",
+   "es": "Tono",
+   "fr": "Teinte",
+   "it": "Tonalità",
+   "pl": "Odcień",
+   "pt": "Matiz",
+   "tr": "Ton"
+  },
+  "Від’єднані": {
+   "de": "Getrennt",
+   "en": "Disconnected",
+   "es": "Desconectados",
+   "fr": "Déconnectés",
+   "it": "Scollegati",
+   "pl": "Odłączone",
+   "pt": "Desconectados",
+   "tr": "Bağlı değil"
+  },
+  "Вікно": {
+   "de": "Fenster",
+   "en": "Window",
+   "es": "Ventana",
+   "fr": "Fenêtre",
+   "it": "Finestra",
+   "pl": "Okno",
+   "pt": "Janela",
+   "tr": "Pencere"
+  },
+  "Вітаємо в Arcmix": {
+   "de": "Willkommen bei Arcmix",
+   "en": "Welcome to Arcmix",
+   "es": "Te damos la bienvenida a Arcmix",
+   "fr": "Bienvenue dans Arcmix",
+   "it": "Benvenuto in Arcmix",
+   "pl": "Witamy w Arcmix",
+   "pt": "Boas-vindas ao Arcmix",
+   "tr": "Arcmix'e hoş geldiniz"
+  },
+  "Гарнітура": {
+   "de": "Headset",
+   "en": "Headset",
+   "es": "Auriculares",
+   "fr": "Casque",
+   "it": "Cuffie",
+   "pl": "Słuchawki",
+   "pt": "Headset",
+   "tr": "Kulaklık"
+  },
+  "Гарнітуру вимкнено": {
+   "de": "Headset ist aus",
+   "en": "Headset is off",
+   "es": "Auriculares apagados",
+   "fr": "Casque éteint",
+   "it": "Cuffie spente",
+   "pl": "Słuchawki wyłączone",
+   "pt": "Headset desligado",
+   "tr": "Kulaklık kapalı"
+  },
+  "Гарнітуру з підтримкою налаштувань не знайдено: заряд, sidetone і власний еквалайзер гарнітури недоступні. Баланс, мікрофон і решта працюють з будь-якою гарнітурою.": {
+   "de": "Kein Headset mit unterstützten Einstellungen gefunden: Akku, Sidetone und der eigene Equalizer des Headsets sind nicht verfügbar. Balance, Mikrofon und alles andere funktionieren mit jedem Headset.",
+   "en": "No headset with supported settings found: battery, sidetone and the headset's own equalizer are unavailable. The balance, microphone and everything else work with any headset.",
+   "es": "No se encontraron auriculares con ajustes compatibles: la batería, el retorno de voz y el ecualizador propio de los auriculares no están disponibles. El balance, el micrófono y lo demás funcionan con cualquier auricular.",
+   "fr": "Aucun casque aux réglages pris en charge n'a été trouvé : batterie, retour micro et égaliseur du casque indisponibles. L'équilibre, le micro et le reste fonctionnent avec n'importe quel casque.",
+   "it": "Nessuna cuffia con impostazioni supportate trovata: batteria, sidetone ed equalizzatore delle cuffie non sono disponibili. Bilanciamento, microfono e il resto funzionano con qualsiasi cuffia.",
+   "pl": "Nie znaleziono słuchawek z obsługiwanymi ustawieniami: bateria, odsłuch własnego głosu i korektor słuchawek są niedostępne. Balans, mikrofon i reszta działają z dowolnymi słuchawkami.",
+   "pt": "Nenhum headset com configurações compatíveis foi encontrado: bateria, retorno de voz e o equalizador do próprio headset não estão disponíveis. O equilíbrio, o microfone e o resto funcionam com qualquer headset.",
+   "tr": "Ayarları desteklenen bir kulaklık bulunamadı: pil, kendi sesini duyma ve kulaklığın kendi ekolayzeri kullanılamıyor. Denge, mikrofon ve diğer her şey herhangi bir kulaklıkla çalışır."
+  },
+  "Гарнітуру заряджено": {
+   "de": "Headset aufgeladen",
+   "en": "Headset charged",
+   "es": "Auriculares cargados",
+   "fr": "Casque chargé",
+   "it": "Cuffie cariche",
+   "pl": "Słuchawki naładowane",
+   "pt": "Headset carregado",
+   "tr": "Kulaklık şarj oldu"
+  },
+  "Гарячі клавіші": {
+   "de": "Tastenkürzel",
+   "en": "Hotkeys",
+   "es": "Atajos de teclado",
+   "fr": "Raccourcis clavier",
+   "it": "Scorciatoie da tastiera",
+   "pl": "Skróty klawiszowe",
+   "pt": "Atalhos de teclado",
+   "tr": "Kısayol tuşları"
+  },
+  "Головний екран": {
+   "de": "Startbildschirm",
+   "en": "Home screen",
+   "es": "Pantalla de inicio",
+   "fr": "Écran d'accueil",
+   "it": "Schermata principale",
+   "pl": "Ekran główny",
+   "pt": "Tela inicial",
+   "tr": "Ana ekran"
+  },
+  "Готово": {
+   "de": "Fertig",
+   "en": "Done",
+   "es": "Listo",
+   "fr": "Terminé",
+   "it": "Fatto",
+   "pl": "Gotowe",
+   "pt": "Concluir",
+   "tr": "Bitti"
+  },
+  "Гра": {
+   "de": "Spiel",
+   "en": "Game",
+   "es": "Juego",
+   "fr": "Jeu",
+   "it": "Gioco",
+   "pl": "Gra",
+   "pt": "Jogo",
+   "tr": "Oyun"
+  },
+  "Гра й чат": {
+   "de": "Spiel & Chat",
+   "en": "Game & chat",
+   "es": "Juego y chat",
+   "fr": "Jeu et chat",
+   "it": "Gioco e chat",
+   "pl": "Gra i czat",
+   "pt": "Jogo e chat",
+   "tr": "Oyun ve sohbet"
+  },
+  "Гра → кабель": {
+   "de": "Spiel → Kabel",
+   "en": "Game → cable",
+   "es": "Juego → cable",
+   "fr": "Jeu → câble",
+   "it": "Gioco → cavo",
+   "pl": "Gra → kabel",
+   "pt": "Jogo → cabo",
+   "tr": "Oyun → kablo"
+  },
+  "Гучність": {
+   "de": "Lautstärke",
+   "en": "Volume",
+   "es": "Volumen",
+   "fr": "Volume",
+   "it": "Volume",
+   "pl": "Głośność",
+   "pt": "Volume",
+   "tr": "Ses düzeyi"
+  },
+  "Гучність 2,4 ГГц": {
+   "de": "2,4-GHz-Lautstärke",
+   "en": "2.4 GHz volume",
+   "es": "Volumen 2,4 GHz",
+   "fr": "Volume 2,4 GHz",
+   "it": "Volume 2,4 GHz",
+   "pl": "Głośność 2,4 GHz",
+   "pt": "Volume 2,4 GHz",
+   "tr": "2,4 GHz ses düzeyi"
+  },
+  "Гучність Bluetooth": {
+   "de": "Bluetooth-Lautstärke",
+   "en": "Bluetooth volume",
+   "es": "Volumen Bluetooth",
+   "fr": "Volume Bluetooth",
+   "it": "Volume Bluetooth",
+   "pl": "Głośność Bluetooth",
+   "pt": "Volume Bluetooth",
+   "tr": "Bluetooth ses düzeyi"
+  },
+  "Гучність гри, коли говорять у чаті": {
+   "de": "Spiellautstärke, wenn im Chat gesprochen wird",
+   "en": "Game volume while someone talks in chat",
+   "es": "Volumen del juego cuando hablan en el chat",
+   "fr": "Volume du jeu quand on parle dans le chat",
+   "it": "Volume del gioco quando qualcuno parla in chat",
+   "pl": "Głośność gry, gdy ktoś mówi na czacie",
+   "pt": "Volume do jogo quando falam no chat",
+   "tr": "Sohbette konuşulurken oyun ses düzeyi"
+  },
+  "Гучність мікрофона": {
+   "de": "Mikrofonlautstärke",
+   "en": "Microphone volume",
+   "es": "Volumen del micrófono",
+   "fr": "Volume du micro",
+   "it": "Volume microfono",
+   "pl": "Głośność mikrofonu",
+   "pt": "Volume do microfone",
+   "tr": "Mikrofon ses düzeyi"
+  },
+  "Гучність мікрофона (у гарнітурі)": {
+   "de": "Mikrofonlautstärke (im Headset)",
+   "en": "Microphone volume (in headset)",
+   "es": "Volumen del micrófono (auriculares)",
+   "fr": "Volume du micro (casque)",
+   "it": "Volume microfono (cuffie)",
+   "pl": "Głośność mikrofonu (w słuchawkach)",
+   "pt": "Volume do microfone (headset)",
+   "tr": "Mikrofon ses düzeyi (kulaklıkta)"
+  },
+  "Дальність": {
+   "de": "Reichweite",
+   "en": "Range",
+   "es": "Alcance",
+   "fr": "Portée",
+   "it": "Portata",
+   "pl": "Zasięg",
+   "pt": "Alcance",
+   "tr": "Menzil"
+  },
+  "Далі": {
+   "de": "Weiter",
+   "en": "Next",
+   "es": "Siguiente",
+   "fr": "Suivant",
+   "it": "Avanti",
+   "pl": "Dalej",
+   "pt": "Avançar",
+   "tr": "İleri"
+  },
+  "Датчик носіння": {
+   "de": "Trageerkennung",
+   "en": "Wear detection",
+   "es": "Detección de uso",
+   "fr": "Détection du port",
+   "it": "Rilevamento indossamento",
+   "pl": "Czujnik noszenia",
+   "pt": "Detecção de uso",
+   "tr": "Takılma algılama"
+  },
+  "Детально": {
+   "de": "Detailliert",
+   "en": "Detailed",
+   "es": "Detallado",
+   "fr": "Détaillé",
+   "it": "Dettagliato",
+   "pl": "Szczegółowo",
+   "pt": "Detalhado",
+   "tr": "Ayrıntılı"
+  },
+  "Дзвінки Bluetooth": {
+   "de": "Bluetooth-Anrufe",
+   "en": "Bluetooth calls",
+   "es": "Llamadas Bluetooth",
+   "fr": "Appels Bluetooth",
+   "it": "Chiamate Bluetooth",
+   "pl": "Połączenia Bluetooth",
+   "pt": "Chamadas Bluetooth",
+   "tr": "Bluetooth aramaları"
+  },
+  "Динаміки": {
+   "de": "Lautsprecher",
+   "en": "Speakers",
+   "es": "Altavoces",
+   "fr": "Haut-parleurs",
+   "it": "Altoparlanti",
+   "pl": "Głośniki",
+   "pt": "Alto-falantes",
+   "tr": "Hoparlörler"
+  },
+  "Додати плагін": {
+   "de": "Plugin hinzufügen",
+   "en": "Add plugin",
+   "es": "Añadir plugin",
+   "fr": "Ajouter un plugin",
+   "it": "Aggiungi plugin",
+   "pl": "Dodaj wtyczkę",
+   "pt": "Adicionar plugin",
+   "tr": "Eklenti ekle"
+  },
+  "Додати програму": {
+   "de": "App hinzufügen",
+   "en": "Add app",
+   "es": "Añadir aplicación",
+   "fr": "Ajouter une application",
+   "it": "Aggiungi app",
+   "pl": "Dodaj aplikację",
+   "pt": "Adicionar aplicativo",
+   "tr": "Uygulama ekle"
+  },
+  "Доступна версія %s": {
+   "de": "Version %s ist verfügbar",
+   "en": "Version %s is available",
+   "es": "La versión %s está disponible",
+   "fr": "La version %s est disponible",
+   "it": "È disponibile la versione %s",
+   "pl": "Dostępna jest wersja %s",
+   "pt": "A versão %s está disponível",
+   "tr": "%s sürümü kullanılabilir"
+  },
+  "Діє на мікрофон, гучністю якого керує програма (головний екран). Коли мікрофон вимкнено, на значку в треї є червона позначка.": {
+   "de": "Gilt für das Mikrofon, dessen Lautstärke die App steuert (Hauptansicht). Ist es stummgeschaltet, zeigt das Tray-Symbol einen roten Punkt.",
+   "en": "Applies to the microphone whose volume the app controls (main screen). While the mic is muted, the tray icon shows a red dot.",
+   "es": "Afecta al micrófono cuyo volumen controla la aplicación (pantalla principal). Con el micrófono silenciado, el icono de la bandeja muestra un punto rojo.",
+   "fr": "S'applique au micro dont l'application règle le volume (écran principal). Quand le micro est coupé, l'icône affiche un point rouge.",
+   "it": "Vale per il microfono di cui l'app regola il volume (schermata principale). Con il microfono disattivato, l'icona mostra un punto rosso.",
+   "pl": "Dotyczy mikrofonu, którego głośnością steruje program (ekran główny). Gdy mikrofon jest wyciszony, ikona w zasobniku ma czerwoną kropkę.",
+   "pt": "Vale para o microfone cujo volume o aplicativo controla (tela principal). Com o microfone mudo, o ícone da bandeja mostra um ponto vermelho.",
+   "tr": "Uygulamanın ses düzeyini yönettiği mikrofona uygulanır (ana ekran). Mikrofon kapalıyken tepsi simgesinde kırmızı bir nokta görünür."
+  },
+  "Еквалайзер": {
+   "de": "Equalizer",
+   "en": "Equalizer",
+   "es": "Ecualizador",
+   "fr": "Égaliseur",
+   "it": "Equalizzatore",
+   "pl": "Korektor",
+   "pt": "Equalizador",
+   "tr": "Ekolayzer"
+  },
+  "Еквалайзер, sidetone і обробка мікрофона — одним кліком. Профіль можна обрати й у меню значка в треї.": {
+   "de": "Equalizer, Sidetone und Mikrofonbearbeitung mit einem Klick. Ein Profil lässt sich auch im Menü des Tray-Symbols wählen.",
+   "en": "Equalizer, sidetone and mic processing in one click. You can also pick a profile from the tray icon menu.",
+   "es": "Ecualizador, sidetone y procesamiento del micrófono con un clic. También puedes elegir el perfil en el menú del icono de la bandeja.",
+   "fr": "Égaliseur, retour de voix (sidetone) et traitement du micro en un clic. Le profil peut aussi être choisi dans le menu de l'icône.",
+   "it": "Equalizzatore, sidetone ed elaborazione del microfono con un clic. Il profilo si può scegliere anche dal menu dell'icona.",
+   "pl": "Korektor, sidetone i przetwarzanie mikrofonu jednym kliknięciem. Profil można też wybrać w menu ikony w zasobniku.",
+   "pt": "Equalizador, sidetone e processamento do microfone com um clique. O perfil também pode ser escolhido no menu do ícone da bandeja.",
+   "tr": "Ekolayzer, sidetone ve mikrofon işleme tek tıkla. Profil, tepsi simgesinin menüsünden de seçilebilir."
+  },
+  "Завантажити": {
+   "de": "Herunterladen",
+   "en": "Download",
+   "es": "Descargar",
+   "fr": "Télécharger",
+   "it": "Scarica",
+   "pl": "Pobierz",
+   "pt": "Baixar",
+   "tr": "İndir"
+  },
+  "Завантажити VB-CABLE": {
+   "de": "VB-CABLE herunterladen",
+   "en": "Download VB-CABLE",
+   "es": "Descargar VB-CABLE",
+   "fr": "Télécharger VB-CABLE",
+   "it": "Scarica VB-CABLE",
+   "pl": "Pobierz VB-CABLE",
+   "pt": "Baixar VB-CABLE",
+   "tr": "VB-CABLE'ı indir"
+  },
+  "Завантажити з файлу": {
+   "de": "Aus Datei laden",
+   "en": "Load from file",
+   "es": "Cargar desde archivo",
+   "fr": "Charger depuis un fichier",
+   "it": "Carica da file",
+   "pl": "Wczytaj z pliku",
+   "pt": "Carregar de arquivo",
+   "tr": "Dosyadan yükle"
+  },
+  "Завантажити налаштування": {
+   "de": "Einstellungen laden",
+   "en": "Load settings",
+   "es": "Cargar ajustes",
+   "fr": "Charger les paramètres",
+   "it": "Carica impostazioni",
+   "pl": "Wczytaj ustawienia",
+   "pt": "Carregar configurações",
+   "tr": "Ayarları yükle"
+  },
+  "Загальне": {
+   "de": "Allgemein",
+   "en": "General",
+   "es": "General",
+   "fr": "Général",
+   "it": "Generali",
+   "pl": "Ogólne",
+   "pt": "Geral",
+   "tr": "Genel"
+  },
+  "Зайнято іншою програмою — оберіть інше поєднання": {
+   "de": "Von einer anderen App belegt – wähle eine andere Kombination",
+   "en": "Taken by another app — choose a different combination",
+   "es": "Ya lo usa otra aplicación: elige otra combinación",
+   "fr": "Déjà utilisé par une autre application — choisissez une autre combinaison",
+   "it": "Già usata da un'altra app: scegli un'altra combinazione",
+   "pl": "Zajęte przez inną aplikację — wybierz inną kombinację",
+   "pt": "Já usado por outro aplicativo — escolha outra combinação",
+   "tr": "Başka bir uygulama kullanıyor — farklı bir kombinasyon seçin"
+  },
+  "Закріпити вікно": {
+   "de": "Fenster anheften",
+   "en": "Pin window",
+   "es": "Anclar ventana",
+   "fr": "Épingler la fenêtre",
+   "it": "Blocca finestra",
+   "pl": "Przypnij okno",
+   "pt": "Fixar janela",
+   "tr": "Pencereyi sabitle"
+  },
+  "Залишилось близько %d%%. Час підключити зарядку.": {
+   "de": "Noch etwa %d %%. Zeit zum Aufladen.",
+   "en": "About %d%% left. Time to plug in the charger.",
+   "es": "Queda alrededor del %d %%. Es hora de cargar.",
+   "fr": "Il reste environ %d %%. Pensez à brancher le chargeur.",
+   "it": "Resta circa il %d%%. È ora di ricaricare.",
+   "pl": "Zostało około %d%%. Czas podłączyć ładowarkę.",
+   "pt": "Restam cerca de %d%%. Hora de carregar.",
+   "tr": "Yaklaşık %%%d kaldı. Şarja takma zamanı."
+  },
+  "Записати 5 с": {
+   "de": "5 s aufnehmen",
+   "en": "Record 5 s",
+   "es": "Grabar 5 s",
+   "fr": "Enregistrer 5 s",
+   "it": "Registra 5 s",
+   "pl": "Nagraj 5 s",
+   "pt": "Gravar 5 s",
+   "tr": "5 sn kaydet"
+  },
+  "Записати знову": {
+   "de": "Erneut aufnehmen",
+   "en": "Record again",
+   "es": "Grabar de nuevo",
+   "fr": "Réenregistrer",
+   "it": "Registra di nuovo",
+   "pl": "Nagraj ponownie",
+   "pt": "Gravar de novo",
+   "tr": "Yeniden kaydet"
+  },
+  "Запускати разом з Windows": {
+   "de": "Mit Windows starten",
+   "en": "Start with Windows",
+   "es": "Iniciar con Windows",
+   "fr": "Lancer au démarrage de Windows",
+   "it": "Avvia con Windows",
+   "pl": "Uruchamiaj z systemem Windows",
+   "pt": "Iniciar com o Windows",
+   "tr": "Windows ile başlat"
+  },
+  "Запуск…": {
+   "de": "Startet…",
+   "en": "Starting…",
+   "es": "Iniciando…",
+   "fr": "Démarrage…",
+   "it": "Avvio…",
+   "pl": "Uruchamianie…",
+   "pt": "Iniciando…",
+   "tr": "Başlatılıyor…"
+  },
+  "Зараз грає": {
+   "de": "Spielt gerade",
+   "en": "Playing now",
+   "es": "Sonando ahora",
+   "fr": "En cours de lecture",
+   "it": "In riproduzione",
+   "pl": "Teraz gra",
+   "pt": "Tocando agora",
+   "tr": "Şu an çalıyor"
+  },
+  "Зараз триває дзвінок у %s — Windows приглушує інші звуки (%a). Arcmix тут ні до чого.": {
+   "de": "In %s läuft gerade ein Anruf – Windows senkt andere Töne ab (%a). Das ist nicht Arcmix.",
+   "en": "A call is in progress in %s — Windows is lowering other sounds (%a). This is not Arcmix.",
+   "es": "Hay una llamada en curso en %s: Windows está bajando los demás sonidos (%a). No es Arcmix.",
+   "fr": "Un appel est en cours dans %s — Windows baisse les autres sons (%a). Ce n'est pas Arcmix.",
+   "it": "È in corso una chiamata in %s: Windows sta abbassando gli altri suoni (%a). Non è Arcmix.",
+   "pl": "W %s trwa rozmowa — Windows ścisza inne dźwięki (%a). To nie Arcmix.",
+   "pt": "Há uma chamada em andamento no %s — o Windows está abaixando os outros sons (%a). Não é o Arcmix.",
+   "tr": "%s içinde arama sürüyor — Windows diğer sesleri kısıyor (%a). Bu Arcmix değil."
+  },
+  "Заряд": {
+   "de": "Akku",
+   "en": "Battery",
+   "es": "Batería",
+   "fr": "Batterie",
+   "it": "Batteria",
+   "pl": "Bateria",
+   "pt": "Bateria",
+   "tr": "Pil"
+  },
+  "Заставка": {
+   "de": "Bildschirmschoner",
+   "en": "Screensaver",
+   "es": "Salvapantallas",
+   "fr": "Économiseur d'écran",
+   "it": "Salvaschermo",
+   "pl": "Wygaszacz ekranu",
+   "pt": "Proteção de tela",
+   "tr": "Ekran koruyucu"
+  },
+  "Заставка через": {
+   "de": "Bildschirmschoner nach",
+   "en": "Screensaver after",
+   "es": "Salvapantallas tras",
+   "fr": "Économiseur après",
+   "it": "Salvaschermo dopo",
+   "pl": "Wygaszacz po",
+   "pt": "Proteção de tela após",
+   "tr": "Ekran koruyucu süresi"
+  },
+  "Затемнення": {
+   "de": "Abdunkeln",
+   "en": "Dimming",
+   "es": "Atenuación",
+   "fr": "Atténuation",
+   "it": "Attenuazione",
+   "pl": "Przyciemnianie",
+   "pt": "Escurecimento",
+   "tr": "Karartma"
+  },
+  "Затемнення екрана": {
+   "de": "Bildschirm abdunkeln",
+   "en": "Screen dimming",
+   "es": "Atenuación de pantalla",
+   "fr": "Atténuation de l'écran",
+   "it": "Attenuazione schermo",
+   "pl": "Przyciemnianie ekranu",
+   "pt": "Escurecimento da tela",
+   "tr": "Ekran karartma"
+  },
+  "Зберегти": {
+   "de": "Speichern",
+   "en": "Save",
+   "es": "Guardar",
+   "fr": "Enregistrer",
+   "it": "Salva",
+   "pl": "Zapisz",
+   "pt": "Salvar",
+   "tr": "Kaydet"
+  },
+  "Зберегти налаштування": {
+   "de": "Einstellungen speichern",
+   "en": "Save settings",
+   "es": "Guardar ajustes",
+   "fr": "Enregistrer les paramètres",
+   "it": "Salva impostazioni",
+   "pl": "Zapisz ustawienia",
+   "pt": "Salvar configurações",
+   "tr": "Ayarları kaydet"
+  },
+  "Зберегти поточні": {
+   "de": "Aktuelle speichern",
+   "en": "Save current",
+   "es": "Guardar actuales",
+   "fr": "Enregistrer l'actuel",
+   "it": "Salva attuali",
+   "pl": "Zapisz bieżące",
+   "pt": "Salvar atuais",
+   "tr": "Geçerliyi kaydet"
+  },
+  "Зберегти у файл": {
+   "de": "In Datei speichern",
+   "en": "Save to file",
+   "es": "Guardar en archivo",
+   "fr": "Enregistrer dans un fichier",
+   "it": "Salva su file",
+   "pl": "Zapisz do pliku",
+   "pt": "Salvar em arquivo",
+   "tr": "Dosyaya kaydet"
+  },
+  "Зберегти як новий": {
+   "de": "Als neu speichern",
+   "en": "Save as new",
+   "es": "Guardar como nuevo",
+   "fr": "Enregistrer comme nouveau",
+   "it": "Salva come nuovo",
+   "pl": "Zapisz jako nowe",
+   "pt": "Salvar como nova",
+   "tr": "Yeni olarak kaydet"
+  },
+  "Звук": {
+   "de": "Sound",
+   "en": "Sound",
+   "es": "Sonido",
+   "fr": "Son",
+   "it": "Audio",
+   "pl": "Dźwięk",
+   "pt": "Som",
+   "tr": "Ses"
+  },
+  "Звук гри під час дзвінка": {
+   "de": "Spielton bei Anrufen",
+   "en": "Game audio during calls",
+   "es": "Sonido del juego en llamadas",
+   "fr": "Son du jeu pendant un appel",
+   "it": "Audio di gioco durante le chiamate",
+   "pl": "Dźwięk gry podczas rozmowy",
+   "pt": "Som do jogo durante chamadas",
+   "tr": "Arama sırasında oyun sesi"
+  },
+  "Звукові сигнали": {
+   "de": "Signaltöne",
+   "en": "Sound cues",
+   "es": "Señales sonoras",
+   "fr": "Signaux sonores",
+   "it": "Segnali acustici",
+   "pl": "Sygnały dźwiękowe",
+   "pt": "Sinais sonoros",
+   "tr": "Sesli uyarılar"
+  },
+  "Звіт для діагностики": {
+   "de": "Diagnosebericht",
+   "en": "Diagnostic report",
+   "es": "Informe de diagnóstico",
+   "fr": "Rapport de diagnostic",
+   "it": "Rapporto diagnostico",
+   "pl": "Raport diagnostyczny",
+   "pt": "Relatório de diagnóstico",
+   "tr": "Tanılama raporu"
+  },
+  "Змінити": {
+   "de": "Ändern",
+   "en": "Change",
+   "es": "Cambiar",
+   "fr": "Modifier",
+   "it": "Cambia",
+   "pl": "Zmień",
+   "pt": "Alterar",
+   "tr": "Değiştir"
+  },
+  "Змішувати гру, чат і медіа через кабелі": {
+   "de": "Spiel, Chat und Medien über Kabel mischen",
+   "en": "Mix game, chat and media through cables",
+   "es": "Mezclar juego, chat y multimedia mediante cables",
+   "fr": "Mixer jeu, chat et médias via des câbles",
+   "it": "Mixa gioco, chat e media tramite cavi",
+   "pl": "Miksuj grę, czat i multimedia przez kable",
+   "pt": "Mixar jogo, chat e mídia via cabos",
+   "tr": "Oyun, sohbet ve medyayı kablolarla karıştır"
+  },
+  "Значення": {
+   "de": "Wert",
+   "en": "Value",
+   "es": "Valor",
+   "fr": "Valeur",
+   "it": "Valore",
+   "pl": "Wartość",
+   "pt": "Valor",
+   "tr": "Değer"
+  },
+  "Значок у треї": {
+   "de": "Tray-Symbol",
+   "en": "Tray icon",
+   "es": "Icono de la bandeja",
+   "fr": "Icône de la barre",
+   "it": "Icona nell'area di notifica",
+   "pl": "Ikona w zasobniku",
+   "pt": "Ícone da bandeja",
+   "tr": "Tepsi simgesi"
+  },
+  "Зокрема ігрові. Будь-який пресет чи крива вище вмикає «власний» слот гарнітури.": {
+   "de": "Darunter Spiel-Presets. Jede Voreinstellung oder Kurve oben schaltet das Headset auf den „Benutzerdefiniert“-Slot.",
+   "en": "Including game presets. Any preset or curve above switches the headset to its “custom” slot.",
+   "es": "Incluye preajustes de juegos. Cualquier preajuste o curva de arriba activa la ranura «personalizada» de los auriculares.",
+   "fr": "Dont des préréglages de jeux. Tout préréglage ou courbe ci-dessus active l'emplacement « personnalisé » du casque.",
+   "it": "Inclusi i preset di gioco. Qualsiasi preset o curva sopra attiva lo slot «personalizzato» delle cuffie.",
+   "pl": "W tym ustawienia gier. Każde ustawienie lub krzywa powyżej włącza „własny” slot słuchawek.",
+   "pt": "Inclui predefinições de jogos. Qualquer predefinição ou curva acima ativa o slot “personalizado” do headset.",
+   "tr": "Oyun ayarları dahil. Yukarıdaki herhangi bir ayar veya eğri kulaklığın “özel” yuvasını etkinleştirir."
+  },
+  "Зупинити": {
+   "de": "Stopp",
+   "en": "Stop",
+   "es": "Detener",
+   "fr": "Arrêter",
+   "it": "Interrompi",
+   "pl": "Zatrzymaj",
+   "pt": "Parar",
+   "tr": "Durdur"
+  },
+  "Зупинити запис": {
+   "de": "Aufnahme stoppen",
+   "en": "Stop recording",
+   "es": "Detener grabación",
+   "fr": "Arrêter l'enregistrement",
+   "it": "Interrompi registrazione",
+   "pl": "Zatrzymaj nagrywanie",
+   "pt": "Parar gravação",
+   "tr": "Kaydı durdur"
+  },
+  "Кейс": {
+   "de": "Case",
+   "en": "Case",
+   "es": "Estuche",
+   "fr": "Étui",
+   "it": "Custodia",
+   "pl": "Etui",
+   "pt": "Estojo",
+   "tr": "Kılıf"
+  },
+  "Клавіша": {
+   "de": "Taste",
+   "en": "Key",
+   "es": "Tecla",
+   "fr": "Touche",
+   "it": "Tasto",
+   "pl": "Klawisz",
+   "pt": "Tecla",
+   "tr": "Tuş"
+  },
+  "Кнопка на панелі завдань": {
+   "de": "Schaltfläche in der Taskleiste",
+   "en": "Taskbar button",
+   "es": "Botón en la barra de tareas",
+   "fr": "Bouton dans la barre des tâches",
+   "it": "Pulsante sulla barra delle applicazioni",
+   "pl": "Przycisk na pasku zadań",
+   "pt": "Botão na barra de tarefas",
+   "tr": "Görev çubuğu düğmesi"
+  },
+  "Код кольору (HEX)": {
+   "de": "Farbcode (HEX)",
+   "en": "Color code (HEX)",
+   "es": "Código de color (HEX)",
+   "fr": "Code couleur (HEX)",
+   "it": "Codice colore (HEX)",
+   "pl": "Kod koloru (HEX)",
+   "pt": "Código de cor (HEX)",
+   "tr": "Renk kodu (HEX)"
+  },
+  "Колесо миші над значком": {
+   "de": "Mausrad über dem Symbol",
+   "en": "Mouse wheel over the icon",
+   "es": "Rueda del ratón sobre el icono",
+   "fr": "Molette sur l'icône",
+   "it": "Rotellina sull'icona",
+   "pl": "Kółko myszy nad ikoną",
+   "pt": "Roda do mouse sobre o ícone",
+   "tr": "Simge üzerinde fare tekerleği"
+  },
+  "Коли в «Чаті» (Discord тощо) хтось говорить, гра плавно стихає, а коли там тиша — повертається. На 100% приглушення вимкнено.": {
+   "de": "Wenn im „Chat“ (Discord usw.) jemand spricht, wird das Spiel sanft leiser und kehrt zurück, sobald dort Ruhe ist. Bei 100 % ist die Absenkung aus.",
+   "en": "When someone talks in “Chat” (Discord etc.), the game smoothly gets quieter and comes back once it's silent there. 100% turns ducking off.",
+   "es": "Cuando alguien habla en el «Chat» (Discord, etc.), el juego baja suavemente y vuelve cuando hay silencio. Al 100 % la atenuación está desactivada.",
+   "fr": "Quand quelqu'un parle dans le « Chat » (Discord, etc.), le jeu baisse en douceur puis revient quand c'est silencieux. À 100 %, l'atténuation est désactivée.",
+   "it": "Quando qualcuno parla nella «Chat» (Discord ecc.), il gioco si abbassa dolcemente e torna quando c'è silenzio. Al 100% l'attenuazione è disattivata.",
+   "pl": "Gdy ktoś mówi na „Czacie” (Discord itp.), gra płynnie cichnie, a gdy zapada cisza — wraca. Przy 100% wyciszanie jest wyłączone.",
+   "pt": "Quando alguém fala no “Chat” (Discord etc.), o jogo abaixa suavemente e volta quando há silêncio. Em 100% a atenuação fica desligada.",
+   "tr": "“Sohbet”te (Discord vb.) biri konuştuğunda oyun yumuşakça kısılır, sessizlik olunca geri gelir. %100'de kısma kapalıdır."
+  },
+  "Коли відключено": {
+   "de": "Wenn getrennt",
+   "en": "When disconnected",
+   "es": "Desconectado",
+   "fr": "Déconnecté",
+   "it": "Quando disconnesso",
+   "pl": "Po rozłączeniu",
+   "pt": "Quando desconectado",
+   "tr": "Bağlı değilken"
+  },
+  "Коли підключено": {
+   "de": "Wenn verbunden",
+   "en": "When connected",
+   "es": "Conectado",
+   "fr": "Connecté",
+   "it": "Quando connesso",
+   "pl": "Po połączeniu",
+   "pt": "Quando conectado",
+   "tr": "Bağlıyken"
+  },
+  "Колір береться з Windows (Параметри → Персоналізація → Кольори), тло — чисто чорне.": {
+   "de": "Die Farbe kommt aus Windows (Einstellungen → Personalisierung → Farben), der Hintergrund ist reines Schwarz.",
+   "en": "The color comes from Windows (Settings → Personalization → Colors); the background is pure black.",
+   "es": "El color se toma de Windows (Configuración → Personalización → Colores); el fondo es negro puro.",
+   "fr": "La couleur vient de Windows (Paramètres → Personnalisation → Couleurs) ; le fond est noir pur.",
+   "it": "Il colore viene da Windows (Impostazioni → Personalizzazione → Colori); lo sfondo è nero puro.",
+   "pl": "Kolor pochodzi z Windows (Ustawienia → Personalizacja → Kolory), tło jest czysto czarne.",
+   "pt": "A cor vem do Windows (Configurações → Personalização → Cores); o fundo é preto puro.",
+   "tr": "Renk Windows'tan alınır (Ayarlar → Kişiselleştirme → Renkler), arka plan saf siyahtır."
+  },
+  "Колір і світлий чи темний режим беруться з Windows: Параметри → Персоналізація → Кольори.": {
+   "de": "Farbe sowie heller oder dunkler Modus kommen aus Windows: Einstellungen → Personalisierung → Farben.",
+   "en": "Color and light or dark mode come from Windows: Settings → Personalization → Colors.",
+   "es": "El color y el modo claro u oscuro se toman de Windows: Configuración → Personalización → Colores.",
+   "fr": "La couleur et le mode clair ou sombre viennent de Windows : Paramètres → Personnalisation → Couleurs.",
+   "it": "Colore e modalità chiara o scura vengono da Windows: Impostazioni → Personalizzazione → Colori.",
+   "pl": "Kolor oraz tryb jasny lub ciemny pochodzą z Windows: Ustawienia → Personalizacja → Kolory.",
+   "pt": "A cor e o modo claro ou escuro vêm do Windows: Configurações → Personalização → Cores.",
+   "tr": "Renk ve açık veya koyu mod Windows'tan alınır: Ayarlar → Kişiselleştirme → Renkler."
+  },
+  "Компресор": {
+   "de": "Kompressor",
+   "en": "Compressor",
+   "es": "Compresor",
+   "fr": "Compresseur",
+   "it": "Compressore",
+   "pl": "Kompresor",
+   "pt": "Compressor",
+   "tr": "Kompresör"
+  },
+  "Крива змінена": {
+   "de": "Kurve geändert",
+   "en": "Curve changed",
+   "es": "Curva cambiada",
+   "fr": "Courbe modifiée",
+   "it": "Curva modificata",
+   "pl": "Krzywa zmieniona",
+   "pt": "Curva alterada",
+   "tr": "Eğri değişti"
+  },
+  "Кроки (FPS)": {
+   "de": "Schritte (FPS)",
+   "en": "Footsteps (FPS)",
+   "es": "Pasos (FPS)",
+   "fr": "Pas (FPS)",
+   "it": "Passi (FPS)",
+   "pl": "Kroki (FPS)",
+   "pt": "Passos (FPS)",
+   "tr": "Ayak sesleri (FPS)"
+  },
+  "Кроки в іграх": {
+   "de": "Schritte",
+   "en": "Footsteps",
+   "es": "Pasos",
+   "fr": "Bruits de pas",
+   "it": "Passi",
+   "pl": "Kroki",
+   "pt": "Passos",
+   "tr": "Ayak sesleri"
+  },
+  "Кіно": {
+   "de": "Film",
+   "en": "Movies",
+   "es": "Cine",
+   "fr": "Cinéma",
+   "it": "Film",
+   "pl": "Film",
+   "pt": "Filmes",
+   "tr": "Film"
+  },
+  "Л": {
+   "de": "L",
+   "en": "L",
+   "es": "I",
+   "fr": "G",
+   "it": "S",
+   "pl": "L",
+   "pt": "E",
+   "tr": "S"
+  },
+  "Лінійний вихід": {
+   "de": "Line-Ausgang",
+   "en": "Line out",
+   "es": "Salida de línea",
+   "fr": "Sortie ligne",
+   "it": "Uscita di linea",
+   "pl": "Wyjście liniowe",
+   "pt": "Saída de linha",
+   "tr": "Hat çıkışı"
+  },
+  "Ліцензія GNU GPL v3. Використано: описи пристроїв Linux-Arctis-Manager, RNNoise (BSD-3-Clause), windows-rs і webview2-com (MIT / Apache-2.0), шрифт Onest (SIL OFL).": {
+   "de": "Lizenz: GNU GPL v3. Verwendet: Gerätebeschreibungen aus Linux-Arctis-Manager, RNNoise (BSD-3-Clause), windows-rs und webview2-com (MIT / Apache-2.0), Schriftart Onest (SIL OFL).",
+   "en": "License: GNU GPL v3. Uses device descriptions from Linux-Arctis-Manager, RNNoise (BSD-3-Clause), windows-rs and webview2-com (MIT / Apache-2.0), and the Onest font (SIL OFL).",
+   "es": "Licencia GNU GPL v3. Usa: descripciones de dispositivos de Linux-Arctis-Manager, RNNoise (BSD-3-Clause), windows-rs y webview2-com (MIT / Apache-2.0), fuente Onest (SIL OFL).",
+   "fr": "Licence GNU GPL v3. Utilise : descriptions d'appareils de Linux-Arctis-Manager, RNNoise (BSD-3-Clause), windows-rs et webview2-com (MIT / Apache-2.0), police Onest (SIL OFL).",
+   "it": "Licenza GNU GPL v3. Utilizza: descrizioni dei dispositivi di Linux-Arctis-Manager, RNNoise (BSD-3-Clause), windows-rs e webview2-com (MIT / Apache-2.0), font Onest (SIL OFL).",
+   "pl": "Licencja GNU GPL v3. Wykorzystano: opisy urządzeń z Linux-Arctis-Manager, RNNoise (BSD-3-Clause), windows-rs i webview2-com (MIT / Apache-2.0), font Onest (SIL OFL).",
+   "pt": "Licença GNU GPL v3. Usa: descrições de dispositivos do Linux-Arctis-Manager, RNNoise (BSD-3-Clause), windows-rs e webview2-com (MIT / Apache-2.0), fonte Onest (SIL OFL).",
+   "tr": "Lisans: GNU GPL v3. Kullanılanlar: Linux-Arctis-Manager cihaz tanımları, RNNoise (BSD-3-Clause), windows-rs ve webview2-com (MIT / Apache-2.0), Onest yazı tipi (SIL OFL)."
+  },
+  "Майже готово": {
+   "de": "Fast fertig",
+   "en": "Almost done",
+   "es": "Casi listo",
+   "fr": "Presque terminé",
+   "it": "Quasi fatto",
+   "pl": "Prawie gotowe",
+   "pt": "Quase pronto",
+   "tr": "Neredeyse bitti"
+  },
+  "Максимум": {
+   "de": "Maximum",
+   "en": "Maximum",
+   "es": "Máximo",
+   "fr": "Maximum",
+   "it": "Massimo",
+   "pl": "Maksimum",
+   "pt": "Máximo",
+   "tr": "Maksimum"
+  },
+  "Маршрутизація звуку": {
+   "de": "Audio-Routing",
+   "en": "Audio routing",
+   "es": "Enrutamiento de audio",
+   "fr": "Routage audio",
+   "it": "Instradamento audio",
+   "pl": "Routing dźwięku",
+   "pt": "Roteamento de áudio",
+   "tr": "Ses yönlendirme"
+  },
+  "Медіа": {
+   "de": "Medien",
+   "en": "Media",
+   "es": "Multimedia",
+   "fr": "Médias",
+   "it": "Media",
+   "pl": "Multimedia",
+   "pt": "Mídia",
+   "tr": "Medya"
+  },
+  "Медіа → кабель": {
+   "de": "Medien → Kabel",
+   "en": "Media → cable",
+   "es": "Multimedia → cable",
+   "fr": "Médias → câble",
+   "it": "Media → cavo",
+   "pl": "Multimedia → kabel",
+   "pt": "Mídia → cabo",
+   "tr": "Medya → kablo"
+  },
+  "Межа гучності": {
+   "de": "Lautstärkegrenze",
+   "en": "Loudness ceiling",
+   "es": "Límite de volumen",
+   "fr": "Plafond de volume",
+   "it": "Limite di volume",
+   "pl": "Limit głośności",
+   "pt": "Limite de volume",
+   "tr": "Ses tavanı"
+  },
+  "Мова": {
+   "de": "Sprache",
+   "en": "Language",
+   "es": "Idioma",
+   "fr": "Langue",
+   "it": "Lingua",
+   "pl": "Język",
+   "pt": "Idioma",
+   "tr": "Dil"
+  },
+  "Можна від'єднати зарядку.": {
+   "de": "Du kannst das Ladekabel abziehen.",
+   "en": "You can unplug the charger.",
+   "es": "Puedes desconectar el cargador.",
+   "fr": "Vous pouvez débrancher le chargeur.",
+   "it": "Puoi scollegare il caricatore.",
+   "pl": "Można odłączyć ładowarkę.",
+   "pt": "Você já pode desconectar o carregador.",
+   "tr": "Şarj kablosunu çıkarabilirsiniz."
+  },
+  "Мої пресети": {
+   "de": "Meine Presets",
+   "en": "My presets",
+   "es": "Mis ajustes",
+   "fr": "Mes préréglages",
+   "it": "I miei preset",
+   "pl": "Moje ustawienia",
+   "pt": "Minhas predefinições",
+   "tr": "Ön ayarlarım"
+  },
+  "Музика (V)": {
+   "de": "Musik (V)",
+   "en": "Music (V)",
+   "es": "Música (V)",
+   "fr": "Musique (V)",
+   "it": "Musica (V)",
+   "pl": "Muzyka (V)",
+   "pt": "Música (V)",
+   "tr": "Müzik (V)"
+  },
+  "Мікрофон": {
+   "de": "Mikrofon",
+   "en": "Microphone",
+   "es": "Micrófono",
+   "fr": "Micro",
+   "it": "Microfono",
+   "pl": "Mikrofon",
+   "pt": "Microfone",
+   "tr": "Mikrofon"
+  },
+  "Мікрофон вимкнено": {
+   "de": "Mikrofon stumm",
+   "en": "Microphone muted",
+   "es": "Micrófono silenciado",
+   "fr": "Micro coupé",
+   "it": "Microfono disattivato",
+   "pl": "Mikrofon wyciszony",
+   "pt": "Microfone mudo",
+   "tr": "Mikrofon kapalı"
+  },
+  "Мікрофон гарнітури — теж": {
+   "de": "Auch das Headset-Mikrofon",
+   "en": "Headset mic too",
+   "es": "También el micrófono de los auriculares",
+   "fr": "Le micro du casque aussi",
+   "it": "Anche il microfono delle cuffie",
+   "pl": "Mikrofon słuchawek też",
+   "pt": "O microfone do headset também",
+   "tr": "Kulaklık mikrofonu da"
+  },
+  "Мікрофон не знайдено": {
+   "de": "Mikrofon nicht gefunden",
+   "en": "Microphone not found",
+   "es": "Micrófono no encontrado",
+   "fr": "Micro introuvable",
+   "it": "Microfono non trovato",
+   "pl": "Nie znaleziono mikrofonu",
+   "pt": "Microfone não encontrado",
+   "tr": "Mikrofon bulunamadı"
+  },
+  "Мікрофон увімкнено": {
+   "de": "Mikrofon an",
+   "en": "Microphone on",
+   "es": "Micrófono activado",
+   "fr": "Micro activé",
+   "it": "Microfono attivo",
+   "pl": "Mikrofon włączony",
+   "pt": "Microfone ativado",
+   "tr": "Mikrofon açık"
+  },
+  "Мікрофоном обрано віртуальний кабель — оберіть справжній мікрофон.": {
+   "de": "Als Mikrofon ist ein virtuelles Kabel gewählt – wähle ein echtes Mikrofon.",
+   "en": "A virtual cable is selected as the microphone — choose a real microphone.",
+   "es": "Hay un cable virtual seleccionado como micrófono: elige un micrófono real.",
+   "fr": "Un câble virtuel est sélectionné comme micro — choisissez un vrai micro.",
+   "it": "È selezionato un cavo virtuale come microfono: scegli un microfono reale.",
+   "pl": "Jako mikrofon wybrano kabel wirtualny — wybierz prawdziwy mikrofon.",
+   "pt": "Um cabo virtual está selecionado como microfone — escolha um microfone de verdade.",
+   "tr": "Mikrofon olarak sanal kablo seçilmiş — gerçek bir mikrofon seçin."
+  },
+  "Мікс": {
+   "de": "Mix",
+   "en": "Mix",
+   "es": "Mezcla",
+   "fr": "Mix",
+   "it": "Mix",
+   "pl": "Miks",
+   "pt": "Mix",
+   "tr": "Miks"
+  },
+  "Мінімум": {
+   "de": "Minimum",
+   "en": "Minimum",
+   "es": "Mínimo",
+   "fr": "Minimum",
+   "it": "Minimo",
+   "pl": "Minimum",
+   "pt": "Mínimo",
+   "tr": "Minimum"
+  },
+  "Місяць": {
+   "de": "Mond",
+   "en": "Moon",
+   "es": "Luna",
+   "fr": "Lune",
+   "it": "Luna",
+   "pl": "Księżyc",
+   "pt": "Lua",
+   "tr": "Ay"
+  },
+  "Назад": {
+   "de": "Zurück",
+   "en": "Back",
+   "es": "Atrás",
+   "fr": "Retour",
+   "it": "Indietro",
+   "pl": "Wstecz",
+   "pt": "Voltar",
+   "tr": "Geri"
+  },
+  "Назва пресету": {
+   "de": "Preset-Name",
+   "en": "Preset name",
+   "es": "Nombre del preajuste",
+   "fr": "Nom du préréglage",
+   "it": "Nome del preset",
+   "pl": "Nazwa presetu",
+   "pt": "Nome da predefinição",
+   "tr": "Ön ayar adı"
+  },
+  "Назва профілю": {
+   "de": "Profilname",
+   "en": "Profile name",
+   "es": "Nombre del perfil",
+   "fr": "Nom du profil",
+   "it": "Nome del profilo",
+   "pl": "Nazwa profilu",
+   "pt": "Nome do perfil",
+   "tr": "Profil adı"
+  },
+  "Налаштування": {
+   "de": "Einstellungen",
+   "en": "Settings",
+   "es": "Ajustes",
+   "fr": "Paramètres",
+   "it": "Impostazioni",
+   "pl": "Ustawienia",
+   "pt": "Configurações",
+   "tr": "Ayarlar"
+  },
+  "Налаштування автоприглушення": {
+   "de": "Einstellungen der Absenkung",
+   "en": "Ducking settings",
+   "es": "Ajustes de atenuación",
+   "fr": "Réglages de l'atténuation",
+   "it": "Impostazioni attenuazione",
+   "pl": "Ustawienia wyciszania",
+   "pt": "Configurações de redução",
+   "tr": "Kısma ayarları"
+  },
+  "Налаштування звуку Windows": {
+   "de": "Windows-Soundeinstellungen",
+   "en": "Windows sound settings",
+   "es": "Configuración de sonido de Windows",
+   "fr": "Paramètres audio de Windows",
+   "it": "Impostazioni audio di Windows",
+   "pl": "Ustawienia dźwięku Windows",
+   "pt": "Configurações de som do Windows",
+   "tr": "Windows ses ayarları"
+  },
+  "Налаштування й допомога": {
+   "de": "Einstellungen und Hilfe",
+   "en": "Settings and help",
+   "es": "Ajustes y ayuda",
+   "fr": "Paramètres et aide",
+   "it": "Impostazioni e assistenza",
+   "pl": "Ustawienia i pomoc",
+   "pt": "Configurações e ajuda",
+   "tr": "Ayarlar ve yardım"
+  },
+  "Налаштування у файл": {
+   "de": "Einstellungen als Datei",
+   "en": "Settings file",
+   "es": "Ajustes en un archivo",
+   "fr": "Paramètres dans un fichier",
+   "it": "Impostazioni su file",
+   "pl": "Ustawienia w pliku",
+   "pt": "Configurações em arquivo",
+   "tr": "Ayarlar dosyası"
+  },
+  "Налаштування шумодаву": {
+   "de": "Einstellungen der Rauschunterdrückung",
+   "en": "Noise suppression settings",
+   "es": "Ajustes de supresión de ruido",
+   "fr": "Réglages de la suppression du bruit",
+   "it": "Impostazioni soppressione rumore",
+   "pl": "Ustawienia redukcji szumów",
+   "pt": "Configurações de supressão de ruído",
+   "tr": "Gürültü engelleme ayarları"
+  },
+  "Направляти програми автоматично": {
+   "de": "Apps automatisch umleiten",
+   "en": "Route apps automatically",
+   "es": "Enrutar aplicaciones automáticamente",
+   "fr": "Router les applis automatiquement",
+   "it": "Instrada le app automaticamente",
+   "pl": "Kieruj aplikacje automatycznie",
+   "pt": "Rotear aplicativos automaticamente",
+   "tr": "Uygulamaları otomatik yönlendir"
+  },
+  "Насиченість": {
+   "de": "Sättigung",
+   "en": "Saturation",
+   "es": "Saturación",
+   "fr": "Saturation",
+   "it": "Saturazione",
+   "pl": "Nasycenie",
+   "pt": "Saturação",
+   "tr": "Doygunluk"
+  },
+  "Натисни, щоб говорити": {
+   "de": "Push-to-Talk",
+   "en": "Push to talk",
+   "es": "Pulsar para hablar",
+   "fr": "Appuyer pour parler",
+   "it": "Premi per parlare",
+   "pl": "Naciśnij, aby mówić",
+   "pt": "Aperte para falar",
+   "tr": "Bas-konuş"
+  },
+  "Натисніть клавішу…": {
+   "de": "Taste drücken…",
+   "en": "Press a key…",
+   "es": "Pulsa una tecla…",
+   "fr": "Appuyez sur une touche…",
+   "it": "Premi un tasto…",
+   "pl": "Naciśnij klawisz…",
+   "pt": "Pressione uma tecla…",
+   "tr": "Bir tuşa basın…"
+  },
+  "Натисніть на поєднання, а потім нові клавіші — наприклад, Ctrl + Alt + клавіша. Esc — скасувати.": {
+   "de": "Klicke auf eine Kombination und drücke dann die neuen Tasten, z. B. Ctrl + Alt + Taste. Esc bricht ab.",
+   "en": "Click a combination, then press the new keys — for example Ctrl + Alt + a key. Esc cancels.",
+   "es": "Haz clic en una combinación y pulsa las nuevas teclas, por ejemplo Ctrl + Alt + una tecla. Esc para cancelar.",
+   "fr": "Cliquez sur une combinaison, puis appuyez sur les nouvelles touches — par exemple Ctrl + Alt + une touche. Échap pour annuler.",
+   "it": "Fai clic su una combinazione e premi i nuovi tasti, ad esempio Ctrl + Alt + un tasto. Esc per annullare.",
+   "pl": "Kliknij kombinację, a potem naciśnij nowe klawisze — np. Ctrl + Alt + klawisz. Esc — anuluj.",
+   "pt": "Clique em uma combinação e pressione as novas teclas — por exemplo, Ctrl + Alt + uma tecla. Esc cancela.",
+   "tr": "Bir kombinasyona tıklayın, ardından yeni tuşlara basın — örneğin Ctrl + Alt + bir tuş. Esc iptal eder."
+  },
+  "Натисніть…": {
+   "de": "Drücken…",
+   "en": "Press…",
+   "es": "Pulsa…",
+   "fr": "Appuyez…",
+   "it": "Premi…",
+   "pl": "Naciśnij…",
+   "pt": "Pressione…",
+   "tr": "Basın…"
+  },
+  "Не вдалося завантажити": {
+   "de": "Laden fehlgeschlagen",
+   "en": "Failed to load",
+   "es": "No se pudo cargar",
+   "fr": "Échec du chargement",
+   "it": "Caricamento non riuscito",
+   "pl": "Nie udało się wczytać",
+   "pt": "Falha ao carregar",
+   "tr": "Yüklenemedi"
+  },
+  "Не вдалося завантажити налаштування": {
+   "de": "Einstellungen konnten nicht geladen werden",
+   "en": "Couldn't load settings",
+   "es": "No se pudieron cargar los ajustes",
+   "fr": "Impossible de charger les paramètres",
+   "it": "Impossibile caricare le impostazioni",
+   "pl": "Nie udało się wczytać ustawień",
+   "pt": "Não foi possível carregar as configurações",
+   "tr": "Ayarlar yüklenemedi"
+  },
+  "Не вдалося зберегти налаштування": {
+   "de": "Einstellungen konnten nicht gespeichert werden",
+   "en": "Couldn't save settings",
+   "es": "No se pudieron guardar los ajustes",
+   "fr": "Impossible d'enregistrer les paramètres",
+   "it": "Impossibile salvare le impostazioni",
+   "pl": "Nie udało się zapisać ustawień",
+   "pt": "Não foi possível salvar as configurações",
+   "tr": "Ayarlar kaydedilemedi"
+  },
+  "Не вдалося перевірити оновлення": {
+   "de": "Suche nach Updates fehlgeschlagen",
+   "en": "Couldn't check for updates",
+   "es": "No se pudieron buscar actualizaciones",
+   "fr": "Impossible de rechercher les mises à jour",
+   "it": "Impossibile controllare gli aggiornamenti",
+   "pl": "Nie udało się sprawdzić aktualizacji",
+   "pt": "Não foi possível verificar atualizações",
+   "tr": "Güncellemeler denetlenemedi"
+  },
+  "Не вмикайте, якщо говорите в інший мікрофон": {
+   "de": "Aus lassen, wenn du ein anderes Mikrofon nutzt",
+   "en": "Leave off if you talk into another mic",
+   "es": "Déjalo apagado si hablas por otro micrófono",
+   "fr": "Laissez désactivé si vous parlez dans un autre micro",
+   "it": "Lascialo spento se parli in un altro microfono",
+   "pl": "Nie włączaj, jeśli mówisz do innego mikrofonu",
+   "pt": "Deixe desligado se você fala em outro microfone",
+   "tr": "Başka bir mikrofon kullanıyorsanız kapalı bırakın"
+  },
+  "Не під’єднано": {
+   "de": "Nicht verbunden",
+   "en": "Not connected",
+   "es": "No conectado",
+   "fr": "Non connecté",
+   "it": "Non collegato",
+   "pl": "Nie podłączono",
+   "pt": "Não conectado",
+   "tr": "Bağlı değil"
+  },
+  "Нейромережевий шумодав (RNNoise)": {
+   "de": "Neuronale Rauschunterdrückung (RNNoise)",
+   "en": "Neural noise suppression (RNNoise)",
+   "es": "Supresión de ruido neuronal (RNNoise)",
+   "fr": "Suppression de bruit neuronale (RNNoise)",
+   "it": "Soppressione del rumore neurale (RNNoise)",
+   "pl": "Neuronowe tłumienie szumów (RNNoise)",
+   "pt": "Supressão de ruído neural (RNNoise)",
+   "tr": "Sinir ağı gürültü bastırma (RNNoise)"
+  },
+  "Нептун": {
+   "de": "Neptun",
+   "en": "Neptune",
+   "es": "Neptuno",
+   "fr": "Neptune",
+   "it": "Nettuno",
+   "pl": "Neptun",
+   "pt": "Netuno",
+   "tr": "Neptün"
+  },
+  "Непідтримуваний формат пристрою.": {
+   "de": "Nicht unterstütztes Geräteformat.",
+   "en": "Unsupported device format.",
+   "es": "Formato de dispositivo no compatible.",
+   "fr": "Format de périphérique non pris en charge.",
+   "it": "Formato del dispositivo non supportato.",
+   "pl": "Nieobsługiwany format urządzenia.",
+   "pt": "Formato de dispositivo não suportado.",
+   "tr": "Desteklenmeyen aygıt biçimi."
+  },
+  "Низька": {
+   "de": "Niedrig",
+   "en": "Low",
+   "es": "Baja",
+   "fr": "Faible",
+   "it": "Bassa",
+   "pl": "Niska",
+   "pt": "Baixo",
+   "tr": "Düşük"
+  },
+  "Низький": {
+   "de": "Niedrig",
+   "en": "Low",
+   "es": "Bajo",
+   "fr": "Faible",
+   "it": "Basso",
+   "pl": "Niski",
+   "pt": "Baixo",
+   "tr": "Düşük"
+  },
+  "Низький заряд гарнітури": {
+   "de": "Headset-Akku schwach",
+   "en": "Headset battery low",
+   "es": "Batería de los auriculares baja",
+   "fr": "Batterie du casque faible",
+   "it": "Batteria delle cuffie scarica",
+   "pl": "Niski poziom baterii słuchawek",
+   "pt": "Bateria do headset fraca",
+   "tr": "Kulaklık pili zayıf"
+  },
+  "Новий пресет": {
+   "de": "Neues Preset",
+   "en": "New preset",
+   "es": "Nuevo ajuste",
+   "fr": "Nouveau",
+   "it": "Nuovo preset",
+   "pl": "Nowe ustawienie",
+   "pt": "Nova predefinição",
+   "tr": "Yeni ön ayar"
+  },
+  "Нових програм з вікнами не знайдено.": {
+   "de": "Keine neuen Apps mit Fenstern gefunden.",
+   "en": "No new windowed apps found.",
+   "es": "No se encontraron nuevas aplicaciones con ventana.",
+   "fr": "Aucune nouvelle application avec fenêtre.",
+   "it": "Nessuna nuova app con finestra trovata.",
+   "pl": "Nie znaleziono nowych aplikacji z oknami.",
+   "pt": "Nenhum novo aplicativo com janela encontrado.",
+   "tr": "Pencereli yeni uygulama bulunamadı."
+  },
+  "Ніколи": {
+   "de": "Nie",
+   "en": "Never",
+   "es": "Nunca",
+   "fr": "Jamais",
+   "it": "Mai",
+   "pl": "Nigdy",
+   "pt": "Nunca",
+   "tr": "Asla"
+  },
+  "Нічого": {
+   "de": "Nichts",
+   "en": "Nothing",
+   "es": "Nada",
+   "fr": "Rien",
+   "it": "Niente",
+   "pl": "Nic",
+   "pt": "Nada",
+   "tr": "Hiçbiri"
+  },
+  "Об'ємний звук": {
+   "de": "Raumklang",
+   "en": "Surround sound",
+   "es": "Sonido envolvente",
+   "fr": "Son surround",
+   "it": "Audio surround",
+   "pl": "Dźwięk przestrzenny",
+   "pt": "Som surround",
+   "tr": "Çevresel ses"
+  },
+  "Оберіть VST-плагін (.dll або .vst3)": {
+   "de": "VST-Plugin wählen (.dll oder .vst3)",
+   "en": "Choose a VST plugin (.dll or .vst3)",
+   "es": "Elige un plugin VST (.dll o .vst3)",
+   "fr": "Choisir un plugin VST (.dll ou .vst3)",
+   "it": "Scegli un plugin VST (.dll o .vst3)",
+   "pl": "Wybierz wtyczkę VST (.dll lub .vst3)",
+   "pt": "Escolha um plugin VST (.dll ou .vst3)",
+   "tr": "Bir VST eklentisi seçin (.dll veya .vst3)"
+  },
+  "Оберіть вигляд": {
+   "de": "Aussehen wählen",
+   "en": "Choose a look",
+   "es": "Elige el aspecto",
+   "fr": "Choisissez l'apparence",
+   "it": "Scegli l'aspetto",
+   "pl": "Wybierz wygląd",
+   "pt": "Escolha a aparência",
+   "tr": "Görünümü seçin"
+  },
+  "Оберіть віртуальний кабель": {
+   "de": "Virtuelles Kabel wählen",
+   "en": "Choose a virtual cable",
+   "es": "Elige un cable virtual",
+   "fr": "Choisissez un câble virtuel",
+   "it": "Scegli un cavo virtuale",
+   "pl": "Wybierz kabel wirtualny",
+   "pt": "Escolha um cabo virtual",
+   "tr": "Sanal kablo seçin"
+  },
+  "Обмежувач гучності": {
+   "de": "Lautstärkebegrenzer",
+   "en": "Volume limiter",
+   "es": "Limitador de volumen",
+   "fr": "Limiteur de volume",
+   "it": "Limitatore di volume",
+   "pl": "Ogranicznik głośności",
+   "pt": "Limitador de volume",
+   "tr": "Ses sınırlayıcı"
+  },
+  "Обрано": {
+   "de": "Ausgewählt",
+   "en": "Selected",
+   "es": "Seleccionado",
+   "fr": "Sélectionné",
+   "it": "Selezionato",
+   "pl": "Wybrany",
+   "pt": "Selecionado",
+   "tr": "Seçili"
+  },
+  "Обрати клавішу": {
+   "de": "Taste wählen",
+   "en": "Choose key",
+   "es": "Elegir tecla",
+   "fr": "Choisir la touche",
+   "it": "Scegli tasto",
+   "pl": "Wybierz klawisz",
+   "pt": "Escolher tecla",
+   "tr": "Tuş seç"
+  },
+  "Обрати файл…": {
+   "de": "Datei wählen…",
+   "en": "Choose file…",
+   "es": "Elegir archivo…",
+   "fr": "Choisir un fichier…",
+   "it": "Scegli file…",
+   "pl": "Wybierz plik…",
+   "pt": "Escolher arquivo…",
+   "tr": "Dosya seç…"
+  },
+  "Обробка мікрофона": {
+   "de": "Mikrofonverarbeitung",
+   "en": "Microphone processing",
+   "es": "Procesamiento del micrófono",
+   "fr": "Traitement du micro",
+   "it": "Elaborazione del microfono",
+   "pl": "Przetwarzanie mikrofonu",
+   "pt": "Processamento do microfone",
+   "tr": "Mikrofon işleme"
+  },
+  "Обробку мікрофона вимкнено: програми, що слухають віртуальний кабель (наприклад, Discord), не чутимуть мікрофон. Оберіть у них звичайний мікрофон.": {
+   "de": "Die Mikrofonverarbeitung ist aus: Apps, die das virtuelle Kabel nutzen (z. B. Discord), hören dein Mikrofon nicht. Wähle dort dein normales Mikrofon.",
+   "en": "Mic processing is off: apps listening to the virtual cable (e.g. Discord) won't hear your mic. Pick your regular mic in them.",
+   "es": "El procesamiento del micrófono está apagado: las apps que escuchan el cable virtual (p. ej., Discord) no oirán tu micrófono. Elige en ellas tu micrófono normal.",
+   "fr": "Le traitement du micro est désactivé : les applications qui écoutent le câble virtuel (par ex. Discord) n'entendront pas votre micro. Choisissez-y votre micro habituel.",
+   "it": "L'elaborazione del microfono è spenta: le app che ascoltano il cavo virtuale (ad es. Discord) non sentiranno il microfono. Scegli lì il microfono normale.",
+   "pl": "Przetwarzanie mikrofonu jest wyłączone: aplikacje, które słuchają wirtualnego kabla (np. Discord), nie usłyszą mikrofonu. Wybierz w nich zwykły mikrofon.",
+   "pt": "O processamento do microfone está desligado: apps que ouvem o cabo virtual (ex.: Discord) não vão ouvir seu microfone. Escolha nelas o microfone normal.",
+   "tr": "Mikrofon işleme kapalı: sanal kabloyu dinleyen uygulamalar (ör. Discord) mikrofonunuzu duymaz. Onlarda normal mikrofonunuzu seçin."
+  },
+  "Обробляти мікрофон": {
+   "de": "Mikrofon bearbeiten",
+   "en": "Process microphone",
+   "es": "Procesar micrófono",
+   "fr": "Traiter le micro",
+   "it": "Elabora il microfono",
+   "pl": "Przetwarzaj mikrofon",
+   "pt": "Processar microfone",
+   "tr": "Mikrofonu işle"
+  },
+  "Окремий еквалайзер для гри, чату й медіа вмикається маршрутизацією звуку: кожній категорії потрібен свій віртуальний кабель.": {
+   "de": "Ein eigener Equalizer für Spiel, Chat und Medien wird über das Audio-Routing aktiviert: Jede Kategorie braucht ein eigenes virtuelles Kabel.",
+   "en": "A separate equalizer for game, chat and media is turned on with sound routing: each category needs its own virtual cable.",
+   "es": "Un ecualizador separado para juego, chat y multimedia se activa con el enrutamiento de sonido: cada categoría necesita su propio cable virtual.",
+   "fr": "Un égaliseur séparé pour le jeu, le chat et les médias s’active avec le routage du son : chaque catégorie a besoin de son propre câble virtuel.",
+   "it": "Un equalizzatore separato per gioco, chat e media si attiva con l’instradamento audio: ogni categoria ha bisogno del proprio cavo virtuale.",
+   "pl": "Osobny korektor dla gry, czatu i multimediów włącza się routingiem dźwięku: każda kategoria potrzebuje własnego kabla wirtualnego.",
+   "pt": "Um equalizador separado para jogo, chat e mídia é ativado com o roteamento de som: cada categoria precisa do próprio cabo virtual.",
+   "tr": "Oyun, sohbet ve medya için ayrı ekolayzer ses yönlendirmesiyle açılır: her kategorinin kendi sanal kablosu gerekir."
+  },
+  "Основне": {
+   "de": "Grundlegend",
+   "en": "Essentials",
+   "es": "Lo básico",
+   "fr": "L'essentiel",
+   "it": "Essenziale",
+   "pl": "Podstawowe",
+   "pt": "Essencial",
+   "tr": "Temel"
+  },
+  "Отримати VB-CABLE A+B": {
+   "de": "VB-CABLE A+B holen",
+   "en": "Get VB-CABLE A+B",
+   "es": "Obtener VB-CABLE A+B",
+   "fr": "Obtenir VB-CABLE A+B",
+   "it": "Ottieni VB-CABLE A+B",
+   "pl": "Pobierz VB-CABLE A+B",
+   "pt": "Obter o VB-CABLE A+B",
+   "tr": "VB-CABLE A+B edinin"
+  },
+  "П": {
+   "de": "R",
+   "en": "R",
+   "es": "D",
+   "fr": "D",
+   "it": "D",
+   "pl": "P",
+   "pt": "D",
+   "tr": "Sğ"
+  },
+  "Пам’ять гучності": {
+   "de": "Lautstärke merken",
+   "en": "Volume memory",
+   "es": "Memoria de volumen",
+   "fr": "Mémoire du volume",
+   "it": "Memoria del volume",
+   "pl": "Pamięć głośności",
+   "pt": "Memória de volume",
+   "tr": "Ses düzeyi belleği"
+  },
+  "Параметри головного екрана": {
+   "de": "Optionen des Startbildschirms",
+   "en": "Home screen options",
+   "es": "Opciones de pantalla de inicio",
+   "fr": "Options de l'écran d'accueil",
+   "it": "Opzioni schermata principale",
+   "pl": "Opcje ekranu głównego",
+   "pt": "Opções da tela inicial",
+   "tr": "Ana ekran seçenekleri"
+  },
+  "Перевірити оновлення": {
+   "de": "Nach Updates suchen",
+   "en": "Check for updates",
+   "es": "Buscar actualizaciones",
+   "fr": "Rechercher des mises à jour",
+   "it": "Controlla aggiornamenti",
+   "pl": "Sprawdź aktualizacje",
+   "pt": "Verificar atualizações",
+   "tr": "Güncellemeleri denetle"
+  },
+  "Перевіряю…": {
+   "de": "Suche…",
+   "en": "Checking…",
+   "es": "Comprobando…",
+   "fr": "Vérification…",
+   "it": "Controllo…",
+   "pl": "Sprawdzam…",
+   "pt": "Verificando…",
+   "tr": "Denetleniyor…"
+  },
+  "Передавати в (віртуальний кабель)": {
+   "de": "Senden an (virtuelles Kabel)",
+   "en": "Send to (virtual cable)",
+   "es": "Enviar a (cable virtual)",
+   "fr": "Envoyer vers (câble virtuel)",
+   "it": "Invia a (cavo virtuale)",
+   "pl": "Wysyłaj do (kabel wirtualny)",
+   "pt": "Enviar para (cabo virtual)",
+   "tr": "Gönder (sanal kablo)"
+  },
+  "Перейменувати": {
+   "de": "Umbenennen",
+   "en": "Rename",
+   "es": "Renombrar",
+   "fr": "Renommer",
+   "it": "Rinomina",
+   "pl": "Zmień nazwę",
+   "pt": "Renomear",
+   "tr": "Yeniden adlandır"
+  },
+  "Перемикати звук автоматично": {
+   "de": "Ton automatisch umschalten",
+   "en": "Switch sound automatically",
+   "es": "Cambiar el sonido automáticamente",
+   "fr": "Changer de sortie automatiquement",
+   "it": "Cambia l’audio automaticamente",
+   "pl": "Przełączaj dźwięk automatycznie",
+   "pt": "Alternar o som automaticamente",
+   "tr": "Sesi otomatik değiştir"
+  },
+  "Перемістити в «%s»": {
+   "de": "Nach „%s“ verschieben",
+   "en": "Move to “%s”",
+   "es": "Mover a «%s»",
+   "fr": "Déplacer vers « %s »",
+   "it": "Sposta in «%s»",
+   "pl": "Przenieś do „%s”",
+   "pt": "Mover para “%s”",
+   "tr": "“%s” grubuna taşı"
+  },
+  "Перетягніть програму в іншу групу або натисніть ⋮ біля неї.": {
+   "de": "Ziehe eine App in eine andere Gruppe oder klicke daneben auf ⋮.",
+   "en": "Drag an app to another group, or click ⋮ next to it.",
+   "es": "Arrastra una aplicación a otro grupo o pulsa ⋮ junto a ella.",
+   "fr": "Faites glisser une application vers un autre groupe ou cliquez sur ⋮ à côté.",
+   "it": "Trascina un'app in un altro gruppo o fai clic su ⋮ accanto.",
+   "pl": "Przeciągnij aplikację do innej grupy lub kliknij ⋮ obok niej.",
+   "pt": "Arraste um aplicativo para outro grupo ou clique em ⋮ ao lado dele.",
+   "tr": "Bir uygulamayı başka bir gruba sürükleyin veya yanındaki ⋮ simgesine tıklayın."
+  },
+  "Перетягніть сюди програму або натисніть +": {
+   "de": "Ziehe eine App hierher oder klicke auf +",
+   "en": "Drag an app here or click +",
+   "es": "Arrastra aquí una aplicación o pulsa +",
+   "fr": "Faites glisser une application ici ou cliquez sur +",
+   "it": "Trascina qui un'app o fai clic su +",
+   "pl": "Przeciągnij tu aplikację lub kliknij +",
+   "pt": "Arraste um aplicativo para cá ou clique em +",
+   "tr": "Buraya bir uygulama sürükleyin veya + simgesine tıklayın"
+  },
+  "Перетягніть, щоб змінити порядок": {
+   "de": "Ziehen, um die Reihenfolge zu ändern",
+   "en": "Drag to change the order",
+   "es": "Arrastra para cambiar el orden",
+   "fr": "Faites glisser pour changer l’ordre",
+   "it": "Trascina per cambiare l’ordine",
+   "pl": "Przeciągnij, aby zmienić kolejność",
+   "pt": "Arraste para mudar a ordem",
+   "tr": "Sırayı değiştirmek için sürükleyin"
+  },
+  "Перші напрацювання — проєкт OpenChatMix. Arcmix виріс із нього.": {
+   "de": "Die ersten Grundlagen stammen aus dem Projekt OpenChatMix. Arcmix ist daraus entstanden.",
+   "en": "The first groundwork is the OpenChatMix project. Arcmix grew out of it.",
+   "es": "El primer trabajo es el proyecto OpenChatMix. Arcmix nació de él.",
+   "fr": "Les premières bases viennent du projet OpenChatMix. Arcmix en est issu.",
+   "it": "Il primo lavoro è il progetto OpenChatMix. Arcmix è nato da lì.",
+   "pl": "Pierwsze prace to projekt OpenChatMix. Arcmix z niego wyrósł.",
+   "pt": "O primeiro trabalho é o projeto OpenChatMix. O Arcmix nasceu dele.",
+   "tr": "İlk çalışmalar OpenChatMix projesi. Arcmix ondan doğdu."
+  },
+  "Плагін не запустився": {
+   "de": "Plugin konnte nicht gestartet werden",
+   "en": "The plugin failed to start",
+   "es": "El plugin no se inició",
+   "fr": "Le plugin n'a pas démarré",
+   "it": "Il plugin non si è avviato",
+   "pl": "Wtyczka się nie uruchomiła",
+   "pt": "O plugin não iniciou",
+   "tr": "Eklenti başlatılamadı"
+  },
+  "Плагін не підтримує потрібний формат звуку": {
+   "de": "Das Plugin unterstützt das nötige Audioformat nicht",
+   "en": "The plugin doesn't support the required audio format",
+   "es": "El plugin no admite el formato de audio necesario",
+   "fr": "Le plugin ne prend pas en charge le format audio requis",
+   "it": "Il plugin non supporta il formato audio richiesto",
+   "pl": "Wtyczka nie obsługuje wymaganego formatu dźwięku",
+   "pt": "O plugin não suporta o formato de áudio necessário",
+   "tr": "Eklenti gereken ses biçimini desteklemiyor"
+  },
+  "Плагіни обробляють звук до шумового порогу. Підтримуються 64-бітні VST2 (.dll) і VST3 (.vst3).": {
+   "de": "Plugins bearbeiten den Ton vor dem Noise Gate. Unterstützt werden 64-Bit-VST2 (.dll) und VST3 (.vst3).",
+   "en": "Plugins process the sound before the noise gate. 64-bit VST2 (.dll) and VST3 (.vst3) are supported.",
+   "es": "Los plugins procesan el sonido antes de la puerta de ruido. Compatible con VST2 de 64 bits (.dll) y VST3 (.vst3).",
+   "fr": "Les plugins traitent le son avant le noise gate. VST2 64 bits (.dll) et VST3 (.vst3) pris en charge.",
+   "it": "I plugin elaborano il suono prima del noise gate. Supportati VST2 a 64 bit (.dll) e VST3 (.vst3).",
+   "pl": "Wtyczki przetwarzają dźwięk przed bramką szumów. Obsługiwane są 64-bitowe VST2 (.dll) i VST3 (.vst3).",
+   "pt": "Os plugins processam o som antes do noise gate. Suporta VST2 64 bits (.dll) e VST3 (.vst3).",
+   "tr": "Eklentiler sesi gürültü kapısından önce işler. 64 bit VST2 (.dll) ve VST3 (.vst3) desteklenir."
+  },
+  "Поки ви не обрали значення, програма не змінює налаштувань гарнітури.": {
+   "de": "Solange du keinen Wert wählst, ändert die App die Headset-Einstellungen nicht.",
+   "en": "Until you pick a value, the app leaves the headset's settings untouched.",
+   "es": "Mientras no elijas un valor, la aplicación no cambia los ajustes de los auriculares.",
+   "fr": "Tant que vous ne choisissez pas de valeur, l'application ne modifie pas les réglages du casque.",
+   "it": "Finché non scegli un valore, l'app non modifica le impostazioni delle cuffie.",
+   "pl": "Dopóki nie wybierzesz wartości, aplikacja nie zmienia ustawień słuchawek.",
+   "pt": "Enquanto você não escolher um valor, o aplicativo não altera as configurações do headset.",
+   "tr": "Bir değer seçene kadar uygulama kulaklık ayarlarını değiştirmez."
+  },
+  "Помилка": {
+   "de": "Fehler",
+   "en": "Error",
+   "es": "Error",
+   "fr": "Erreur",
+   "it": "Errore",
+   "pl": "Błąd",
+   "pt": "Erro",
+   "tr": "Hata"
+  },
+  "Порядок пристроїв": {
+   "de": "Gerätereihenfolge",
+   "en": "Device order",
+   "es": "Orden de dispositivos",
+   "fr": "Ordre des appareils",
+   "it": "Ordine dei dispositivi",
+   "pl": "Kolejność urządzeń",
+   "pt": "Ordem dos dispositivos",
+   "tr": "Cihaz sırası"
+  },
+  "Порівну": {
+   "de": "Ausgeglichen",
+   "en": "Balanced",
+   "es": "Equilibrado",
+   "fr": "Équilibré",
+   "it": "Bilanciato",
+   "pl": "Po równo",
+   "pt": "Equilibrado",
+   "tr": "Eşit"
+  },
+  "Поріг": {
+   "de": "Schwelle",
+   "en": "Threshold",
+   "es": "Umbral",
+   "fr": "Seuil",
+   "it": "Soglia",
+   "pl": "Próg",
+   "pt": "Limiar",
+   "tr": "Eşik"
+  },
+  "Поріг шумодаву": {
+   "de": "Schwelle des Noise-Gates",
+   "en": "Noise gate threshold",
+   "es": "Umbral de la puerta de ruido",
+   "fr": "Seuil du noise gate",
+   "it": "Soglia del noise gate",
+   "pl": "Próg bramki szumów",
+   "pt": "Limiar do noise gate",
+   "tr": "Gürültü kapısı eşiği"
+  },
+  "Послухати себе": {
+   "de": "Sich selbst anhören",
+   "en": "Hear yourself",
+   "es": "Escucharte",
+   "fr": "S'écouter",
+   "it": "Ascoltati",
+   "pl": "Posłuchaj siebie",
+   "pt": "Ouvir a si mesmo",
+   "tr": "Kendini dinle"
+  },
+  "Постійно": {
+   "de": "Dauerhaft",
+   "en": "Steady",
+   "es": "Fijo",
+   "fr": "Fixe",
+   "it": "Fisso",
+   "pl": "Stałe",
+   "pt": "Fixo",
+   "tr": "Sabit"
+  },
+  "Потрібен WebView2": {
+   "de": "WebView2 erforderlich",
+   "en": "WebView2 required",
+   "es": "Se necesita WebView2",
+   "fr": "WebView2 requis",
+   "it": "WebView2 necessario",
+   "pl": "Wymagany WebView2",
+   "pt": "WebView2 necessário",
+   "tr": "WebView2 gerekli"
+  },
+  "Потрібен віртуальний аудіокабель — наприклад, безкоштовний VB-CABLE. Після встановлення перезапустіть комп'ютер.": {
+   "de": "Ein virtuelles Audiokabel wird benötigt – zum Beispiel das kostenlose VB-CABLE. Starte den PC nach der Installation neu.",
+   "en": "A virtual audio cable is required — for example, the free VB-CABLE. Restart your PC after installing it.",
+   "es": "Se necesita un cable de audio virtual, por ejemplo el gratuito VB-CABLE. Reinicia el PC después de instalarlo.",
+   "fr": "Un câble audio virtuel est nécessaire — par exemple VB-CABLE, gratuit. Redémarrez le PC après l'installation.",
+   "it": "Serve un cavo audio virtuale, ad esempio VB-CABLE (gratuito). Riavvia il PC dopo l'installazione.",
+   "pl": "Potrzebny jest wirtualny kabel audio — na przykład darmowy VB-CABLE. Po instalacji uruchom komputer ponownie.",
+   "pt": "É necessário um cabo de áudio virtual — por exemplo, o VB-CABLE gratuito. Reinicie o PC após instalar.",
+   "tr": "Sanal bir ses kablosu gerekir — örneğin ücretsiz VB-CABLE. Kurduktan sonra bilgisayarı yeniden başlatın."
+  },
+  "Правий клік, а потім клік — видалити": {
+   "de": "Rechtsklick, dann Klick zum Löschen",
+   "en": "Right-click, then click to delete",
+   "es": "Clic derecho y luego clic para eliminar",
+   "fr": "Clic droit, puis clic pour supprimer",
+   "it": "Clic destro, poi clic per eliminare",
+   "pl": "Prawy klik, potem klik — usuń",
+   "pt": "Clique com o botão direito e depois clique para excluir",
+   "tr": "Silmek için sağ tıklayıp sonra tıklayın"
+  },
+  "Працює": {
+   "de": "Läuft",
+   "en": "Running",
+   "es": "En marcha",
+   "fr": "Actif",
+   "it": "In funzione",
+   "pl": "Działa",
+   "pt": "Em execução",
+   "tr": "Çalışıyor"
+  },
+  "Пресет": {
+   "de": "Voreinstellung",
+   "en": "Preset",
+   "es": "Preajuste",
+   "fr": "Préréglage",
+   "it": "Preset",
+   "pl": "Ustawienie",
+   "pt": "Predefinição",
+   "tr": "Ön ayar"
+  },
+  "Пресет змінено": {
+   "de": "Preset geändert",
+   "en": "Preset changed",
+   "es": "Ajuste cambiado",
+   "fr": "Préréglage modifié",
+   "it": "Preset modificato",
+   "pl": "Ustawienie zmienione",
+   "pt": "Predefinição alterada",
+   "tr": "Ön ayar değişti"
+  },
+  "Пресети, вбудовані в гарнітуру": {
+   "de": "Im Headset gespeicherte Voreinstellungen",
+   "en": "Presets built into the headset",
+   "es": "Preajustes integrados en los auriculares",
+   "fr": "Préréglages intégrés au casque",
+   "it": "Preset integrati nelle cuffie",
+   "pl": "Ustawienia wbudowane w słuchawki",
+   "pt": "Predefinições do headset",
+   "tr": "Kulaklıktaki hazır ayarlar"
+  },
+  "Прибрати": {
+   "de": "Entfernen",
+   "en": "Remove",
+   "es": "Quitar",
+   "fr": "Retirer",
+   "it": "Rimuovi",
+   "pl": "Usuń",
+   "pt": "Remover",
+   "tr": "Kaldır"
+  },
+  "Прибрати зі списку": {
+   "de": "Aus der Liste entfernen",
+   "en": "Remove from list",
+   "es": "Quitar de la lista",
+   "fr": "Retirer de la liste",
+   "it": "Rimuovi dall'elenco",
+   "pl": "Usuń z listy",
+   "pt": "Remover da lista",
+   "tr": "Listeden kaldır"
+  },
+  "Прибрати клавішу": {
+   "de": "Taste entfernen",
+   "en": "Remove key",
+   "es": "Quitar tecla",
+   "fr": "Retirer la touche",
+   "it": "Rimuovi tasto",
+   "pl": "Usuń klawisz",
+   "pt": "Remover tecla",
+   "tr": "Tuşu kaldır"
+  },
+  "Приглушення гри": {
+   "de": "Spielabsenkung",
+   "en": "Game ducking",
+   "es": "Atenuar juego",
+   "fr": "Atténuation du jeu",
+   "it": "Attenuazione gioco",
+   "pl": "Wyciszanie gry",
+   "pt": "Redução do jogo",
+   "tr": "Oyun kısma"
+  },
+  "Приглушувати й «Медіа»": {
+   "de": "Auch „Medien“ absenken",
+   "en": "Duck “Media” too",
+   "es": "Atenuar también «Multimedia»",
+   "fr": "Atténuer aussi « Médias »",
+   "it": "Attenua anche «Media»",
+   "pl": "Wyciszaj też „Multimedia”",
+   "pt": "Reduzir também “Mídia”",
+   "tr": "“Medya”yı da kıs"
+  },
+  "Пристрої Windows": {
+   "de": "Windows-Geräte",
+   "en": "Windows devices",
+   "es": "Dispositivos de Windows",
+   "fr": "Périphériques Windows",
+   "it": "Dispositivi Windows",
+   "pl": "Urządzenia Windows",
+   "pt": "Dispositivos do Windows",
+   "tr": "Windows aygıtları"
+  },
+  "Пристрій виводу": {
+   "de": "Ausgabegerät",
+   "en": "Output device",
+   "es": "Dispositivo de salida",
+   "fr": "Périphérique de sortie",
+   "it": "Dispositivo di uscita",
+   "pl": "Urządzenie wyjściowe",
+   "pt": "Dispositivo de saída",
+   "tr": "Çıkış aygıtı"
+  },
+  "Пристрій виводу Windows": {
+   "de": "Windows-Ausgabegerät",
+   "en": "Windows output device",
+   "es": "Dispositivo de salida de Windows",
+   "fr": "Périphérique de sortie Windows",
+   "it": "Dispositivo di uscita di Windows",
+   "pl": "Urządzenie wyjściowe Windows",
+   "pt": "Dispositivo de saída do Windows",
+   "tr": "Windows çıkış aygıtı"
+  },
+  "Пристрій зайнятий: його вже використовує інша програма або той самий кабель.": {
+   "de": "Gerät belegt: Ein anderes Programm oder dasselbe Kabel nutzt es bereits.",
+   "en": "Device is busy: another program or the same cable is already using it.",
+   "es": "Dispositivo ocupado: otro programa o el mismo cable ya lo usa.",
+   "fr": "Périphérique occupé : un autre programme ou le même câble l'utilise déjà.",
+   "it": "Dispositivo occupato: lo usa già un altro programma o lo stesso cavo.",
+   "pl": "Urządzenie zajęte: używa go już inny program lub ten sam kabel.",
+   "pt": "Dispositivo ocupado: outro programa ou o mesmo cabo já o utiliza.",
+   "tr": "Aygıt meşgul: başka bir program veya aynı kablo zaten kullanıyor."
+  },
+  "Пристрій не знайдено — можливо, його від'єднано або вимкнено.": {
+   "de": "Gerät nicht gefunden – vielleicht getrennt oder deaktiviert.",
+   "en": "Device not found — it may be disconnected or disabled.",
+   "es": "Dispositivo no encontrado: quizá esté desconectado o desactivado.",
+   "fr": "Périphérique introuvable — peut-être déconnecté ou désactivé.",
+   "it": "Dispositivo non trovato: forse è scollegato o disattivato.",
+   "pl": "Nie znaleziono urządzenia — może jest odłączone lub wyłączone.",
+   "pt": "Dispositivo não encontrado — talvez desconectado ou desativado.",
+   "tr": "Aygıt bulunamadı — bağlantısı kesilmiş veya devre dışı olabilir."
+  },
+  "Про програму": {
+   "de": "Info",
+   "en": "About",
+   "es": "Acerca de",
+   "fr": "À propos",
+   "it": "Informazioni",
+   "pl": "O programie",
+   "pt": "Sobre",
+   "tr": "Hakkında"
+  },
+  "Прогноз роботи від батареї:": {
+   "de": "Geschätzte Akkulaufzeit:",
+   "en": "Estimated battery life:",
+   "es": "Autonomía estimada:",
+   "fr": "Autonomie estimée :",
+   "it": "Autonomia stimata:",
+   "pl": "Szacowany czas pracy:",
+   "pt": "Autonomia estimada:",
+   "tr": "Tahmini pil süresi:"
+  },
+  "Прогноз роботи з’явиться, коли заряд почне знижуватися.": {
+   "de": "Die Schätzung erscheint, sobald sich der Akku entlädt.",
+   "en": "The estimate appears once the battery starts draining.",
+   "es": "La estimación aparecerá cuando la batería empiece a bajar.",
+   "fr": "L'estimation apparaîtra quand la batterie commencera à baisser.",
+   "it": "La stima comparirà quando la batteria inizierà a scaricarsi.",
+   "pl": "Prognoza pojawi się, gdy bateria zacznie się rozładowywać.",
+   "pt": "A estimativa aparece quando a bateria começar a descarregar.",
+   "tr": "Tahmin, pil azalmaya başladığında görünür."
+  },
+  "Програм зі звуком поки немає — їх можна розкласти пізніше на головному екрані.": {
+   "de": "Noch keine Apps mit Ton – du kannst sie später auf dem Hauptbildschirm zuordnen.",
+   "en": "No apps are playing sound yet — you can sort them later on the main screen.",
+   "es": "Aún no hay aplicaciones con sonido: podrás ordenarlas más tarde en la pantalla principal.",
+   "fr": "Aucune application ne joue de son pour l'instant — vous pourrez les classer plus tard sur l'écran principal.",
+   "it": "Nessuna app riproduce audio per ora: potrai assegnarle più tardi nella schermata principale.",
+   "pl": "Na razie żadna aplikacja nie odtwarza dźwięku — możesz je przypisać później na ekranie głównym.",
+   "pt": "Ainda não há aplicativos com som — você pode organizá-los depois na tela principal.",
+   "tr": "Henüz ses çalan uygulama yok — bunları daha sonra ana ekranda düzenleyebilirsiniz."
+  },
+  "Програма живе в треї біля годинника. Клік по значку відкриває це вікно, колесо миші над ним — показує заряд.": {
+   "de": "Die App sitzt im Infobereich neben der Uhr. Ein Klick auf das Symbol öffnet dieses Fenster, das Mausrad darüber zeigt den Akkustand.",
+   "en": "The app lives in the tray next to the clock. Clicking its icon opens this window; scrolling over it shows the battery.",
+   "es": "La aplicación vive en la bandeja junto al reloj. Al hacer clic en el icono se abre esta ventana; la rueda del ratón sobre él muestra la batería.",
+   "fr": "L'application se trouve dans la zone de notification, près de l'horloge. Un clic sur l'icône ouvre cette fenêtre ; la molette au-dessus affiche la batterie.",
+   "it": "L'app si trova nell'area di notifica accanto all'orologio. Un clic sull'icona apre questa finestra; la rotellina sopra mostra la batteria.",
+   "pl": "Program działa w zasobniku obok zegara. Kliknięcie ikony otwiera to okno, a kółko myszy nad nią pokazuje poziom baterii.",
+   "pt": "O aplicativo fica na bandeja ao lado do relógio. Clicar no ícone abre esta janela; a roda do mouse sobre ele mostra a bateria.",
+   "tr": "Uygulama saatin yanındaki bildirim alanında çalışır. Simgesine tıklamak bu pencereyi açar, üzerinde fare tekerini çevirmek pil durumunu gösterir."
+  },
+  "Програми «Гри», «Чату» й «Медіа» грають у свої кабелі, а Arcmix змішує їх у навушники. Так з'являється окремий еквалайзер для кожної категорії (кнопка EQ). Додає 20–40 мс затримки.": {
+   "de": "Spiel-, Chat- und Medien-Apps spielen in eigene Kabel, Arcmix mischt sie in die Kopfhörer. So gibt es für jede Kategorie einen eigenen Equalizer (EQ-Taste). Fügt 20–40 ms Latenz hinzu.",
+   "en": "Game, Chat and Media apps play into their own cables, and Arcmix mixes them into your headphones. This enables a separate equalizer for each category (EQ button). Adds 20–40 ms of latency.",
+   "es": "Las aplicaciones de Juego, Chat y Multimedia suenan en sus propios cables y Arcmix las mezcla en los auriculares. Así cada categoría tiene su propio ecualizador (botón EQ). Añade 20–40 ms de latencia.",
+   "fr": "Les applis Jeu, Chat et Médias jouent dans leurs propres câbles, et Arcmix les mixe dans le casque. Cela permet un égaliseur séparé pour chaque catégorie (bouton EQ). Ajoute 20 à 40 ms de latence.",
+   "it": "Le app di Gioco, Chat e Media suonano nei propri cavi e Arcmix le mixa nelle cuffie. Così ogni categoria ha un equalizzatore separato (pulsante EQ). Aggiunge 20–40 ms di latenza.",
+   "pl": "Aplikacje z kategorii Gra, Czat i Multimedia grają do własnych kabli, a Arcmix miksuje je do słuchawek. Dzięki temu każda kategoria ma osobny korektor (przycisk EQ). Dodaje 20–40 ms opóźnienia.",
+   "pt": "Os aplicativos de Jogo, Chat e Mídia tocam em cabos próprios e o Arcmix os mixa nos fones. Assim cada categoria tem um equalizador separado (botão EQ). Adiciona 20–40 ms de latência.",
+   "tr": "Oyun, Sohbet ve Medya uygulamaları kendi kablolarına çalar, Arcmix bunları kulaklığa karıştırır. Böylece her kategori için ayrı ekolayzer olur (EQ düğmesi). 20–40 ms gecikme ekler."
+  },
+  "Програми беруть мікрофон, обраний у них самих. Щоб вони чули цей разом з обробкою, оберіть у них віртуальний кабель і ввімкніть обробку мікрофона.": {
+   "de": "Apps verwenden das Mikrofon, das in ihnen selbst gewählt ist. Damit sie dieses mit Verarbeitung hören, wähle dort ein virtuelles Kabel und schalte die Mikrofonverarbeitung ein.",
+   "en": "Apps use the microphone chosen in their own settings. For them to hear this one with processing, pick a virtual cable in them and turn on microphone processing.",
+   "es": "Las aplicaciones usan el micrófono elegido en su propia configuración. Para que oigan este con el procesamiento, elige en ellas un cable virtual y activa el procesamiento del micrófono.",
+   "fr": "Les applications utilisent le micro choisi dans leurs propres réglages. Pour qu’elles entendent celui-ci avec le traitement, choisissez-y un câble virtuel et activez le traitement du micro.",
+   "it": "Le app usano il microfono scelto nelle loro impostazioni. Perché sentano questo con l’elaborazione, scegli in esse un cavo virtuale e attiva l’elaborazione del microfono.",
+   "pl": "Aplikacje używają mikrofonu wybranego w ich własnych ustawieniach. Aby słyszały ten z przetwarzaniem, wybierz w nich kabel wirtualny i włącz przetwarzanie mikrofonu.",
+   "pt": "Os aplicativos usam o microfone escolhido nas próprias configurações. Para que ouçam este com o processamento, escolha neles um cabo virtual e ligue o processamento do microfone.",
+   "tr": "Uygulamalar kendi ayarlarında seçilen mikrofonu kullanır. Bunu işlemeyle duymaları için onlarda sanal bir kablo seçin ve mikrofon işlemeyi açın."
+  },
+  "Програмний еквалайзер категорії: діє лише на програми, що грають через маршрутизацію, і додається до еквалайзера гарнітури.": {
+   "de": "Software-Equalizer der Kategorie: wirkt nur auf Apps, die über das Routing laufen, zusätzlich zum Headset-Equalizer.",
+   "en": "Software equalizer for this category: it affects only apps playing through routing and adds to the headset equalizer.",
+   "es": "Ecualizador por software de la categoría: solo afecta a las aplicaciones enrutadas y se suma al ecualizador de los auriculares.",
+   "fr": "Égaliseur logiciel de la catégorie : n'agit que sur les applis routées et s'ajoute à l'égaliseur du casque.",
+   "it": "Equalizzatore software della categoria: agisce solo sulle app instradate e si somma all'equalizzatore delle cuffie.",
+   "pl": "Programowy korektor kategorii: działa tylko na aplikacje kierowane przez routing i dodaje się do korektora słuchawek.",
+   "pt": "Equalizador de software da categoria: afeta apenas os aplicativos roteados e se soma ao equalizador do headset.",
+   "tr": "Kategori için yazılım ekolayzeri: yalnızca yönlendirilen uygulamaları etkiler ve kulaklık ekolayzerine eklenir."
+  },
+  "Прозорість": {
+   "de": "Transparenz",
+   "en": "Transparency",
+   "es": "Transparencia",
+   "fr": "Transparence",
+   "it": "Trasparenza",
+   "pl": "Przezroczystość",
+   "pt": "Transparência",
+   "tr": "Şeffaflık"
+  },
+  "Прозорість (звук навколо)": {
+   "de": "Transparenz (Umgebungsgeräusche)",
+   "en": "Transparency (ambient sound)",
+   "es": "Transparencia (sonido ambiente)",
+   "fr": "Transparence (son ambiant)",
+   "it": "Trasparenza (suono ambientale)",
+   "pl": "Przezroczystość (dźwięki otoczenia)",
+   "pt": "Transparência (som ambiente)",
+   "tr": "Şeffaflık (ortam sesi)"
+  },
+  "Прокрутка над значком у треї змінює баланс гра / чат, як повзунок у вікні.": {
+   "de": "Scrollen über dem Tray-Symbol ändert die Balance Spiel / Chat wie der Regler im Fenster.",
+   "en": "Scrolling over the tray icon changes the game / chat balance, like the slider in the window.",
+   "es": "Desplazar sobre el icono cambia el balance juego / chat, como el control de la ventana.",
+   "fr": "Faire défiler sur l'icône change l'équilibre jeu / chat, comme le curseur de la fenêtre.",
+   "it": "Scorrendo sull'icona cambia il bilanciamento gioco / chat, come il cursore nella finestra.",
+   "pl": "Przewijanie nad ikoną zmienia balans gra / czat, jak suwak w oknie.",
+   "pt": "Rolar sobre o ícone altera o equilíbrio jogo / chat, como o controle da janela.",
+   "tr": "Tepsi simgesi üzerinde kaydırmak, penceredeki kaydırıcı gibi oyun / sohbet dengesini değiştirir."
+  },
+  "Прокрутка над значком у треї показує заряд замість балансу.": {
+   "de": "Scrollen über dem Tray-Symbol zeigt den Akku statt der Balance.",
+   "en": "Scrolling over the tray icon shows the battery instead of the balance.",
+   "es": "Desplazar sobre el icono de la bandeja muestra la batería en lugar del balance.",
+   "fr": "Faire défiler sur l'icône de la barre affiche la batterie au lieu de l'équilibre.",
+   "it": "Scorrere sull'icona nella barra mostra la batteria invece del bilanciamento.",
+   "pl": "Przewijanie nad ikoną w zasobniku pokazuje baterię zamiast balansu.",
+   "pt": "Rolar sobre o ícone da bandeja mostra a bateria em vez do equilíbrio.",
+   "tr": "Tepsi simgesi üzerinde kaydırmak denge yerine pili gösterir."
+  },
+  "Прослухати": {
+   "de": "Abspielen",
+   "en": "Play back",
+   "es": "Reproducir",
+   "fr": "Écouter",
+   "it": "Riproduci",
+   "pl": "Odtwórz",
+   "pt": "Reproduzir",
+   "tr": "Dinle"
+  },
+  "Простий": {
+   "de": "Einfach",
+   "en": "Simple",
+   "es": "Simple",
+   "fr": "Simple",
+   "it": "Semplice",
+   "pl": "Prosty",
+   "pt": "Simples",
+   "tr": "Basit"
+  },
+  "Профіль": {
+   "de": "Profil",
+   "en": "Profile",
+   "es": "Perfil",
+   "fr": "Profil",
+   "it": "Profilo",
+   "pl": "Profil",
+   "pt": "Perfil",
+   "tr": "Profil"
+  },
+  "Профілі": {
+   "de": "Profile",
+   "en": "Profiles",
+   "es": "Perfiles",
+   "fr": "Profils",
+   "it": "Profili",
+   "pl": "Profile",
+   "pt": "Perfis",
+   "tr": "Profiller"
+  },
+  "Пульсує": {
+   "de": "Pulsierend",
+   "en": "Breathing",
+   "es": "Pulsante",
+   "fr": "Pulsation",
+   "it": "Pulsante",
+   "pl": "Pulsujące",
+   "pt": "Pulsante",
+   "tr": "Nefes alma"
+  },
+  "Під час дзвінка (наприклад, у голосовому каналі Discord) Windows сама приглушує інші звуки до кінця дзвінка (%s). Це не автоприглушення Arcmix: щоб вимкнути, на вкладці «Зв’язок» оберіть «Нічого не робити».": {
+   "de": "Während eines Anrufs (z. B. in einem Discord-Sprachkanal) senkt Windows selbst andere Töne bis zum Ende des Anrufs ab (%s). Das ist nicht die Absenkung von Arcmix: Zum Ausschalten auf der Registerkarte „Kommunikation“ „Nichts unternehmen“ wählen.",
+   "en": "During a call (for example, in a Discord voice channel) Windows itself lowers other sounds until the call ends (%s). This isn't Arcmix ducking: to turn it off, choose “Do nothing” on the “Communications” tab.",
+   "es": "Durante una llamada (por ejemplo, en un canal de voz de Discord), Windows baja por sí mismo los demás sonidos hasta que termina (%s). No es la atenuación de Arcmix: para desactivarla, elige «No hacer nada» en la pestaña «Comunicaciones».",
+   "fr": "Pendant un appel (par exemple dans un salon vocal Discord), Windows baisse lui-même les autres sons jusqu'à la fin de l'appel (%s). Ce n'est pas l'atténuation de Arcmix : pour la désactiver, choisissez « Ne rien faire » dans l'onglet « Communications ».",
+   "it": "Durante una chiamata (ad esempio in un canale vocale di Discord) Windows abbassa da solo gli altri suoni fino alla fine della chiamata (%s). Non è l'attenuazione di Arcmix: per disattivarla, nella scheda «Comunicazioni» scegli «Non eseguire alcuna operazione».",
+   "pl": "Podczas rozmowy (np. na kanale głosowym Discorda) Windows sam ścisza inne dźwięki aż do jej końca (%s). To nie jest wyciszanie Arcmix: aby je wyłączyć, na karcie „Komunikacja” wybierz „Nic nie rób”.",
+   "pt": "Durante uma chamada (por exemplo, num canal de voz do Discord), o próprio Windows abaixa os outros sons até o fim da chamada (%s). Não é a redução do Arcmix: para desativar, escolha “Não fazer nada” na guia “Comunicações”.",
+   "tr": "Arama sırasında (örneğin bir Discord ses kanalında) Windows diğer sesleri arama bitene kadar kendisi kısar (%s). Bu Arcmix kısması değildir: kapatmak için “İletişim” sekmesinde “Hiçbir şey yapma”yı seçin."
+  },
+  "Підказка на екрані": {
+   "de": "Bildschirmanzeige",
+   "en": "On-screen indicator",
+   "es": "Indicador en pantalla",
+   "fr": "Indication à l'écran",
+   "it": "Indicatore a schermo",
+   "pl": "Podpowiedź na ekranie",
+   "pt": "Indicador na tela",
+   "tr": "Ekran göstergesi"
+  },
+  "Підсвічування вимкненого мікрофона": {
+   "de": "Stummschalt-Beleuchtung",
+   "en": "Mic mute light",
+   "es": "Luz de micrófono silenciado",
+   "fr": "Voyant micro coupé",
+   "it": "Luce microfono disattivato",
+   "pl": "Podświetlenie wyciszenia mikrofonu",
+   "pt": "Luz de microfone mudo",
+   "tr": "Mikrofon kapalı ışığı"
+  },
+  "Підсилення": {
+   "de": "Verstärkung",
+   "en": "Gain",
+   "es": "Ganancia",
+   "fr": "Gain",
+   "it": "Guadagno",
+   "pl": "Wzmocnienie",
+   "pt": "Ganho",
+   "tr": "Kazanç"
+  },
+  "Підсилення ЦАП": {
+   "de": "DAC-Verstärkung",
+   "en": "DAC gain",
+   "es": "Ganancia del DAC",
+   "fr": "Gain du DAC",
+   "it": "Guadagno DAC",
+   "pl": "Wzmocnienie DAC",
+   "pt": "Ganho do DAC",
+   "tr": "DAC kazancı"
+  },
+  "Підсилення мікрофона": {
+   "de": "Mikrofonverstärkung",
+   "en": "Microphone gain",
+   "es": "Ganancia del micrófono",
+   "fr": "Gain du micro",
+   "it": "Guadagno microfono",
+   "pl": "Wzmocnienie mikrofonu",
+   "pt": "Ganho do microfone",
+   "tr": "Mikrofon kazancı"
+  },
+  "Підсилення мікрофона (у самій гарнітурі)": {
+   "de": "Mikrofonverstärkung (im Headset)",
+   "en": "Microphone gain (in the headset)",
+   "es": "Ganancia del micrófono (en los auriculares)",
+   "fr": "Gain du micro (dans le casque)",
+   "it": "Guadagno microfono (nelle cuffie)",
+   "pl": "Wzmocnienie mikrofonu (w słuchawkach)",
+   "pt": "Ganho do microfone (no headset)",
+   "tr": "Mikrofon kazancı (kulaklıkta)"
+  },
+  "Режим": {
+   "de": "Modus",
+   "en": "Mode",
+   "es": "Modo",
+   "fr": "Mode",
+   "it": "Modalità",
+   "pl": "Tryb",
+   "pt": "Modo",
+   "tr": "Mod"
+  },
+  "Режим AUX": {
+   "de": "AUX-Modus",
+   "en": "AUX mode",
+   "es": "Modo AUX",
+   "fr": "Mode AUX",
+   "it": "Modalità AUX",
+   "pl": "Tryb AUX",
+   "pt": "Modo AUX",
+   "tr": "AUX modu"
+  },
+  "Режим бездротового зв'язку": {
+   "de": "Funkmodus",
+   "en": "Wireless mode",
+   "es": "Modo inalámbrico",
+   "fr": "Mode sans fil",
+   "it": "Modalità wireless",
+   "pl": "Tryb bezprzewodowy",
+   "pt": "Modo sem fio",
+   "tr": "Kablosuz mod"
+  },
+  "Режим звуку": {
+   "de": "Audiomodus",
+   "en": "Audio mode",
+   "es": "Modo de audio",
+   "fr": "Mode audio",
+   "it": "Modalità audio",
+   "pl": "Tryb dźwięku",
+   "pt": "Modo de áudio",
+   "tr": "Ses modu"
+  },
+  "Режим хоста": {
+   "de": "Host-Modus",
+   "en": "Host mode",
+   "es": "Modo anfitrión",
+   "fr": "Mode hôte",
+   "it": "Modalità host",
+   "pl": "Tryb hosta",
+   "pt": "Modo host",
+   "tr": "Ana bilgisayar modu"
+  },
+  "Розділи": {
+   "de": "Bereiche",
+   "en": "Sections",
+   "es": "Secciones",
+   "fr": "Sections",
+   "it": "Sezioni",
+   "pl": "Sekcje",
+   "pt": "Seções",
+   "tr": "Bölümler"
+  },
+  "Розширений радіус": {
+   "de": "Erweiterte Reichweite",
+   "en": "Extended range",
+   "es": "Alcance ampliado",
+   "fr": "Portée étendue",
+   "it": "Portata estesa",
+   "pl": "Rozszerzony zasięg",
+   "pt": "Alcance estendido",
+   "tr": "Genişletilmiş menzil"
+  },
+  "Рівень": {
+   "de": "Pegel",
+   "en": "Level",
+   "es": "Nivel",
+   "fr": "Niveau",
+   "it": "Livello",
+   "pl": "Poziom",
+   "pt": "Nível",
+   "tr": "Seviye"
+  },
+  "Рівень %a рухається разом зі звуком %b — це не розмова, гру не приглушую.": {
+   "de": "Der Pegel von %a folgt dem Ton von %b – das ist kein Gespräch, das Spiel wird nicht abgesenkt.",
+   "en": "The %a level moves together with %b's sound — that's not a conversation, so the game isn't ducked.",
+   "es": "El nivel de %a se mueve junto con el sonido de %b: no es una conversación, el juego no se atenúa.",
+   "fr": "Le niveau de %a suit le son de %b — ce n'est pas une conversation, le jeu n'est pas atténué.",
+   "it": "Il livello di %a segue il suono di %b: non è una conversazione, il gioco non viene attenuato.",
+   "pl": "Poziom %a porusza się razem z dźwiękiem %b — to nie rozmowa, gry nie wyciszam.",
+   "pt": "O nível de %a acompanha o som de %b — não é uma conversa, o jogo não é reduzido.",
+   "tr": "%a seviyesi %b sesiyle birlikte hareket ediyor — bu bir konuşma değil, oyun kısılmıyor."
+  },
+  "Рівень видно на шкалі в «Послухати себе»: біла риска — поріг, червона — межа.": {
+   "de": "Der Pegel steht auf der Skala unter „Sich selbst anhören“: weißer Strich – Schwelle, roter – Grenze.",
+   "en": "The level is shown on the scale in “Hear yourself”: the white mark is the threshold, the red one is the ceiling.",
+   "es": "El nivel se ve en la escala de «Escucharte»: la marca blanca es el umbral y la roja, el límite.",
+   "fr": "Le niveau s'affiche sur l'échelle de « S'écouter » : trait blanc — seuil, trait rouge — plafond.",
+   "it": "Il livello è visibile sulla scala in «Ascoltati»: il segno bianco è la soglia, quello rosso il limite.",
+   "pl": "Poziom widać na skali w „Posłuchaj siebie”: biała kreska — próg, czerwona — limit.",
+   "pt": "O nível aparece na escala de “Ouvir a si mesmo”: a marca branca é o limiar, a vermelha é o teto.",
+   "tr": "Seviye “Kendini dinle” ölçeğinde görünür: beyaz çizgi eşik, kırmızı çizgi sınırdır."
+  },
+  "Рівень власного голосу": {
+   "de": "Sidetone-Pegel",
+   "en": "Sidetone level",
+   "es": "Nivel de retorno de voz",
+   "fr": "Niveau du retour micro",
+   "it": "Livello sidetone",
+   "pl": "Poziom odsłuchu",
+   "pt": "Nível do retorno de voz",
+   "tr": "Kendi ses seviyesi"
+  },
+  "Рівень мікрофона": {
+   "de": "Mikrofonpegel",
+   "en": "Microphone level",
+   "es": "Nivel del micrófono",
+   "fr": "Niveau du micro",
+   "it": "Livello del microfono",
+   "pl": "Poziom mikrofonu",
+   "pt": "Nível do microfone",
+   "tr": "Mikrofon seviyesi"
+  },
+  "Рівень прозорості": {
+   "de": "Transparenzstufe",
+   "en": "Transparency level",
+   "es": "Nivel de transparencia",
+   "fr": "Niveau de transparence",
+   "it": "Livello di trasparenza",
+   "pl": "Poziom przezroczystości",
+   "pt": "Nível de transparência",
+   "tr": "Şeffaflık seviyesi"
+  },
+  "Рівень шумозаглушення": {
+   "de": "Stärke der Geräuschunterdrückung",
+   "en": "Noise cancelling level",
+   "es": "Nivel de cancelación de ruido",
+   "fr": "Niveau de réduction de bruit",
+   "it": "Livello cancellazione rumore",
+   "pl": "Poziom redukcji szumów",
+   "pt": "Nível de cancelamento de ruído",
+   "tr": "Gürültü engelleme seviyesi"
+  },
+  "Рівний": {
+   "de": "Neutral",
+   "en": "Flat",
+   "es": "Plano",
+   "fr": "Plat",
+   "it": "Piatto",
+   "pl": "Płaski",
+   "pt": "Plano",
+   "tr": "Düz"
+  },
+  "Світла": {
+   "de": "Hell",
+   "en": "Light",
+   "es": "Claro",
+   "fr": "Clair",
+   "it": "Chiaro",
+   "pl": "Jasny",
+   "pt": "Claro",
+   "tr": "Açık"
+  },
+  "Середня": {
+   "de": "Mittel",
+   "en": "Medium",
+   "es": "Media",
+   "fr": "Moyenne",
+   "it": "Media",
+   "pl": "Średnia",
+   "pt": "Médio",
+   "tr": "Orta"
+  },
+  "Середня кнопка миші": {
+   "de": "Mittlere Maustaste",
+   "en": "Middle mouse button",
+   "es": "Botón central del ratón",
+   "fr": "Bouton central de la souris",
+   "it": "Tasto centrale del mouse",
+   "pl": "Środkowy przycisk myszy",
+   "pt": "Botão do meio do mouse",
+   "tr": "Orta fare düğmesi"
+  },
+  "Середній": {
+   "de": "Mittel",
+   "en": "Medium",
+   "es": "Medio",
+   "fr": "Moyen",
+   "it": "Medio",
+   "pl": "Średni",
+   "pt": "Médio",
+   "tr": "Orta"
+  },
+  "Скасувати": {
+   "de": "Abbrechen",
+   "en": "Cancel",
+   "es": "Cancelar",
+   "fr": "Annuler",
+   "it": "Annulla",
+   "pl": "Anuluj",
+   "pt": "Cancelar",
+   "tr": "İptal"
+  },
+  "Скинути": {
+   "de": "Zurücksetzen",
+   "en": "Reset",
+   "es": "Restablecer",
+   "fr": "Réinitialiser",
+   "it": "Ripristina",
+   "pl": "Resetuj",
+   "pt": "Redefinir",
+   "tr": "Sıfırla"
+  },
+  "Скинути налаштування": {
+   "de": "Einstellungen zurücksetzen",
+   "en": "Reset settings",
+   "es": "Restablecer ajustes",
+   "fr": "Réinitialiser les paramètres",
+   "it": "Ripristina impostazioni",
+   "pl": "Resetuj ustawienia",
+   "pt": "Redefinir configurações",
+   "tr": "Ayarları sıfırla"
+  },
+  "Слухайте в навушниках, щоб не було луни.": {
+   "de": "Nutze Kopfhörer, um Echo zu vermeiden.",
+   "en": "Use headphones to avoid echo.",
+   "es": "Usa auriculares para evitar el eco.",
+   "fr": "Écoutez au casque pour éviter l'écho.",
+   "it": "Ascolta in cuffia per evitare l'eco.",
+   "pl": "Słuchaj w słuchawkach, aby uniknąć echa.",
+   "pt": "Use fones de ouvido para evitar eco.",
+   "tr": "Yankıyı önlemek için kulaklıkla dinleyin."
+  },
+  "Слухати наживо": {
+   "de": "Live mithören",
+   "en": "Listen live",
+   "es": "Escuchar en directo",
+   "fr": "Écouter en direct",
+   "it": "Ascolta dal vivo",
+   "pl": "Słuchaj na żywo",
+   "pt": "Ouvir ao vivo",
+   "tr": "Canlı dinle"
+  },
+  "Сповіщати про низький заряд": {
+   "de": "Bei niedrigem Akku warnen",
+   "en": "Low battery alert",
+   "es": "Avisar de batería baja",
+   "fr": "Alerte de batterie faible",
+   "it": "Avviso batteria scarica",
+   "pl": "Powiadamiaj o niskiej baterii",
+   "pt": "Avisar bateria fraca",
+   "tr": "Düşük pil uyarısı"
+  },
+  "Сповіщати, що гарнітуру заряджено": {
+   "de": "Benachrichtigen, wenn das Headset geladen ist",
+   "en": "Notify when the headset is charged",
+   "es": "Avisar cuando los auriculares estén cargados",
+   "fr": "Prévenir quand le casque est chargé",
+   "it": "Avvisa quando le cuffie sono cariche",
+   "pl": "Powiadamiaj o naładowaniu słuchawek",
+   "pt": "Avisar quando o headset estiver carregado",
+   "tr": "Kulaklık şarj olunca bildir"
+  },
+  "Співвідношення": {
+   "de": "Verhältnis",
+   "en": "Ratio",
+   "es": "Proporción",
+   "fr": "Ratio",
+   "it": "Rapporto",
+   "pl": "Współczynnik",
+   "pt": "Proporção",
+   "tr": "Oran"
+  },
+  "Створити": {
+   "de": "Erstellen",
+   "en": "Create",
+   "es": "Crear",
+   "fr": "Créer",
+   "it": "Crea",
+   "pl": "Utwórz",
+   "pt": "Criar",
+   "tr": "Oluştur"
+  },
+  "Створюю…": {
+   "de": "Wird erstellt…",
+   "en": "Creating…",
+   "es": "Creando…",
+   "fr": "Création…",
+   "it": "Creazione…",
+   "pl": "Tworzę…",
+   "pt": "Criando…",
+   "tr": "Oluşturuluyor…"
+  },
+  "Стерео": {
+   "de": "Stereo",
+   "en": "Stereo",
+   "es": "Estéreo",
+   "fr": "Stéréo",
+   "it": "Stereo",
+   "pl": "Stereo",
+   "pt": "Estéreo",
+   "tr": "Stereo"
+  },
+  "Стрім": {
+   "de": "Stream",
+   "en": "Stream",
+   "es": "Stream",
+   "fr": "Stream",
+   "it": "Stream",
+   "pl": "Stream",
+   "pt": "Stream",
+   "tr": "Yayın"
+  },
+  "Тема": {
+   "de": "Design",
+   "en": "Theme",
+   "es": "Tema",
+   "fr": "Thème",
+   "it": "Tema",
+   "pl": "Motyw",
+   "pt": "Tema",
+   "tr": "Tema"
+  },
+  "Темна": {
+   "de": "Dunkel",
+   "en": "Dark",
+   "es": "Oscuro",
+   "fr": "Sombre",
+   "it": "Scuro",
+   "pl": "Ciemny",
+   "pt": "Escuro",
+   "tr": "Koyu"
+  },
+  "Тему можна змінити будь-коли в налаштуваннях.": {
+   "de": "Das Design lässt sich jederzeit in den Einstellungen ändern.",
+   "en": "You can change the theme any time in settings.",
+   "es": "Puedes cambiar el tema en cualquier momento en los ajustes.",
+   "fr": "Vous pouvez changer le thème à tout moment dans les paramètres.",
+   "it": "Puoi cambiare il tema in qualsiasi momento nelle impostazioni.",
+   "pl": "Motyw można zmienić w każdej chwili w ustawieniach.",
+   "pt": "Você pode mudar o tema a qualquer momento nas configurações.",
+   "tr": "Temayı istediğiniz zaman ayarlardan değiştirebilirsiniz."
+  },
+  "Типово": {
+   "de": "Standard",
+   "en": "Default",
+   "es": "Predeterminado",
+   "fr": "Par défaut",
+   "it": "Predefinito",
+   "pl": "Domyślnie",
+   "pt": "Padrão",
+   "tr": "Varsayılan"
+  },
+  "Тихіше": {
+   "de": "Leiser",
+   "en": "Lower volume",
+   "es": "Bajar volumen",
+   "fr": "Baisser le volume",
+   "it": "Abbassa",
+   "pl": "Ciszej",
+   "pt": "Abaixar volume",
+   "tr": "Sesi azalt"
+  },
+  "Тихіше за поріг — тиша; голосніше за межу — м’яко приглушується.": {
+   "de": "Unter der Schwelle – Stille; über der Grenze – sanft abgesenkt.",
+   "en": "Below the threshold — silence; above the ceiling — gently turned down.",
+   "es": "Por debajo del umbral, silencio; por encima del límite, se atenúa suavemente.",
+   "fr": "Sous le seuil : silence ; au-dessus du plafond : atténué en douceur.",
+   "it": "Sotto la soglia: silenzio; sopra il limite: attenuato dolcemente.",
+   "pl": "Poniżej progu — cisza; powyżej limitu — łagodnie ściszane.",
+   "pt": "Abaixo do limiar, silêncio; acima do limite, é suavemente reduzido.",
+   "tr": "Eşiğin altı sessiz; tavanın üstü yumuşakça kısılır."
+  },
+  "Тихіше на 12 дБ": {
+   "de": "12 dB leiser",
+   "en": "12 dB quieter",
+   "es": "12 dB menos",
+   "fr": "−12 dB",
+   "it": "12 dB in meno",
+   "pl": "Ciszej o 12 dB",
+   "pt": "12 dB mais baixo",
+   "tr": "12 dB daha kısık"
+  },
+  "Той самий мікрофон, що й на головному екрані: гучність, вимкнення й «натисни, щоб говорити» діють саме на нього.": {
+   "de": "Dasselbe Mikrofon wie auf dem Hauptbildschirm: Lautstärke, Stummschaltung und Push-to-Talk wirken darauf.",
+   "en": "The same microphone as on the main screen: volume, mute and push-to-talk apply to it.",
+   "es": "El mismo micrófono que en la pantalla principal: el volumen, el silencio y pulsar para hablar actúan sobre él.",
+   "fr": "Le même micro que sur l'écran principal : le volume, la coupure et l'appui pour parler s'y appliquent.",
+   "it": "Lo stesso microfono della schermata principale: volume, disattivazione e push-to-talk agiscono su di esso.",
+   "pl": "Ten sam mikrofon co na ekranie głównym: głośność, wyciszanie i „naciśnij, aby mówić” działają właśnie na niego.",
+   "pt": "O mesmo microfone da tela principal: volume, silenciar e apertar para falar valem para ele.",
+   "tr": "Ana ekrandakiyle aynı mikrofon: ses düzeyi, sessize alma ve bas-konuş bunun için geçerlidir."
+  },
+  "Точно скинути?": {
+   "de": "Wirklich zurücksetzen?",
+   "en": "Reset for sure?",
+   "es": "¿Seguro?",
+   "fr": "Vraiment réinitialiser ?",
+   "it": "Sicuro?",
+   "pl": "Na pewno?",
+   "pt": "Tem certeza?",
+   "tr": "Emin misiniz?"
+  },
+  "Туманність": {
+   "de": "Nebel",
+   "en": "Nebula",
+   "es": "Nebulosa",
+   "fr": "Nébuleuse",
+   "it": "Nebulosa",
+   "pl": "Mgławica",
+   "pt": "Nebulosa",
+   "tr": "Bulutsu"
+  },
+  "Тьмяно": {
+   "de": "Gedimmt",
+   "en": "Dim",
+   "es": "Tenue",
+   "fr": "Tamisé",
+   "it": "Attenuato",
+   "pl": "Przyciemnione",
+   "pt": "Fraco",
+   "tr": "Loş"
+  },
+  "Тягніть точки вгору чи вниз або крутіть колесо над точкою. Подвійний клік — 0 дБ.": {
+   "de": "Punkte nach oben oder unten ziehen oder über einem Punkt scrollen. Doppelklick: 0 dB.",
+   "en": "Drag points up or down, or scroll over a point. Double-click resets to 0 dB.",
+   "es": "Arrastra los puntos o usa la rueda sobre ellos. Doble clic: 0 dB.",
+   "fr": "Faites glisser les points ou utilisez la molette dessus. Double-clic : 0 dB.",
+   "it": "Trascina i punti o usa la rotellina sopra di essi. Doppio clic: 0 dB.",
+   "pl": "Przeciągaj punkty w górę lub w dół albo przewijaj nad punktem. Podwójne kliknięcie — 0 dB.",
+   "pt": "Arraste os pontos ou use a roda sobre eles. Clique duplo: 0 dB.",
+   "tr": "Noktaları yukarı veya aşağı sürükleyin ya da üzerinde tekerleği çevirin. Çift tıklama: 0 dB."
+  },
+  "У Discord, грі чи OBS оберіть мікрофоном інший кінець цього кабелю.": {
+   "de": "Wähle in Discord, im Spiel oder in OBS das andere Ende dieses Kabels als Mikrofon.",
+   "en": "In Discord, your game or OBS, choose the other end of this cable as the microphone.",
+   "es": "En Discord, el juego u OBS, elige como micrófono el otro extremo de este cable.",
+   "fr": "Dans Discord, le jeu ou OBS, choisissez l'autre extrémité de ce câble comme micro.",
+   "it": "In Discord, nel gioco o in OBS scegli come microfono l'altro capo di questo cavo.",
+   "pl": "W Discordzie, grze lub OBS wybierz jako mikrofon drugi koniec tego kabla.",
+   "pt": "No Discord, no jogo ou no OBS, escolha a outra ponta deste cabo como microfone.",
+   "tr": "Discord'da, oyunda veya OBS'te mikrofon olarak bu kablonun diğer ucunu seçin."
+  },
+  "У Discord, грі чи OBS оберіть мікрофоном:": {
+   "de": "Wähle in Discord, im Spiel oder in OBS als Mikrofon:",
+   "en": "In Discord, your game or OBS, choose this microphone:",
+   "es": "En Discord, el juego u OBS, elige como micrófono:",
+   "fr": "Dans Discord, le jeu ou OBS, choisissez comme micro :",
+   "it": "In Discord, nel gioco o in OBS scegli come microfono:",
+   "pl": "W Discordzie, grze lub OBS wybierz jako mikrofon:",
+   "pt": "No Discord, no jogo ou no OBS, escolha como microfone:",
+   "tr": "Discord'da, oyunda veya OBS'te mikrofon olarak seçin:"
+  },
+  "У стандартних теках VST плагінів не знайдено.": {
+   "de": "In den Standard-VST-Ordnern wurden keine Plugins gefunden.",
+   "en": "No plugins found in the standard VST folders.",
+   "es": "No se encontraron plugins en las carpetas VST estándar.",
+   "fr": "Aucun plugin trouvé dans les dossiers VST standard.",
+   "it": "Nessun plugin trovato nelle cartelle VST standard.",
+   "pl": "W standardowych folderach VST nie znaleziono wtyczek.",
+   "pt": "Nenhum plugin encontrado nas pastas VST padrão.",
+   "tr": "Standart VST klasörlerinde eklenti bulunamadı."
+  },
+  "У чаті говорять — гру приглушено": {
+   "de": "Im Chat wird gesprochen – Spiel ist abgesenkt",
+   "en": "Someone is talking in chat — game is ducked",
+   "es": "Alguien habla en el chat: juego atenuado",
+   "fr": "Quelqu'un parle dans le chat — jeu atténué",
+   "it": "Qualcuno parla in chat: gioco attenuato",
+   "pl": "Ktoś mówi na czacie — gra wyciszona",
+   "pt": "Alguém está falando no chat — jogo reduzido",
+   "tr": "Sohbette konuşuluyor — oyun kısıldı"
+  },
+  "У чаті тиша — гра звучить як завжди": {
+   "de": "Im Chat ist es still – Spiel normal",
+   "en": "Chat is quiet — game plays as usual",
+   "es": "El chat está en silencio: juego normal",
+   "fr": "Le chat est silencieux — jeu normal",
+   "it": "Chat in silenzio: gioco normale",
+   "pl": "Na czacie cisza — gra brzmi normalnie",
+   "pt": "Chat em silêncio — jogo normal",
+   "tr": "Sohbet sessiz — oyun normal"
+  },
+  "Увімк.": {
+   "de": "An",
+   "en": "On",
+   "es": "Act.",
+   "fr": "Act.",
+   "it": "On",
+   "pl": "Wł.",
+   "pt": "Lig.",
+   "tr": "Açık"
+  },
+  "Увімкнено": {
+   "de": "Aktiviert",
+   "en": "Enabled",
+   "es": "Activado",
+   "fr": "Activé",
+   "it": "Attivo",
+   "pl": "Włączone",
+   "pt": "Ativado",
+   "tr": "Etkin"
+  },
+  "Увімкнено в Windows": {
+   "de": "In Windows aktiviert",
+   "en": "Enabled in Windows",
+   "es": "Activado en Windows",
+   "fr": "Activé dans Windows",
+   "it": "Attivato in Windows",
+   "pl": "Włączone w Windows",
+   "pt": "Ativado no Windows",
+   "tr": "Windows'ta etkin"
+  },
+  "Увімкнені": {
+   "de": "Aktiviert",
+   "en": "Enabled",
+   "es": "Activados",
+   "fr": "Activés",
+   "it": "Attivati",
+   "pl": "Włączone",
+   "pt": "Ativados",
+   "tr": "Etkin"
+  },
+  "Увімкнути": {
+   "de": "Aktivieren",
+   "en": "Enable",
+   "es": "Activar",
+   "fr": "Activer",
+   "it": "Attiva",
+   "pl": "Włącz",
+   "pt": "Ativar",
+   "tr": "Etkinleştir"
+  },
+  "Увімкнути обробку мікрофона": {
+   "de": "Mikrofonverarbeitung einschalten",
+   "en": "Turn on microphone processing",
+   "es": "Activar el procesamiento del micrófono",
+   "fr": "Activer le traitement du micro",
+   "it": "Attiva l’elaborazione del microfono",
+   "pl": "Włącz przetwarzanie mikrofonu",
+   "pt": "Ligar o processamento do microfone",
+   "tr": "Mikrofon işlemeyi aç"
+  },
+  "Усе": {
+   "de": "Alles",
+   "en": "Everything",
+   "es": "Todo",
+   "fr": "Tout",
+   "it": "Tutto",
+   "pl": "Wszystko",
+   "pt": "Tudo",
+   "tr": "Tümü"
+  },
+  "Фокус": {
+   "de": "Fokus",
+   "en": "Focus",
+   "es": "Enfoque",
+   "fr": "Focus",
+   "it": "Focus",
+   "pl": "Skupienie",
+   "pt": "Foco",
+   "tr": "Odak"
+  },
+  "Функції": {
+   "de": "Funktionen",
+   "en": "Features",
+   "es": "Funciones",
+   "fr": "Fonctions",
+   "it": "Funzioni",
+   "pl": "Funkcje",
+   "pt": "Recursos",
+   "tr": "Özellikler"
+  },
+  "Хвилин": {
+   "de": "Minuten",
+   "en": "Minutes",
+   "es": "Minutos",
+   "fr": "Minutes",
+   "it": "Minuti",
+   "pl": "Minuty",
+   "pt": "Minutos",
+   "tr": "Dakika"
+  },
+  "Це вбудований еквалайзер гарнітури: він діє на весь звук у навушниках, не додає затримки і не навантажує ПК. Налаштування зберігаються в самій гарнітурі.": {
+   "de": "Das ist der eingebaute Equalizer des Headsets: Er wirkt auf den gesamten Ton, ohne Latenz und ohne PC-Last. Die Einstellungen werden im Headset gespeichert.",
+   "en": "This is the headset's built-in equalizer: it affects all sound in the headset, adds no latency and doesn't load your PC. Settings are stored in the headset itself.",
+   "es": "Es el ecualizador integrado de los auriculares: afecta a todo el sonido, sin latencia ni carga para el PC. Los ajustes se guardan en los propios auriculares.",
+   "fr": "C'est l'égaliseur intégré du casque : il agit sur tout le son, sans latence ni charge pour le PC. Les réglages sont enregistrés dans le casque.",
+   "it": "È l'equalizzatore integrato delle cuffie: agisce su tutto l'audio, senza latenza né carico sul PC. Le impostazioni restano salvate nelle cuffie.",
+   "pl": "To wbudowany korektor słuchawek: działa na cały dźwięk, nie dodaje opóźnień i nie obciąża komputera. Ustawienia zapisują się w słuchawkach.",
+   "pt": "Este é o equalizador embutido do headset: afeta todo o som, sem latência e sem pesar no PC. As configurações ficam salvas no próprio headset.",
+   "tr": "Bu, kulaklığın dahili ekolayzeridir: tüm sesi etkiler, gecikme eklemez ve bilgisayarı yormaz. Ayarlar kulaklığın kendisinde saklanır."
+  },
+  "Це не VST2-плагін": {
+   "de": "Kein VST2-Plugin",
+   "en": "Not a VST2 plugin",
+   "es": "No es un plugin VST2",
+   "fr": "Ce n'est pas un plugin VST2",
+   "it": "Non è un plugin VST2",
+   "pl": "To nie jest wtyczka VST2",
+   "pt": "Não é um plugin VST2",
+   "tr": "VST2 eklentisi değil"
+  },
+  "Це не VST3-плагін": {
+   "de": "Kein VST3-Plugin",
+   "en": "Not a VST3 plugin",
+   "es": "No es un plugin VST3",
+   "fr": "Ce n'est pas un plugin VST3",
+   "it": "Non è un plugin VST3",
+   "pl": "To nie jest wtyczka VST3",
+   "pt": "Não é um plugin VST3",
+   "tr": "VST3 eklentisi değil"
+  },
+  "Це не ефект (інструмент або без входу)": {
+   "de": "Kein Effekt (Instrument oder ohne Eingang)",
+   "en": "Not an effect (instrument or no input)",
+   "es": "No es un efecto (instrumento o sin entrada)",
+   "fr": "Ce n'est pas un effet (instrument ou sans entrée)",
+   "it": "Non è un effetto (strumento o senza ingresso)",
+   "pl": "To nie efekt (instrument lub brak wejścia)",
+   "pt": "Não é um efeito (instrumento ou sem entrada)",
+   "tr": "Efekt değil (enstrüman veya girişsiz)"
+  },
+  "Це не файл налаштувань Arcmix.": {
+   "de": "Das ist keine Arcmix-Einstellungsdatei.",
+   "en": "This isn't an Arcmix settings file.",
+   "es": "No es un archivo de ajustes de Arcmix.",
+   "fr": "Ce n'est pas un fichier de paramètres Arcmix.",
+   "it": "Questo non è un file di impostazioni di Arcmix.",
+   "pl": "To nie jest plik ustawień Arcmix.",
+   "pt": "Este não é um arquivo de configurações do Arcmix.",
+   "tr": "Bu bir Arcmix ayar dosyası değil."
+  },
+  "Цей кабель уже використовує маршрутизація — оберіть інший.": {
+   "de": "Dieses Kabel wird bereits vom Routing genutzt – wähle ein anderes.",
+   "en": "This cable is already used by routing — choose another one.",
+   "es": "Este cable ya lo usa el enrutamiento: elige otro.",
+   "fr": "Ce câble est déjà utilisé par le routage — choisissez-en un autre.",
+   "it": "Questo cavo è già usato dall'instradamento: scegline un altro.",
+   "pl": "Ten kabel jest już używany przez routing — wybierz inny.",
+   "pt": "Este cabo já é usado pelo roteamento — escolha outro.",
+   "tr": "Bu kablo zaten yönlendirmede kullanılıyor — başka birini seçin."
+  },
+  "Ця версія Windows не дозволяє направляти програми автоматично — зробіть це вручну: Параметри → Система → Звук → Мікшер гучності.": {
+   "de": "Diese Windows-Version erlaubt kein automatisches Umleiten – mach es manuell: Einstellungen → System → Sound → Lautstärkemixer.",
+   "en": "This Windows version doesn't allow routing apps automatically — do it manually: Settings → System → Sound → Volume mixer.",
+   "es": "Esta versión de Windows no permite enrutar aplicaciones automáticamente: hazlo manualmente en Configuración → Sistema → Sonido → Mezclador de volumen.",
+   "fr": "Cette version de Windows ne permet pas de router les applis automatiquement — faites-le manuellement : Paramètres → Système → Son → Mélangeur de volume.",
+   "it": "Questa versione di Windows non consente l'instradamento automatico: fallo a mano in Impostazioni → Sistema → Audio → Mixer volume.",
+   "pl": "Ta wersja Windows nie pozwala kierować aplikacji automatycznie — zrób to ręcznie: Ustawienia → System → Dźwięk → Mikser głośności.",
+   "pt": "Esta versão do Windows não permite rotear aplicativos automaticamente — faça manualmente: Configurações → Sistema → Som → Mixer de volume.",
+   "tr": "Bu Windows sürümü uygulamaları otomatik yönlendirmeye izin vermiyor — elle yapın: Ayarlar → Sistem → Ses → Ses düzeyi karıştırıcısı."
+  },
+  "Частота": {
+   "de": "Abtastrate",
+   "en": "Sample rate",
+   "es": "Frecuencia de muestreo",
+   "fr": "Fréquence d'échantillonnage",
+   "it": "Frequenza di campionamento",
+   "pl": "Częstotliwość próbkowania",
+   "pt": "Taxa de amostragem",
+   "tr": "Örnekleme hızı"
+  },
+  "Частотна характеристика": {
+   "de": "Frequenzgang",
+   "en": "Frequency response",
+   "es": "Respuesta en frecuencia",
+   "fr": "Réponse en fréquence",
+   "it": "Risposta in frequenza",
+   "pl": "Charakterystyka częstotliwościowa",
+   "pt": "Resposta de frequência",
+   "tr": "Frekans yanıtı"
+  },
+  "Чат": {
+   "de": "Chat",
+   "en": "Chat",
+   "es": "Chat",
+   "fr": "Chat",
+   "it": "Chat",
+   "pl": "Czat",
+   "pt": "Chat",
+   "tr": "Sohbet"
+  },
+  "Чат → кабель": {
+   "de": "Chat → Kabel",
+   "en": "Chat → cable",
+   "es": "Chat → cable",
+   "fr": "Chat → câble",
+   "it": "Chat → cavo",
+   "pl": "Czat → kabel",
+   "pt": "Chat → cabo",
+   "tr": "Sohbet → kablo"
+  },
+  "Чекаю на програму в групі «Чат» (наприклад, Discord).": {
+   "de": "Warte auf eine App in der Gruppe „Chat“ (z. B. Discord).",
+   "en": "Waiting for an app in the “Chat” group (e.g. Discord).",
+   "es": "Esperando una aplicación del grupo «Chat» (p. ej., Discord).",
+   "fr": "En attente d'une application du groupe « Chat » (par ex. Discord).",
+   "it": "In attesa di un'app nel gruppo «Chat» (ad es. Discord).",
+   "pl": "Czekam na aplikację z grupy „Czat” (np. Discord).",
+   "pt": "Aguardando um aplicativo no grupo “Chat” (ex.: Discord).",
+   "tr": "“Sohbet” grubunda bir uygulama bekleniyor (ör. Discord)."
+  },
+  "Чорна (OLED)": {
+   "de": "Schwarz (OLED)",
+   "en": "Black (OLED)",
+   "es": "Negro (OLED)",
+   "fr": "Noir (OLED)",
+   "it": "Nero (OLED)",
+   "pl": "Czarny (OLED)",
+   "pt": "Preto (OLED)",
+   "tr": "Siyah (OLED)"
+  },
+  "Чорне тло (OLED)": {
+   "de": "Schwarzer Hintergrund (OLED)",
+   "en": "Black background (OLED)",
+   "es": "Fondo negro (OLED)",
+   "fr": "Fond noir (OLED)",
+   "it": "Sfondo nero (OLED)",
+   "pl": "Czarne tło (OLED)",
+   "pt": "Fundo preto (OLED)",
+   "tr": "Siyah arka plan (OLED)"
+  },
+  "Чути мікрофон без обробки. Увімкніть обробку нижче, щоб почути шумодав.": {
+   "de": "Du hörst das unbearbeitete Mikrofon. Aktiviere unten die Verarbeitung, um die Rauschunterdrückung zu hören.",
+   "en": "You hear the raw microphone. Turn on processing below to hear noise suppression.",
+   "es": "Oyes el micrófono sin procesar. Activa el procesamiento abajo para oír la supresión de ruido.",
+   "fr": "Vous entendez le micro brut. Activez le traitement ci-dessous pour entendre la suppression du bruit.",
+   "it": "Senti il microfono senza elaborazione. Attiva l'elaborazione qui sotto per sentire la soppressione del rumore.",
+   "pl": "Słyszysz mikrofon bez przetwarzania. Włącz przetwarzanie poniżej, aby usłyszeć redukcję szumów.",
+   "pt": "Você ouve o microfone sem processamento. Ative o processamento abaixo para ouvir a supressão de ruído.",
+   "tr": "Mikrofonu işlenmemiş duyuyorsunuz. Gürültü engellemeyi duymak için aşağıdan işlemeyi açın."
+  },
+  "Чути так, як вас чують інші — після обробки мікрофона.": {
+   "de": "Du hörst, was andere hören – nach der Mikrofonverarbeitung.",
+   "en": "You hear what others hear — after microphone processing.",
+   "es": "Oyes lo que oyen los demás, tras el procesamiento del micrófono.",
+   "fr": "Vous entendez ce que les autres entendent — après le traitement du micro.",
+   "it": "Senti ciò che sentono gli altri, dopo l'elaborazione del microfono.",
+   "pl": "Słyszysz to, co inni — po przetworzeniu mikrofonu.",
+   "pt": "Você ouve o que os outros ouvem — após o processamento do microfone.",
+   "tr": "Başkalarının duyduğunu duyarsınız — mikrofon işlemesinden sonra."
+  },
+  "Чутність власного голосу": {
+   "de": "Sidetone",
+   "en": "Sidetone",
+   "es": "Retorno de voz",
+   "fr": "Retour micro",
+   "it": "Sidetone",
+   "pl": "Odsłuch głosu",
+   "pt": "Retorno de voz",
+   "tr": "Kendi sesini duyma"
+  },
+  "Чутність власного голосу (sidetone)": {
+   "de": "Sidetone (eigene Stimme hören)",
+   "en": "Sidetone (hear your own voice)",
+   "es": "Retorno de voz (sidetone)",
+   "fr": "Retour micro (sidetone)",
+   "it": "Sidetone (ascolta la tua voce)",
+   "pl": "Odsłuch własnego głosu (sidetone)",
+   "pt": "Retorno de voz (sidetone)",
+   "tr": "Kendi sesini duyma (sidetone)"
+  },
+  "Чіткі голоси": {
+   "de": "Klare Stimmen",
+   "en": "Clear voices",
+   "es": "Voces claras",
+   "fr": "Voix claires",
+   "it": "Voci chiare",
+   "pl": "Wyraźne głosy",
+   "pt": "Vozes nítidas",
+   "tr": "Net sesler"
+  },
+  "Швидкість": {
+   "de": "Geschwindigkeit",
+   "en": "Speed",
+   "es": "Velocidad",
+   "fr": "Vitesse",
+   "it": "Velocità",
+   "pl": "Szybkość",
+   "pt": "Velocidade",
+   "tr": "Hız"
+  },
+  "Шукаю відкриті програми…": {
+   "de": "Suche geöffnete Apps…",
+   "en": "Looking for open apps…",
+   "es": "Buscando aplicaciones abiertas…",
+   "fr": "Recherche des applications ouvertes…",
+   "it": "Cerco le app aperte…",
+   "pl": "Szukam otwartych aplikacji…",
+   "pt": "Procurando aplicativos abertos…",
+   "tr": "Açık uygulamalar aranıyor…"
+  },
+  "Шукаю плагіни…": {
+   "de": "Suche Plugins…",
+   "en": "Looking for plugins…",
+   "es": "Buscando plugins…",
+   "fr": "Recherche des plugins…",
+   "it": "Cerco i plugin…",
+   "pl": "Szukam wtyczek…",
+   "pt": "Procurando plugins…",
+   "tr": "Eklentiler aranıyor…"
+  },
+  "Шукаю пристрої…": {
+   "de": "Suche Geräte…",
+   "en": "Looking for devices…",
+   "es": "Buscando dispositivos…",
+   "fr": "Recherche des périphériques…",
+   "it": "Cerco i dispositivi…",
+   "pl": "Szukam urządzeń…",
+   "pt": "Procurando dispositivos…",
+   "tr": "Aygıtlar aranıyor…"
+  },
+  "Шумовий поріг мікрофона": {
+   "de": "Mikrofon-Noise-Gate",
+   "en": "Mic noise gate",
+   "es": "Puerta de ruido del micrófono",
+   "fr": "Noise gate du micro",
+   "it": "Noise gate microfono",
+   "pl": "Bramka szumów mikrofonu",
+   "pt": "Noise gate do microfone",
+   "tr": "Mikrofon gürültü kapısı"
+  },
+  "Шумодав": {
+   "de": "Rauschfilter",
+   "en": "Noise suppression",
+   "es": "Antirruido",
+   "fr": "Anti-bruit",
+   "it": "Antirumore",
+   "pl": "Redukcja szumów",
+   "pt": "Antirruído",
+   "tr": "Gürültü önleme"
+  },
+  "Шумозаглушення": {
+   "de": "Geräuschunterdrückung",
+   "en": "Noise cancelling",
+   "es": "Cancelación de ruido",
+   "fr": "Réduction de bruit",
+   "it": "Cancellazione del rumore",
+   "pl": "Redukcja szumów",
+   "pt": "Cancelamento de ruído",
+   "tr": "Gürültü engelleme"
+  },
+  "Шумозаглушення / прозорість": {
+   "de": "Geräuschunterdrückung / Transparenz",
+   "en": "Noise cancelling / transparency",
+   "es": "Cancelación de ruido / transparencia",
+   "fr": "Réduction de bruit / transparence",
+   "it": "Cancellazione rumore / trasparenza",
+   "pl": "Redukcja szumów / przezroczystość",
+   "pt": "Cancelamento de ruído / transparência",
+   "tr": "Gürültü engelleme / şeffaflık"
+  },
+  "Шумоподавлення мікрофона": {
+   "de": "Mikrofon-Rauschunterdrückung",
+   "en": "Mic noise reduction",
+   "es": "Reducción de ruido del micrófono",
+   "fr": "Réduction de bruit du micro",
+   "it": "Riduzione rumore microfono",
+   "pl": "Redukcja szumów mikrofonu",
+   "pt": "Redução de ruído do microfone",
+   "tr": "Mikrofon gürültü azaltma"
+  },
+  "Ще два кабелі дає VB-CABLE A+B від автора VB-CABLE. Вбудувати його в Arcmix не можна: VB-Audio поширює його лише через свій магазин, ціну обираєте самі. Запустіть VBCable_AB_PackSetup.exe від імені адміністратора й перезапустіть комп’ютер — кабелі з’являться тут самі.": {
+   "de": "VB-CABLE A+B vom Autor von VB-CABLE bringt zwei weitere Kabel. In Arcmix einbauen lässt es sich nicht: VB-Audio bietet es nur im eigenen Shop an, den Preis wählst du selbst. Starte VBCable_AB_PackSetup.exe als Administrator und starte den Computer neu — die Kabel erscheinen hier von selbst.",
+   "en": "VB-CABLE A+B from the author of VB-CABLE adds two more cables. It cannot be built into Arcmix: VB-Audio offers it only through its own shop, and you choose the price. Run VBCable_AB_PackSetup.exe as administrator and restart the computer — the cables will show up here by themselves.",
+   "es": "VB-CABLE A+B, del autor de VB-CABLE, añade dos cables más. No se puede integrar en Arcmix: VB-Audio lo ofrece solo en su tienda y el precio lo eliges tú. Ejecuta VBCable_AB_PackSetup.exe como administrador y reinicia el equipo: los cables aparecerán aquí solos.",
+   "fr": "VB-CABLE A+B, de l’auteur de VB-CABLE, ajoute deux câbles. Impossible de l’intégrer à Arcmix : VB-Audio le propose uniquement dans sa boutique, et vous choisissez le prix. Lancez VBCable_AB_PackSetup.exe en tant qu’administrateur et redémarrez l’ordinateur — les câbles apparaîtront ici d’eux-mêmes.",
+   "it": "VB-CABLE A+B, dell’autore di VB-CABLE, aggiunge altri due cavi. Non si può integrare in Arcmix: VB-Audio lo offre solo nel proprio negozio e il prezzo lo scegli tu. Esegui VBCable_AB_PackSetup.exe come amministratore e riavvia il computer: i cavi compariranno qui da soli.",
+   "pl": "VB-CABLE A+B od autora VB-CABLE dodaje dwa kolejne kable. Nie da się go wbudować w Arcmix: VB-Audio udostępnia go tylko w swoim sklepie, a cenę wybierasz sam. Uruchom VBCable_AB_PackSetup.exe jako administrator i uruchom komputer ponownie — kable pojawią się tu same.",
+   "pt": "O VB-CABLE A+B, do autor do VB-CABLE, adiciona mais dois cabos. Não dá para incluí-lo no Arcmix: a VB-Audio o oferece só na própria loja, e você escolhe o preço. Execute o VBCable_AB_PackSetup.exe como administrador e reinicie o computador — os cabos aparecerão aqui sozinhos.",
+   "tr": "VB-CABLE’ın yazarından VB-CABLE A+B iki kablo daha ekler. Arcmix’e gömülemez: VB-Audio onu yalnızca kendi mağazasında sunar, fiyatı siz seçersiniz. VBCable_AB_PackSetup.exe’yi yönetici olarak çalıştırın ve bilgisayarı yeniden başlatın — kablolar burada kendiliğinden görünür."
+  },
+  "Як налаштувати": {
+   "de": "So richtest du es ein",
+   "en": "How to set it up",
+   "es": "Cómo configurarlo",
+   "fr": "Comment le configurer",
+   "it": "Come configurarlo",
+   "pl": "Jak to skonfigurować",
+   "pt": "Como configurar",
+   "tr": "Nasıl ayarlanır"
+  },
+  "Як у Windows": {
+   "de": "Wie in Windows",
+   "en": "Same as Windows",
+   "es": "Como en Windows",
+   "fr": "Comme dans Windows",
+   "it": "Come in Windows",
+   "pl": "Jak w Windows",
+   "pt": "Igual ao Windows",
+   "tr": "Windows'taki gibi"
+  },
+  "Яскравість": {
+   "de": "Helligkeit",
+   "en": "Lightness",
+   "es": "Luminosidad",
+   "fr": "Luminosité",
+   "it": "Luminosità",
+   "pl": "Jasność",
+   "pt": "Luminosidade",
+   "tr": "Parlaklık"
+  },
+  "Яскравість екрана": {
+   "de": "Bildschirmhelligkeit",
+   "en": "Screen brightness",
+   "es": "Brillo de la pantalla",
+   "fr": "Luminosité de l'écran",
+   "it": "Luminosità dello schermo",
+   "pl": "Jasność ekranu",
+   "pt": "Brilho da tela",
+   "tr": "Ekran parlaklığı"
+  },
+  "Яскравість індикатора вимкненого мікрофона": {
+   "de": "Helligkeit der Stummschalt-LED",
+   "en": "Mic mute light brightness",
+   "es": "Brillo del indicador de micrófono silenciado",
+   "fr": "Luminosité du voyant micro coupé",
+   "it": "Luminosità spia microfono disattivato",
+   "pl": "Jasność wskaźnika wyciszenia mikrofonu",
+   "pt": "Brilho do indicador de microfone mudo",
+   "tr": "Mikrofon kapalı ışığı parlaklığı"
+  },
+  "архів із журналом і налаштуваннями — щоб розібратися з проблемою": {
+   "de": "ein Archiv mit Protokoll und Einstellungen zur Fehlersuche",
+   "en": "an archive with the log and settings, to troubleshoot a problem",
+   "es": "un archivo con el registro y los ajustes, para diagnosticar un problema",
+   "fr": "une archive avec le journal et les paramètres, pour diagnostiquer un problème",
+   "it": "un archivio con log e impostazioni, per diagnosticare un problema",
+   "pl": "archiwum z dziennikiem i ustawieniami — do diagnozy problemu",
+   "pt": "um arquivo com o log e as configurações, para diagnosticar um problema",
+   "tr": "sorunu incelemek için günlük ve ayarları içeren arşiv"
+  },
+  "баланс гра / чат і гарячі клавіші перестануть працювати": {
+   "de": "Spiel-/Chat-Balance und Tastenkürzel funktionieren dann nicht mehr",
+   "en": "the game / chat balance and hotkeys will stop working",
+   "es": "el balance juego / chat y los atajos dejarán de funcionar",
+   "fr": "l'équilibre jeu / chat et les raccourcis cesseront de fonctionner",
+   "it": "il bilanciamento gioco / chat e le scorciatoie smetteranno di funzionare",
+   "pl": "balans gra / czat i skróty klawiszowe przestaną działać",
+   "pt": "o equilíbrio jogo / chat e os atalhos deixarão de funcionar",
+   "tr": "oyun / sohbet dengesi ve kısayol tuşları çalışmayı durdurur"
+  },
+  "баланс гра / чат, коли ви повертаєте коліщатко на гарнітурі": {
+   "de": "Spiel-/Chat-Balance, wenn du das Rad am Headset drehst",
+   "en": "game / chat balance when you turn the dial on the headset",
+   "es": "balance juego / chat al girar la rueda de los auriculares",
+   "fr": "équilibre jeu / chat quand vous tournez la molette du casque",
+   "it": "bilanciamento gioco / chat quando giri la rotella sulle cuffie",
+   "pl": "balans gra / czat, gdy obracasz pokrętło na słuchawkach",
+   "pt": "equilíbrio jogo / chat ao girar o botão do headset",
+   "tr": "kulaklıktaki çarkı çevirdiğinizde oyun / sohbet dengesi"
+  },
+  "баланс не діє": {
+   "de": "Balance wirkt hier nicht",
+   "en": "balance doesn't apply",
+   "es": "el balance no se aplica",
+   "fr": "l'équilibre ne s'applique pas",
+   "it": "il bilanciamento non si applica",
+   "pl": "balans tu nie działa",
+   "pt": "o equilíbrio não se aplica",
+   "tr": "denge uygulanmaz"
+  },
+  "видно, поки вікно відкрите; закріпіть її — і вікно відкриватиметься звідти": {
+   "de": "sichtbar, solange das Fenster offen ist; heften Sie sie an, dann öffnet sich das Fenster von dort",
+   "en": "shown while the window is open; pin it and the window will open from there",
+   "es": "visible mientras la ventana está abierta; ánclalo y la ventana se abrirá desde ahí",
+   "fr": "visible tant que la fenêtre est ouverte ; épinglez-le et la fenêtre s’ouvrira de là",
+   "it": "visibile mentre la finestra è aperta; aggiungilo alla barra e la finestra si aprirà da lì",
+   "pl": "widoczny, gdy okno jest otwarte; przypnij go, a okno będzie się stamtąd otwierać",
+   "pt": "visível enquanto a janela está aberta; fixe-o e a janela vai abrir por ali",
+   "tr": "pencere açıkken görünür; sabitlerseniz pencere oradan açılır"
+  },
+  "вимкнена": {
+   "de": "aus",
+   "en": "off",
+   "es": "apagados",
+   "fr": "éteint",
+   "it": "spente",
+   "pl": "wyłączone",
+   "pt": "desligado",
+   "tr": "kapalı"
+  },
+  "вимкнено кнопкою": {
+   "de": "am Headset stumm",
+   "en": "muted on headset",
+   "es": "silenciado en auriculares",
+   "fr": "coupé sur le casque",
+   "it": "disattivato dalle cuffie",
+   "pl": "wyciszony przyciskiem",
+   "pt": "mudo no headset",
+   "tr": "kulaklıktan kapalı"
+  },
+  "віртуальний": {
+   "de": "virtuell",
+   "en": "virtual",
+   "es": "virtual",
+   "fr": "virtuel",
+   "it": "virtuale",
+   "pl": "wirtualne",
+   "pt": "virtual",
+   "tr": "sanal"
+  },
+  "гарнітури й вбудовані в неї пресети": {
+   "de": "des Headsets und seine eingebauten Presets",
+   "en": "of the headset, plus its built-in presets",
+   "es": "de los auriculares y sus preajustes integrados",
+   "fr": "du casque et ses préréglages intégrés",
+   "it": "delle cuffie e i loro preset integrati",
+   "pl": "słuchawek i wbudowane w nie presety",
+   "pt": "do headset e seus presets embutidos",
+   "tr": "kulaklığın kendisi ve yerleşik ön ayarları"
+  },
+  "год": {
+   "de": "Std.",
+   "en": "h",
+   "es": "h",
+   "fr": "h",
+   "it": "h",
+   "pl": "godz.",
+   "pt": "h",
+   "tr": "sa"
+  },
+  "голосно": {
+   "de": "laut",
+   "en": "loud",
+   "es": "alto",
+   "fr": "fort",
+   "it": "alto",
+   "pl": "głośno",
+   "pt": "alto",
+   "tr": "yüksek"
+  },
+  "грає": {
+   "de": "spielt",
+   "en": "playing",
+   "es": "sonando",
+   "fr": "en lecture",
+   "it": "in riproduzione",
+   "pl": "gra",
+   "pt": "tocando",
+   "tr": "çalıyor"
+  },
+  "дБ": {
+   "de": "dB",
+   "en": "dB",
+   "es": "dB",
+   "fr": "dB",
+   "it": "dB",
+   "pl": "dB",
+   "pt": "dB",
+   "tr": "dB"
+  },
+  "до %s": {
+   "de": "auf %s",
+   "en": "to %s",
+   "es": "al %s",
+   "fr": "à %s",
+   "it": "al %s",
+   "pl": "do %s",
+   "pt": "para %s",
+   "tr": "%s düzeyine"
+  },
+  "добре": {
+   "de": "gut",
+   "en": "good",
+   "es": "bien",
+   "fr": "bon",
+   "it": "buono",
+   "pl": "dobrze",
+   "pt": "bom",
+   "tr": "iyi"
+  },
+  "експериментально": {
+   "de": "experimentell",
+   "en": "experimental",
+   "es": "experimental",
+   "fr": "expérimental",
+   "it": "sperimentale",
+   "pl": "eksperymentalne",
+   "pt": "experimental",
+   "tr": "deneysel"
+  },
+  "за категоріями Гра / Чат / Медіа": {
+   "de": "nach Kategorie Spiel / Chat / Medien",
+   "en": "by Game / Chat / Media category",
+   "es": "según la categoría Juego / Chat / Multimedia",
+   "fr": "selon la catégorie Jeu / Chat / Médias",
+   "it": "per categoria Gioco / Chat / Media",
+   "pl": "według kategorii Gra / Czat / Multimedia",
+   "pt": "pela categoria Jogo / Chat / Mídia",
+   "tr": "Oyun / Sohbet / Medya kategorisine göre"
+  },
+  "запис і прослуховування свого мікрофона": {
+   "de": "eigenes Mikrofon aufnehmen und anhören",
+   "en": "record and play back your own mic",
+   "es": "grabar y escuchar tu propio micrófono",
+   "fr": "enregistrer et réécouter votre micro",
+   "it": "registra e riascolta il tuo microfono",
+   "pl": "nagrywanie i odsłuch własnego mikrofonu",
+   "pt": "gravar e ouvir o próprio microfone",
+   "tr": "kendi mikrofonunu kaydet ve dinle"
+  },
+  "заряджається": {
+   "de": "lädt",
+   "en": "charging",
+   "es": "cargando",
+   "fr": "en charge",
+   "it": "in carica",
+   "pl": "ładowanie",
+   "pt": "carregando",
+   "tr": "şarj oluyor"
+  },
+  "затримка": {
+   "de": "Latenz",
+   "en": "latency",
+   "es": "latencia",
+   "fr": "latence",
+   "it": "latenza",
+   "pl": "opóźnienie",
+   "pt": "latência",
+   "tr": "gecikme"
+  },
+  "звук чату": {
+   "de": "Chat-Ton",
+   "en": "chat audio",
+   "es": "audio del chat",
+   "fr": "son du chat",
+   "it": "audio chat",
+   "pl": "dźwięk czatu",
+   "pt": "som do chat",
+   "tr": "sohbet sesi"
+  },
+  "коли говорять у чаті": {
+   "de": "wenn im Chat gesprochen wird",
+   "en": "while someone talks in chat",
+   "es": "cuando alguien habla en el chat",
+   "fr": "quand quelqu'un parle dans le chat",
+   "it": "quando qualcuno parla in chat",
+   "pl": "gdy ktoś mówi na czacie",
+   "pt": "quando alguém fala no chat",
+   "tr": "sohbette biri konuşurken"
+  },
+  "коли заряд повний": {
+   "de": "wenn der Akku voll ist",
+   "en": "when fully charged",
+   "es": "cuando la batería esté llena",
+   "fr": "quand la batterie est pleine",
+   "it": "quando la batteria è piena",
+   "pl": "gdy bateria jest pełna",
+   "pt": "quando a bateria estiver cheia",
+   "tr": "pil dolduğunda"
+  },
+  "коли мікрофон вимикається чи вмикається": {
+   "de": "beim Stummschalten und Einschalten des Mikrofons",
+   "en": "when the mic is muted or unmuted",
+   "es": "al silenciar o activar el micrófono",
+   "fr": "quand le micro est coupé ou réactivé",
+   "it": "quando il microfono viene disattivato o riattivato",
+   "pl": "przy wyciszaniu i włączaniu mikrofonu",
+   "pt": "ao silenciar ou ativar o microfone",
+   "tr": "mikrofon kapatılıp açıldığında"
+  },
+  "мс": {
+   "de": "ms",
+   "en": "ms",
+   "es": "ms",
+   "fr": "ms",
+   "it": "ms",
+   "pl": "ms",
+   "pt": "ms",
+   "tr": "ms"
+  },
+  "музика теж стихає під час розмови": {
+   "de": "auch Musik wird beim Sprechen leiser",
+   "en": "music gets quieter during conversations too",
+   "es": "la música también baja durante las conversaciones",
+   "fr": "la musique baisse aussi pendant les conversations",
+   "it": "anche la musica si abbassa durante le conversazioni",
+   "pl": "muzyka też cichnie podczas rozmowy",
+   "pt": "a música também abaixa durante as conversas",
+   "tr": "konuşma sırasında müzik de kısılır"
+  },
+  "мікрофон": {
+   "de": "Mikro",
+   "en": "mic",
+   "es": "micro",
+   "fr": "micro",
+   "it": "micro",
+   "pl": "mikrofon",
+   "pt": "mic",
+   "tr": "mikrofon"
+  },
+  "мікрофон не знайдено": {
+   "de": "Mikrofon nicht gefunden",
+   "en": "microphone not found",
+   "es": "micrófono no encontrado",
+   "fr": "micro introuvable",
+   "it": "microfono non trovato",
+   "pl": "nie znaleziono mikrofonu",
+   "pt": "microfone não encontrado",
+   "tr": "mikrofon bulunamadı"
+  },
+  "мікрофон працює, лише поки затиснуто клавішу": {
+   "de": "das Mikrofon ist nur bei gedrückter Taste aktiv",
+   "en": "the mic works only while the key is held",
+   "es": "el micrófono solo funciona mientras mantienes la tecla",
+   "fr": "le micro ne fonctionne que tant que la touche est enfoncée",
+   "it": "il microfono funziona solo finché tieni premuto il tasto",
+   "pl": "mikrofon działa tylko, gdy przytrzymujesz klawisz",
+   "pt": "o microfone só funciona enquanto a tecla estiver pressionada",
+   "tr": "mikrofon yalnızca tuş basılıyken çalışır"
+  },
+  "мікрофон у навушниках, поки не вимкнете": {
+   "de": "Mikrofon im Kopfhörer, bis du es ausschaltest",
+   "en": "mic in your headphones until you turn it off",
+   "es": "el micrófono en los auriculares hasta que lo apagues",
+   "fr": "le micro dans le casque jusqu'à ce que vous l'arrêtiez",
+   "it": "il microfono in cuffia finché non lo disattivi",
+   "pl": "mikrofon w słuchawkach, dopóki nie wyłączysz",
+   "pt": "o microfone nos fones até você desligar",
+   "tr": "kapatana kadar mikrofon kulaklıkta"
+  },
+  "на найвищий у списку пристрій, що зараз під'єднаний": {
+   "de": "auf das oberste Gerät der Liste, das gerade verbunden ist",
+   "en": "to the highest device in the list that is connected right now",
+   "es": "al dispositivo más alto de la lista que esté conectado ahora",
+   "fr": "vers l’appareil le plus haut de la liste qui est connecté",
+   "it": "sul dispositivo più in alto nell’elenco che è collegato ora",
+   "pl": "na urządzenie najwyżej na liście, które jest teraz podłączone",
+   "pt": "para o dispositivo mais alto da lista que estiver conectado agora",
+   "tr": "listede şu an bağlı olan en üstteki cihaza"
+  },
+  "набори налаштувань звуку, перемикання з трею": {
+   "de": "Sätze von Klangeinstellungen, umschaltbar im Tray",
+   "en": "sets of sound settings, switchable from the tray",
+   "es": "conjuntos de ajustes de sonido, se cambian desde la bandeja",
+   "fr": "ensembles de réglages du son, à changer depuis la barre d'état",
+   "it": "set di impostazioni audio, da cambiare dalla barra",
+   "pl": "zestawy ustawień dźwięku, przełączane z zasobnika",
+   "pt": "conjuntos de ajustes de som, troca pela bandeja",
+   "tr": "ses ayarı setleri, tepsiden değiştirilir"
+  },
+  "не запущено": {
+   "de": "nicht gestartet",
+   "en": "not running",
+   "es": "no iniciado",
+   "fr": "non lancé",
+   "it": "non avviato",
+   "pl": "nie uruchomiono",
+   "pt": "não iniciado",
+   "tr": "çalışmıyor"
+  },
+  "нижче порогу": {
+   "de": "unter der Schwelle",
+   "en": "below threshold",
+   "es": "bajo el umbral",
+   "fr": "sous le seuil",
+   "it": "sotto la soglia",
+   "pl": "poniżej progu",
+   "pt": "abaixo do limiar",
+   "tr": "eşiğin altında"
+  },
+  "окремий еквалайзер гри, чату й медіа через віртуальні кабелі": {
+   "de": "eigener Equalizer für Spiel, Chat und Medien über virtuelle Kabel",
+   "en": "separate game, chat and media equalizer via virtual cables",
+   "es": "ecualizador separado para juego, chat y multimedia mediante cables virtuales",
+   "fr": "égaliseur séparé pour le jeu, le chat et les médias via des câbles virtuels",
+   "it": "equalizzatore separato per gioco, chat e media tramite cavi virtuali",
+   "pl": "osobny korektor gry, czatu i multimediów przez wirtualne kable",
+   "pt": "equalizador separado de jogo, chat e mídia por cabos virtuais",
+   "tr": "sanal kablolarla oyun, sohbet ve medya için ayrı ekolayzer"
+  },
+  "перевантаження": {
+   "de": "Übersteuerung",
+   "en": "clipping",
+   "es": "saturación",
+   "fr": "saturation",
+   "it": "saturazione",
+   "pl": "przesterowanie",
+   "pt": "saturação",
+   "tr": "aşırı yük"
+  },
+  "перетягуванням; там само — вмикання й вимкнення в Windows": {
+   "de": "per Ziehen; dort auch in Windows aktivieren oder deaktivieren",
+   "en": "by dragging; enable or disable them in Windows there too",
+   "es": "arrastrando; ahí también se activan o desactivan en Windows",
+   "fr": "par glisser-déposer ; on peut aussi les activer ou désactiver dans Windows",
+   "it": "trascinando; lì puoi anche attivarli o disattivarli in Windows",
+   "pl": "przeciąganiem; tam też włączysz lub wyłączysz je w Windows",
+   "pt": "arrastando; ali também dá para ativar ou desativar no Windows",
+   "tr": "sürükleyerek; orada Windows'ta açıp kapatabilirsiniz"
+  },
+  "повертає гучність програм і мікрофона, якщо її змінить Windows чи інша програма": {
+   "de": "stellt App- und Mikrofonlautstärke wieder her, wenn Windows oder eine andere App sie ändert",
+   "en": "restores app and mic volume if Windows or another app changes it",
+   "es": "restaura el volumen de las apps y del micrófono si Windows u otra app lo cambia",
+   "fr": "rétablit le volume des applications et du micro si Windows ou une autre application le modifie",
+   "it": "ripristina il volume delle app e del microfono se Windows o un'altra app lo cambia",
+   "pl": "przywraca głośność aplikacji i mikrofonu, jeśli zmieni ją Windows lub inna aplikacja",
+   "pt": "restaura o volume dos apps e do microfone se o Windows ou outro app o mudar",
+   "tr": "Windows veya başka bir uygulama değiştirirse uygulama ve mikrofon sesini geri yükler"
+  },
+  "поточні збережуться як config.json.bak": {
+   "de": "die aktuellen bleiben als config.json.bak erhalten",
+   "en": "current ones are kept as config.json.bak",
+   "es": "los actuales se guardan como config.json.bak",
+   "fr": "les actuels sont gardés dans config.json.bak",
+   "it": "quelle attuali restano in config.json.bak",
+   "pl": "obecne zostaną zapisane jako config.json.bak",
+   "pt": "os atuais ficam salvos como config.json.bak",
+   "tr": "mevcut ayarlar config.json.bak olarak saklanır"
+  },
+  "прибирає клавіатуру, вентилятор, вуличний шум · +10 мс": {
+   "de": "entfernt Tastatur-, Lüfter- und Straßengeräusche · +10 ms",
+   "en": "removes keyboard, fan and street noise · +10 ms",
+   "es": "elimina teclado, ventilador y ruido de la calle · +10 ms",
+   "fr": "supprime clavier, ventilateur, bruit de rue · +10 ms",
+   "it": "elimina tastiera, ventola, rumore della strada · +10 ms",
+   "pl": "usuwa klawiaturę, wentylator, hałas ulicy · +10 ms",
+   "pt": "remove teclado, ventoinha e ruído da rua · +10 ms",
+   "tr": "klavye, fan ve sokak gürültüsünü giderir · +10 ms"
+  },
+  "прибирає клавіатуру, вентилятор, вуличний шум · через віртуальний кабель": {
+   "de": "entfernt Tastatur-, Lüfter- und Straßenlärm · über ein virtuelles Kabel",
+   "en": "removes keyboard, fan and street noise · via a virtual cable",
+   "es": "elimina teclado, ventilador y ruido de la calle · mediante un cable virtual",
+   "fr": "supprime clavier, ventilateur, bruit de la rue · via un câble virtuel",
+   "it": "elimina tastiera, ventola e rumore della strada · tramite un cavo virtuale",
+   "pl": "usuwa klawiaturę, wentylator, hałas z ulicy · przez wirtualny kabel",
+   "pt": "remove teclado, ventilador e ruído da rua · por um cabo virtual",
+   "tr": "klavye, fan ve sokak gürültüsünü giderir · sanal kablo ile"
+  },
+  "приглушено": {
+   "de": "abgesenkt",
+   "en": "ducked",
+   "es": "atenuado",
+   "fr": "atténué",
+   "it": "attenuato",
+   "pl": "wyciszono",
+   "pt": "reduzido",
+   "tr": "kısıldı"
+  },
+  "провід": {
+   "de": "Kabel",
+   "en": "wired",
+   "es": "cable",
+   "fr": "filaire",
+   "it": "cavo",
+   "pl": "przewód",
+   "pt": "cabo",
+   "tr": "kablolu"
+  },
+  "світиться на гарнітурі, коли мікрофон вимкнено": {
+   "de": "leuchtet am Headset, solange das Mikrofon stumm ist",
+   "en": "lights up on the headset while the mic is muted",
+   "es": "se enciende en los auriculares cuando el micrófono está silenciado",
+   "fr": "s'allume sur le casque quand le micro est coupé",
+   "it": "si accende sulle cuffie quando il microfono è disattivato",
+   "pl": "świeci na słuchawkach, gdy mikrofon jest wyciszony",
+   "pt": "acende no headset quando o microfone está mudo",
+   "tr": "mikrofon kapalıyken kulaklıkta yanar"
+  },
+  "тихий звук": {
+   "de": "leise",
+   "en": "quiet",
+   "es": "bajo",
+   "fr": "faible",
+   "it": "basso",
+   "pl": "cicho",
+   "pt": "baixo",
+   "tr": "kısık"
+  },
+  "тихо": {
+   "de": "still",
+   "en": "silent",
+   "es": "en silencio",
+   "fr": "silencieux",
+   "it": "silenzioso",
+   "pl": "cisza",
+   "pt": "em silêncio",
+   "tr": "sessiz"
+  },
+  "тиша": {
+   "de": "Stille",
+   "en": "silence",
+   "es": "silencio",
+   "fr": "silence",
+   "it": "silenzio",
+   "pl": "cisza",
+   "pt": "silêncio",
+   "tr": "sessizlik"
+  },
+  "хв": {
+   "de": "Min.",
+   "en": "min",
+   "es": "min",
+   "fr": "min",
+   "it": "min",
+   "pl": "min",
+   "pt": "min",
+   "tr": "dk"
+  },
+  "через віртуальний кабель": {
+   "de": "über ein virtuelles Kabel",
+   "en": "via a virtual cable",
+   "es": "mediante un cable virtual",
+   "fr": "via un câble virtuel",
+   "it": "tramite un cavo virtuale",
+   "pl": "przez wirtualny kabel",
+   "pt": "por um cabo virtual",
+   "tr": "sanal kablo ile"
+  },
+  "чисто чорне тло в темному режимі: пікселі OLED-екрана не світяться": {
+   "de": "reines Schwarz im dunklen Modus: OLED-Pixel bleiben aus",
+   "en": "pure black background in dark mode: OLED pixels stay off",
+   "es": "fondo negro puro en modo oscuro: los píxeles OLED se quedan apagados",
+   "fr": "fond noir pur en mode sombre : les pixels OLED restent éteints",
+   "it": "nero puro in modalità scura: i pixel OLED restano spenti",
+   "pl": "czysta czerń w trybie ciemnym: piksele OLED nie świecą",
+   "pt": "fundo preto puro no modo escuro: os pixels OLED ficam apagados",
+   "tr": "koyu modda saf siyah arka plan: OLED pikselleri kapalı kalır"
+  },
+  "щоб перенести на інший ПК чи після перевстановлення": {
+   "de": "für einen anderen PC oder nach einer Neuinstallation",
+   "en": "to move to another PC or after reinstalling",
+   "es": "para pasar a otro PC o tras reinstalar",
+   "fr": "pour passer à un autre PC ou après une réinstallation",
+   "it": "per passare a un altro PC o dopo una reinstallazione",
+   "pl": "aby przenieść na inny komputer lub po ponownej instalacji",
+   "pt": "para levar a outro PC ou após reinstalar",
+   "tr": "başka bir bilgisayara taşımak ya da yeniden kurduktan sonra kullanmak için"
+  },
+  "інші чують": {
+   "de": "andere hören",
+   "en": "others hear",
+   "es": "los demás oyen",
+   "fr": "les autres entendent",
+   "it": "gli altri sentono",
+   "pl": "inni słyszą",
+   "pt": "os outros ouvem",
+   "tr": "diğerleri duyar"
+  },
+  "— не направляти —": {
+   "de": "— nicht umleiten —",
+   "en": "— don't route —",
+   "es": "— no enrutar —",
+   "fr": "— ne pas router —",
+   "it": "— non instradare —",
+   "pl": "— nie kieruj —",
+   "pt": "— não rotear —",
+   "tr": "— yönlendirme —"
+  },
+  "— оберіть кабель —": {
+   "de": "— Kabel wählen —",
+   "en": "— choose a cable —",
+   "es": "— elige un cable —",
+   "fr": "— choisir un câble —",
+   "it": "— scegli un cavo —",
+   "pl": "— wybierz kabel —",
+   "pt": "— escolha um cabo —",
+   "tr": "— kablo seçin —"
+  }
+ }
+}

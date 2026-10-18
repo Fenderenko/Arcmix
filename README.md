@@ -1,0 +1,159 @@
+# Arcmix
+
+[Українська](README.uk.md) · **English**
+
+A small Windows tray app for headsets: a game / chat balance for any apps, an equalizer, microphone
+processing and headset settings in one window next to the clock.
+
+Arcmix started from the idea of Swiftlyx's [OpenChatMix](https://github.com/Swiftlyx/OpenChatMix); this repository is a fork of it.
+
+<p align="center">
+  <img src="docs/main.png" width="200" alt="Mix: game / chat balance, microphone and app groups">
+  <img src="docs/equalizer.png" width="200" alt="Equalizer: presets, your own presets and the curve">
+  <img src="docs/microphone.png" width="200" alt="Microphone processing: noise suppression, gate, ceiling, VST plugins">
+  <img src="docs/settings.png" width="200" alt="Settings: language, start with Windows, features">
+</p>
+
+## Features
+
+- **Game / chat balance for any app.** Put apps into Game / Chat / Media: drag one onto a group or add it with “+”. Every app keeps its own volume, and the balance (the dial on the headset, the slider in the window or hotkeys) scales those levels instead of overwriting them.
+- **An app's own output device.** The ⋮ menu next to an app sends it to another device, e.g. music to the speakers.
+- **Auto-ducking.** While someone talks in a Chat app, the game (and optionally Media) gets quieter. Chat apps are listened to directly, so music or a video never triggers it.
+- **Volume memory.** App volumes and the microphone level come back if Windows or another app resets them.
+- **Equalizer.** Built-in presets, your own presets (edit, save, rename, delete) and presets built into the headset, where it has them.
+- **Microphone.** Volume, mute hotkey, push-to-talk on a key or a mouse button, soft sound cues and a mute badge on the tray icon.
+- **Hear yourself.** Record 5 seconds and play them back, or listen to your microphone live, after processing.
+- **Microphone processing.** Neural noise suppression (RNNoise), a noise gate, a loudness ceiling and 64-bit VST2 / VST3 plugins. Needs a virtual audio cable, e.g. the free [VB-CABLE](https://vb-audio.com/Cable/).
+- **Headset settings.** Battery with alerts and a time estimate, sidetone, auto power-off, mute light and more, depending on the model.
+- **Output devices by priority.** Sound goes to the highest connected device in your list: headset on, to the headset; off, to the next one. The headset microphone can follow it.
+- **Audio routing** *(experimental)*. Game, chat and media into separate virtual cables, for streaming or a separate equalizer per group.
+- **Tray icon.** The app logo while the balance is equal; two capsules that show the balance once it moves. The mouse wheel over it changes the balance or shows the battery.
+- **Features you can turn off.** Settings → General → Features: a feature that is off disappears from the window and does not run.
+- **Update check.** Settings → About → *Check for updates* asks GitHub for the latest release. Nothing is checked on its own.
+- **Themes, profiles, hotkeys, settings in a file, 9 languages** (English, Українська, Deutsch, Français, Español, Português (Brasil), Polski, Italiano, Türkçe).
+
+## Download and install
+
+1. Download `Arcmix-1.0.0.zip` from [Releases](../../releases) and unpack it to any folder (e.g. `C:\Programs\Arcmix`).
+2. Run `Arcmix.exe`. The exe is not code-signed, so Windows SmartScreen may warn you: click **More info → Run anyway**.
+3. The icon appears in the tray (click it to open the window). A short first-run guide walks through the basics.
+
+Requirements: Windows 10 or 11, 64-bit, with the Microsoft Edge WebView2 Runtime (already part of Windows 11;
+on Windows 10 it comes with Edge, or get it from [Microsoft](https://developer.microsoft.com/microsoft-edge/webview2/)).
+
+Settings, the log and crash reports are kept in `%APPDATA%\Arcmix`. **Settings → General → Start with Windows**
+adds the app to autostart (the current user's `Run` key).
+
+**Uninstall:** turn off *Start with Windows*, quit from the tray menu, delete the folder with `Arcmix.exe`
+and, if you don't need the settings any more, `%APPDATA%\Arcmix`.
+
+## Quick start
+
+**Balance.** Open the window and put your apps into groups: the game into *Game*, Discord into *Chat*,
+the browser or a player into *Media*. Drag an app onto a group card, or click “+” on a group to pick one
+of the open apps. Then turn the dial on the headset or move the slider. Default hotkeys:
+`Ctrl+Alt+→` more game, `Ctrl+Alt+←` more chat, `Ctrl+Alt+↓` equal balance, `Ctrl+Alt+M` mute the microphone.
+They can be changed in **Settings → General → Hotkeys** (click an action, then press the new combination).
+
+**Equalizer.** **Sound → Equalizer**: pick a preset or drag the curve. A changed curve can be saved as a new
+preset; your presets can be overwritten, renamed and deleted.
+
+**Microphone processing** (noise suppression, gate, VST):
+1. Install [VB-CABLE](https://vb-audio.com/Cable/) and restart the PC.
+2. **Microphone → Microphone processing**: turn it on, pick your real microphone and *Send to: CABLE Input*.
+3. In Discord, your game or OBS choose **CABLE Output** as the microphone. Others now hear the processed voice;
+   **Hear yourself** lets you check it. The cable adds about 45 ms of latency, noise suppression about 10 ms more.
+
+**Audio routing** *(experimental)*: sends Game, Chat and Media into their own virtual cables, e.g. to capture
+them separately in OBS. Each group needs a free cable. The cable used by microphone processing is never
+routed, so one VB-CABLE is not enough for both: more cables come with
+[VB-CABLE A+B](https://shop.vb-audio.com/en/audio-apps/12-vb-cable-ab.html) (VB-Audio donationware; it may not
+be bundled with other apps, so get it from their shop).
+
+**Output devices by priority.** **Settings → Headset → Windows devices → Device order**: drag the devices into
+your order. With *Switch sound automatically* on, the Windows output follows the highest connected device.
+
+## Headsets
+
+The balance, ducking, equalizer presets, microphone tools, routing and themes work with any headset.
+Battery, sidetone, the hardware equalizer and other headset settings need the headset's own protocol:
+
+- **Arctis 7+, 7P+, 7X+** have a native driver and are tested with the real headset.
+- Other Arctis models (Arctis 1, 5, 7, 9, Pro, Nova 3 / 4 / 5 / 7 / Pro / Elite, GameBuds and others) come from
+  the device descriptions of [Linux-Arctis-Manager](https://github.com/elegos/Linux-Arctis-Manager) in
+  `web/devices.json`. They are **not tested**: some settings may be missing or behave differently.
+  Reports are welcome.
+- Without a supported headset, the window shows nothing about the headset (no battery, sidetone or
+  headset equalizer); everything else works.
+
+## Known limitations
+
+- **A separate equalizer for game / chat / media** is only possible through audio routing with virtual cables:
+  Windows captures an app's sound after its volume, so the original cannot be muted while a processed copy plays.
+- **Bluetooth headsets:** when an app opens the headset microphone, Windows switches it to the Hands-Free mode
+  (mono, lower quality). That is how Bluetooth works in Windows, not an Arcmix setting.
+- **Vendor headset software** that creates its own virtual devices or changes per-app volume can fight with
+  Arcmix. Close it or turn its mixer off.
+- **Wireless headsets after a restart:** the receiver may report the headset as off until the headset is turned
+  off and on again (seen with the Arctis 7+).
+- **Not tested live yet:** audio routing, push-to-talk and the microphone sound cues, the taskbar button,
+  disabling a Windows device from the device list, headsets other than the Arctis 7+ family.
+- VST plugins must be 64-bit.
+
+## Troubleshooting
+
+**Settings → General → Diagnostic report** puts a zip with the log, the crash report and the settings on the
+desktop. Please attach it when you open an [issue](../../issues).
+
+## Building from source
+
+Requires Windows and [Rust](https://rustup.rs/) with the MSVC toolchain. Crate versions are pinned in `rust/Cargo.lock`.
+
+```sh
+cd rust
+cargo build --release
+```
+
+The app is `rust/target/release/arcmix.exe`; `build.rs` embeds the icon (`assets/app.ico`) and the version from
+`Cargo.toml`. Tests: `cargo test --release`.
+
+Tools in `tools/` need Python 3:
+
+- `mkicon.py`: the app icon (`assets/app.ico`, `assets/app.png`; `--svg` prints the vector version used in About).
+- `i18n_src.py`: the translations source, generates `web/i18n.json`; `check_i18n.py` reports missing strings.
+- `gen_devices.py`: `web/devices.json` from Linux-Arctis-Manager's `device-configs`.
+- `rnnoise_model.py`: `assets/rnnoise.bin` from the RNNoise sources.
+- `mock/srv.py`: the same window with made-up data at http://127.0.0.1:8772/, for UI work without the app.
+
+## Credits
+
+Made by **Fenderenko**, written together with Claude Code (Anthropic). Arcmix stands on the work of:
+
+- **Swiftlyx** — [OpenChatMix](https://github.com/Swiftlyx/OpenChatMix) (MIT): the idea of a game / chat mix
+  for any headset and the first groundwork. Arcmix grew out of it.
+- **elegos** and contributors — [Linux-Arctis-Manager](https://github.com/elegos/Linux-Arctis-Manager) (GPL-3.0):
+  the device descriptions (`web/devices.json`), the description engine ported to Rust (`rust/src/devs/engine.rs`)
+  and writing the equalizer to the headset memory once on exit.
+- **Sapd** and contributors — [HeadsetControl](https://github.com/Sapd/HeadsetControl) (GPL-3.0): a reference for
+  the Arctis 7+ commands.
+- **File-New-Project** — [EarTrumpet](https://github.com/File-New-Project/EarTrumpet) (MIT): the layout of the
+  Windows interface for an app's own output device.
+- **Xiph.Org, Mozilla, Jean-Marc Valin** — [RNNoise](https://github.com/xiph/rnnoise) (BSD-3-Clause): noise
+  suppression, ported to Rust together with its model.
+- **Robert Bristow-Johnson** — the Audio EQ Cookbook: the equalizer filters.
+- **Microsoft** — [windows-rs](https://github.com/microsoft/windows-rs) (MIT / Apache-2.0) and the WebView2 loader
+  from the WebView2 SDK.
+- **wravery** — [webview2-com](https://github.com/wravery/webview2-rs) (MIT).
+- **dtolnay** and contributors — [serde, serde_json](https://serde.rs/) (MIT / Apache-2.0).
+- **The Onest Project Authors** — the [Onest](https://github.com/googlefonts/onest) font (SIL OFL 1.1).
+- **Steinberg** — the [VST 3 SDK](https://github.com/steinbergmedia/vst3_pluginterfaces) interfaces (MIT).
+  VST is a registered trademark of Steinberg Media Technologies GmbH.
+- **VB-Audio** — [VB-CABLE](https://vb-audio.com/Cable/), the virtual cable the microphone processing and routing
+  rely on. It is not included with Arcmix.
+
+License texts and notices: [THIRD_PARTY.md](THIRD_PARTY.md).
+
+## License
+
+Arcmix is licensed under the **GNU GPL v3** — see [LICENSE](LICENSE). It is GPL because it includes the device
+descriptions and engine from Linux-Arctis-Manager (GPL-3.0).
