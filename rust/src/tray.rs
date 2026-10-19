@@ -110,6 +110,7 @@ fn params() -> IconParams {
         b: u.cur_b,
         bat: u.cur_bat,
         level: hs.batt_pct,
+        nova: hs.dev_name.to_lowercase().contains("nova"),
         light: u.light_task,
         mic,
         cg,

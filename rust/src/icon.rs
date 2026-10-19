@@ -28,6 +28,8 @@ pub struct IconParams {
     pub bat: f64,
     /// battery, percent
     pub level: i32,
+    /// the battery LED steps of the Arctis Nova line (otherwise of the older Arctis)
+    pub nova: bool,
     /// light taskbar
     pub light: bool,
     /// microphone badge: 0 none, 1 muted (red), 2 talking (green)
@@ -209,15 +211,21 @@ fn sd_layer(px: f64, py: f64, i: usize) -> f64 {
     d.max((y - bottom) / 1f64.hypot(slope)).max(l - x).max(x - (1.0 - l)).max(apex - y) * 32.0
 }
 
-/// Over 50 % — green, 26–50 % — yellow, up to 25 % — red (darker for a light taskbar).
-fn battery_color(level: i32, light: bool) -> [f64; 3] {
-    match (level, light) {
-        (..=25, true) => [0.80, 0.18, 0.15],
-        (..=25, false) => [1.0, 0.42, 0.40],
-        (..=50, true) => [0.66, 0.47, 0.0],
-        (..=50, false) => [1.0, 0.80, 0.30],
-        (_, true) => [0.10, 0.53, 0.24],
-        (_, false) => [0.40, 0.86, 0.50],
+/// As the headset LED (darker for a light taskbar). Older Arctis (7 / 7+ / 7P…): green from 50 %,
+/// yellow 20–49 %, red below 20 %. Arctis Nova: green from 50 %, yellow 15–49 %, orange 6–14 %, red 0–5 %.
+fn battery_color(level: i32, light: bool, nova: bool) -> [f64; 3] {
+    let red = if nova { level <= 5 } else { level <= 19 };
+    let orange = nova && level <= 14;
+    let yellow = level <= 49;
+    match (red, orange, yellow, light) {
+        (true, _, _, true) => [0.80, 0.18, 0.15],
+        (true, _, _, false) => [1.0, 0.42, 0.40],
+        (_, true, _, true) => [0.78, 0.36, 0.04],
+        (_, true, _, false) => [1.0, 0.60, 0.30],
+        (_, _, true, true) => [0.66, 0.47, 0.0],
+        (_, _, true, false) => [1.0, 0.80, 0.30],
+        (_, _, _, true) => [0.10, 0.53, 0.24],
+        (_, _, _, false) => [0.40, 0.86, 0.50],
     }
 }
 
@@ -235,7 +243,7 @@ pub fn render(p: &IconParams) -> Vec<u8> {
         }
     }
     // at the end of the animation the battery number takes the level colour
-    let stat_c = battery_color(p.level, p.light);
+    let stat_c = battery_color(p.level, p.light, p.nova);
     let stat_t = smoother((p.bat - 0.75) / 0.25);
     let game_pct = 100.0 - p.pos.max(0.0);
     let chat_pct = 100.0 - (-p.pos).max(0.0);
@@ -360,7 +368,7 @@ mod tests {
     use super::*;
 
     fn params(size: usize, b: f64, pos: f64, bat: f64, light: bool) -> IconParams {
-        IconParams { size, pos, b, bat, level: 75, light, mic: 0, cg: GAME, cc: CHAT }
+        IconParams { size, pos, b, bat, level: 75, nova: false, light, mic: 0, cg: GAME, cc: CHAT }
     }
 
     #[test]
@@ -371,6 +379,19 @@ mod tests {
         assert!(alpha(&params(32, 0.0, 50.0, 0.0, false), 1, 16) < 30);
         // the battery number shows without the tile
         assert!(alpha(&params(32, 1.0, 0.0, 1.0, false), 1, 16) < 30);
+    }
+
+    #[test]
+    fn battery_colours_follow_the_headset_led() {
+        let c = |level, nova| battery_color(level, false, nova);
+        let (green, yellow, red) = (c(100, false), c(49, false), c(19, false));
+        // older Arctis: 100–50 green, 49–20 yellow, 19–0 red
+        assert_eq!((c(50, false), c(20, false), c(1, false)), (green, yellow, red));
+        assert!(green != yellow && yellow != red);
+        // Nova: 100–50 green, 49–15 yellow, 14–6 orange, 5–0 red
+        let orange = c(14, true);
+        assert_eq!((c(50, true), c(15, true), c(6, true), c(5, true), c(0, true)), (green, yellow, orange, red, red));
+        assert!(orange != yellow && orange != red);
     }
 
     /// Frames of the tray icon for a look: ARCMIX_ICON_SHEET=<file.png> cargo test -- --ignored icon_sheet

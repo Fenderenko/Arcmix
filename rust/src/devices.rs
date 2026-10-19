@@ -243,7 +243,7 @@ pub fn on_battery(lvl: i32, charging: bool) {
                     b.hours = (lvl as f64 / rate * 2.0).round() / 2.0;
                 }
             }
-            let thr = if c.low_level <= 0 { 25 } else { c.low_level };
+            let thr = if c.low_level <= 0 { 20 } else { c.low_level };
             if lvl <= thr && !b.low_sent && c.low_battery {
                 b.low_sent = true;
                 let msg = t("Залишилось близько %d%%. Час підключити зарядку.").replace("%d%%", &format!("{lvl}%"));

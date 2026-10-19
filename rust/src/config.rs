@@ -284,7 +284,7 @@ impl Default for Config {
             switch_mic: true,
             prev_mic: String::new(),
             prev_out: String::new(),
-            low_level: 25,
+            low_level: 20,
             full_notify: true,
             osd: true,
             mic_hotkey: true,
@@ -438,6 +438,10 @@ pub fn load() -> Config {
 
 /// Settings from older versions.
 pub fn migrate(c: &mut Config) {
+    // early builds offered a 25 % low-battery alert; the headset LED turns red below 20 %
+    if c.low_level == 25 {
+        c.low_level = 20;
+    }
     // before 1.8.1 microphone processing had its own microphone — now one for the whole app
     if !c.mic_fx.input.is_empty() {
         if c.mic_dev.is_empty() {

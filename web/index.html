@@ -6,7 +6,7 @@
 <title>Arcmix</title>
 <style>
 @font-face{font-family:"Onest";src:url(/font.ttf) format("truetype");font-weight:100 900;font-display:block}
-:root{--soft:cubic-bezier(.3,.75,.25,1);--okc:#34C46F;--warn:#FFB547;--g:#FF8DB4;--gc:#6E2944;--og:#FFE3EC;--c:#8DB6FF;--cc:#1F3D6E;--oc:#E3EDFF;--s:#141316;--s1:#1F1D22;--s2:#2A272E;--sd:#141316;--on:#F6F2F4;--ov:#CFC7CC;--ol:#8F878C;--tr:#39343B;--sb:#141316;--wbg:#141316;--solid:#1F1D22;--card:none;--red:#FF5A4E;--ease:cubic-bezier(.2,.9,.2,1)}
+:root{--soft:cubic-bezier(.3,.75,.25,1);--okc:#34C46F;--warn:#FFB547;--g:#FF8DB4;--gc:#6E2944;--og:#FFE3EC;--c:#8DB6FF;--cc:#1F3D6E;--oc:#E3EDFF;--s:#141316;--s1:#1F1D22;--s2:#2A272E;--sd:#141316;--on:#F6F2F4;--ov:#CFC7CC;--ol:#8F878C;--tr:#39343B;--sb:#141316;--wbg:#141316;--solid:#1F1D22;--card:none;--red:#FF5A4E;--orange:#FF9A4A;--ease:cubic-bezier(.2,.9,.2,1)}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden}
 body{background:var(--s);color:var(--on);font:14px/1.35 "Onest","Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased;user-select:none;cursor:default}
@@ -656,7 +656,7 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
         <button class="sw" id="swLow" role="switch" aria-label="Сповіщати про низький заряд"><i></i></button>
       </div>
       <div class="seg" id="lowSeg" style="margin-bottom:4px">
-        <button data-v="10">10%</button><button data-v="25">25%</button><button data-v="50">50%</button>
+        <button data-v="10">10%</button><button data-v="20">20%</button><button data-v="50">50%</button>
       </div>
       <div class="row">
         <div class="grow"><div>Сповіщати, що гарнітуру заряджено</div><div class="sub">коли заряд повний</div></div>
@@ -2452,7 +2452,7 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
     $('wheelHint').textContent = { battery: tx('Прокрутка над значком у треї показує заряд замість балансу.'), balance: tx('Прокрутка над значком у треї змінює баланс гра / чат, як повзунок у вікні.'), off: '' }[c.wheelMode || 'battery'];
     pressed('modeSeg', c.mode === 'light' || c.mode === 'auto' ? c.mode : 'dark'); pressed('sideSeg', c.sidetone); pressed('offChips', c.autoOff); pressed('gainSeg', c.micGain); setSw('swLed', c.muteLed !== 0);
     setSw('swLow', c.lowBattery); setSw('swAuto', c.autostart); setSw('swFull', c.fullNotify);
-    pressed('lowSeg', c.lowLevel || 25); $('lowSeg').classList.toggle('hide', !c.lowBattery);
+    pressed('lowSeg', c.lowLevel || 20); $('lowSeg').classList.toggle('hide', !c.lowBattery);
     $('battEst').textContent = s.battHours > 0 && !s.charging ? tx('Прогноз роботи від батареї:') + ' ≈ ' + s.battHours + ' ' + tx('год') : tx('Прогноз роботи з’явиться, коли заряд почне знижуватися.');
     setSw('swSwitch', c.autoSwitch); setSw('swSwitchMic', c.switchMic); $('switchMicRow').classList.toggle('hide', !c.autoSwitch);
     setSw('swTaskbar', c.taskbar);
@@ -2499,8 +2499,12 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
     $('devNone').classList.toggle('hide', !!s.connected);
     renderGen(dev.native === false ? (dev.settings || []) : []);
     var bo = s.out || {}, bt = !bo.headset && bo.batt >= 0;
-    var lvl = (bt ? bo.batt : s.battery) / 25;
-    document.querySelectorAll('#bchip .bc').forEach(function (b, i) { b.style.fill = i < lvl ? (lvl <= 1 ? 'var(--red)' : 'var(--g)') : 'var(--tr)'; });
+    var pct = bt ? bo.batt : s.battery, lvl = pct / 25;
+    // the colours of the headset LED (as icon::battery_color): older Arctis — red below 20 %, yellow below 50 %;
+    // Nova — red up to 5 %, orange up to 14 %, yellow below 50 %
+    var nova = !bt && /nova/i.test(dev.name || '');
+    var bcol = (nova ? pct <= 5 : pct < 20) ? 'var(--red)' : nova && pct <= 14 ? 'var(--orange)' : pct < 50 ? 'var(--warn)' : 'var(--g)';
+    document.querySelectorAll('#bchip .bc').forEach(function (b, i) { b.style.fill = i < lvl ? bcol : 'var(--tr)'; });
     $('bpct').textContent = bt ? bo.batt + '%' : s.connected && s.haveBattery ? s.battery + '%' + (s.charging ? ' ⚡' : (s.battHours > 0 ? ' · ≈' + (s.battHours >= 10 ? Math.round(s.battHours) : s.battHours) + ' ' + tx('год') : '')) : '—';
     // a long hour word in some languages: the estimate goes if it does not fit (it is in the battery settings too)
     if (!bt && $('bpct').scrollWidth > $('bpct').clientWidth + 1 && s.connected && s.haveBattery) $('bpct').textContent = s.battery + '%' + (s.charging ? ' ⚡' : '');
