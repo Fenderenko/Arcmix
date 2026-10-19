@@ -102,6 +102,11 @@ class H(http.server.BaseHTTPRequestHandler):
             except Exception: pass
         elif p=='/icon':
             q=self.path
+            # real icons, if extracted (rust: appinfo icon_dump test); not in git
+            from urllib.parse import parse_qs, urlsplit
+            f=os.path.join(os.path.dirname(os.path.abspath(__file__)),'icons',(parse_qs(urlsplit(q).query).get('exe',[''])[0])+'.png')
+            if os.path.basename(f)!='.png' and os.path.isfile(f):
+                self.send_response(200); self.send_header('Content-Type','image/png'); self.end_headers(); self.wfile.write(open(f,'rb').read()); return
             if 'Discord' in q: c=(88,101,242)
             elif 'Spotify' in q: c=(30,215,96)
             elif 'steam' in q: c=(60,80,110)

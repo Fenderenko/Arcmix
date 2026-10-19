@@ -325,3 +325,23 @@ pub fn running_procs() -> HashMap<String, u32> {
     }
     out
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// App icons for the mock (tools/mock/icons, not in git), extracted the way the app does:
+    /// ARCMIX_ICON_DUMP="<out dir>|<exe path>;<exe path>…" cargo test -- --ignored icon_dump
+    #[test]
+    #[ignore]
+    fn icon_dump() {
+        let Ok(spec) = std::env::var("ARCMIX_ICON_DUMP") else { return };
+        let (dir, paths) = spec.split_once('|').unwrap();
+        for path in paths.split(';').filter(|p| !p.is_empty()) {
+            let exe = path.rsplit(['\\', '/']).next().unwrap();
+            remember_path(exe, path);
+            let png = icon_png_raw(exe).unwrap_or_else(|| panic!("no icon: {path}"));
+            std::fs::write(format!("{dir}/{exe}.png"), png).unwrap();
+        }
+    }
+}

@@ -6,3 +6,4 @@ rust/target/
 .vscode/
 .idea/
 *.zip
+tools/mock/icons/
