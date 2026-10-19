@@ -585,10 +585,6 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
       <div class="grow"><div>Звукові сигнали</div><div class="sub">коли мікрофон вимикається чи вмикається</div></div>
       <button class="sw" id="swSounds" role="switch" aria-label="Звукові сигнали"><i></i></button>
     </div>
-    <div class="row">
-      <div class="grow"><div>Нагадувати, що мікрофон вимкнено</div><div class="sub">підказка на екрані, коли ви говорите, а мікрофон вимкнено</div></div>
-      <button class="sw" id="swMuteTalk" role="switch" aria-label="Нагадувати, що мікрофон вимкнено"><i></i></button>
-    </div>
     <div class="sub">Діє на мікрофон, гучністю якого керує програма (головний екран). Коли мікрофон вимкнено, на значку в треї є червона позначка.</div>
   </div>
 </section>
@@ -2208,7 +2204,6 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
   $('swOsd').onclick = function () { patch({ osd: !S.cfg.osd }); };
   $('swMicHk').onclick = function () { patch({ micHotkey: !S.cfg.micHotkey }); };
   $('swSounds').onclick = function () { patch({ sounds: !S.cfg.sounds }); };
-  $('swMuteTalk').onclick = function () { patch({ muteTalk: !S.cfg.muteTalk }); };
   $('quit').onclick = function () { api('/api/quit', {}); };
   $('expBtn').onclick = function () { api('/api/settings', { op: 'export' }); };
   $('impBtn').onclick = function () { api('/api/settings', { op: 'import' }); };
@@ -2462,7 +2457,7 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
     setSw('swSwitch', c.autoSwitch); setSw('swSwitchMic', c.switchMic); $('switchMicRow').classList.toggle('hide', !c.autoSwitch);
     setSw('swTaskbar', c.taskbar);
     OUTS = s.outs || []; if (!$('outPop').classList.contains('off')) outPopRender();
-    setSw('swOsd', c.osd); setSw('swMicHk', c.micHotkey); setSw('swPtt', c.ptt); setSw('swSounds', c.sounds); setSw('swMuteTalk', c.muteTalk);
+    setSw('swOsd', c.osd); setSw('swMicHk', c.micHotkey); setSw('swPtt', c.ptt); setSw('swSounds', c.sounds);
     renderKeys();
     var pinT = tx(c.keepOpen ? 'Відкріпити вікно' : 'Закріпити вікно');
     $('pinBtn').setAttribute('aria-pressed', !!c.keepOpen); $('pinBtn').title = pinT; $('pinBtn').setAttribute('aria-label', pinT);

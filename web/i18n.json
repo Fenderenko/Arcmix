@@ -1668,16 +1668,6 @@
    "pt": "Microfone mudo",
    "tr": "Mikrofon kapalı"
   },
-  "Мікрофон вимкнено — вас не чути": {
-   "de": "Dein Mikro ist stumm — niemand hört dich",
-   "en": "Your mic is muted — no one hears you",
-   "es": "Tu micrófono está silenciado: nadie te oye",
-   "fr": "Votre micro est coupé — personne ne vous entend",
-   "it": "Il microfono è disattivato: nessuno ti sente",
-   "pl": "Mikrofon jest wyciszony — nikt cię nie słyszy",
-   "pt": "Seu microfone está mudo — ninguém ouve você",
-   "tr": "Mikrofonunuz kapalı — kimse sizi duymuyor"
-  },
   "Мікрофон гарнітури — теж": {
    "de": "Auch das Headset-Mikrofon",
    "en": "Headset mic too",
@@ -1747,16 +1737,6 @@
    "pl": "Księżyc",
    "pt": "Lua",
    "tr": "Ay"
-  },
-  "Нагадувати, що мікрофон вимкнено": {
-   "de": "Erinnern, dass das Mikro stumm ist",
-   "en": "Remind me the mic is muted",
-   "es": "Recordar que el micrófono está silenciado",
-   "fr": "Rappeler que le micro est coupé",
-   "it": "Ricorda che il microfono è disattivato",
-   "pl": "Przypominaj, że mikrofon jest wyciszony",
-   "pt": "Lembrar que o microfone está mudo",
-   "tr": "Mikrofonun kapalı olduğunu hatırlat"
   },
   "Назад": {
    "de": "Zurück",
@@ -4247,16 +4227,6 @@
    "pl": "przewód",
    "pt": "cabo",
    "tr": "kablolu"
-  },
-  "підказка на екрані, коли ви говорите, а мікрофон вимкнено": {
-   "de": "Hinweis auf dem Bildschirm, wenn du bei stummem Mikro sprichst",
-   "en": "an on-screen hint when you talk while the mic is muted",
-   "es": "un aviso en pantalla cuando hablas con el micrófono silenciado",
-   "fr": "un message à l’écran quand vous parlez micro coupé",
-   "it": "un avviso sullo schermo quando parli col microfono disattivato",
-   "pl": "komunikat na ekranie, gdy mówisz przy wyciszonym mikrofonie",
-   "pt": "um aviso na tela quando você fala com o microfone mudo",
-   "tr": "mikrofon kapalıyken konuştuğunuzda ekranda uyarı"
   },
   "світиться на гарнітурі, коли мікрофон вимкнено": {
    "de": "leuchtet am Headset, solange das Mikrofon stumm ist",

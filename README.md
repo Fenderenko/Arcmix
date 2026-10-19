@@ -21,7 +21,7 @@ Arcmix started from the idea of Swiftlyx's [OpenChatMix](https://github.com/Swif
 - **Auto-ducking.** While someone talks in a Chat app, the game (and optionally Media) gets quieter. Chat apps are listened to directly, so music or a video never triggers it.
 - **Volume memory.** App volumes and the microphone level come back if Windows or another app resets them.
 - **Equalizer.** Built-in presets, your own presets (edit, save, rename, delete) and presets built into the headset, where it has them.
-- **Microphone.** Volume, mute hotkey, push-to-talk on a key or a mouse button, soft sound cues, a mute badge on the tray icon and an on-screen reminder when you talk while muted.
+- **Microphone.** Volume, mute hotkey, push-to-talk on a key or a mouse button, soft sound cues and a mute badge on the tray icon.
 - **Hear yourself.** Record 5 seconds and play them back, or listen to your microphone live, after processing.
 - **Microphone processing.** Neural noise suppression (RNNoise), a noise gate, a loudness ceiling and 64-bit VST2 / VST3 plugins. Needs a virtual audio cable, e.g. the free [VB-CABLE](https://vb-audio.com/Cable/).
 - **Bluetooth headphones battery** in the header, as Windows knows it.

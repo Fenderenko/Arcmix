@@ -50,8 +50,6 @@ pub struct CfgPatch {
     #[serde(rename = "pttKey")]
     ptt_key: Option<i32>,
     sounds: Option<bool>,
-    #[serde(rename = "muteTalk")]
-    mute_talk: Option<bool>,
     #[serde(rename = "duckLevel")]
     duck_level: Option<i32>,
     #[serde(rename = "duckMedia")]
@@ -120,7 +118,6 @@ pub fn apply(p: CfgPatch) {
         set_b(&mut c.mic_hotkey, p.mic_hotkey);
         set_b(&mut c.ptt, p.ptt);
         set_b(&mut c.sounds, p.sounds);
-        set_b(&mut c.mute_talk, p.mute_talk);
         if let Some(v) = p.low_level.filter(|v| (5..=75).contains(v)) {
             c.low_level = v;
         }
