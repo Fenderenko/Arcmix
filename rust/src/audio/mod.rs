@@ -256,13 +256,15 @@ pub fn set_output(id: &str) {
     });
 }
 
-/// (hotkey) Windows' default output (or input) moves to the next active physical device, in the
-/// order of the device lists, round; the on-screen indicator shows its name. Virtual cables are left out.
-pub fn next_device(input: bool) {
+/// (hotkey) Windows' default output (or input) moves to the next (step 1) or previous (-1) active
+/// physical device, in the order of the device lists, round; the on-screen indicator shows its name.
+/// Virtual cables are left out.
+pub fn next_device(input: bool, step: i32) {
     run(move |e| {
         let Some(en) = e.en.get().cloned() else { return };
         let l: Vec<_> = com::list_flow(&en, if input { eCapture } else { eRender }).into_iter().filter(|d| !d.is_virtual).collect();
-        let i = l.iter().position(|d| d.default).map_or(0, |i| (i + 1) % l.len().max(1));
+        let n = l.len().max(1) as i32;
+        let i = l.iter().position(|d| d.default).map_or(if step < 0 { n - 1 } else { 0 }, |i| (i as i32 + step).rem_euclid(n)) as usize;
         let Some(d) = l.get(i).filter(|d| !d.default) else { return };
         if com::set_default_endpoint(&d.id) {
             logf!("{}: switched by hotkey", if input { "input" } else { "output" });

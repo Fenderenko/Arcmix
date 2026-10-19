@@ -348,8 +348,10 @@ fn handle(h: HWND, m: u32, wp: WPARAM, lp: LPARAM) -> Option<LRESULT> {
                 osd::show_balance(0.0);
             }
             hotkeys::HK_MIC => mic::toggle_mute(),
-            hotkeys::HK_OUT => audio::next_device(false),
-            hotkeys::HK_IN => audio::next_device(true),
+            hotkeys::HK_OUT => audio::next_device(false, 1),
+            hotkeys::HK_OUT_PREV => audio::next_device(false, -1),
+            hotkeys::HK_IN => audio::next_device(true, 1),
+            hotkeys::HK_IN_PREV => audio::next_device(true, -1),
             _ => {}
         },
         WM_PTT => mic::on_ptt(wp.0 == 1),

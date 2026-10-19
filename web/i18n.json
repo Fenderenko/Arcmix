@@ -2388,6 +2388,26 @@
    "pt": "Erro",
    "tr": "Hata"
   },
+  "Попередній пристрій вводу": {
+   "de": "Vorheriges Eingabegerät",
+   "en": "Previous input device",
+   "es": "Dispositivo de entrada anterior",
+   "fr": "Périphérique d’entrée précédent",
+   "it": "Dispositivo di ingresso precedente",
+   "pl": "Poprzednie urządzenie wejściowe",
+   "pt": "Dispositivo de entrada anterior",
+   "tr": "Önceki giriş aygıtı"
+  },
+  "Попередній пристрій виводу": {
+   "de": "Vorheriges Ausgabegerät",
+   "en": "Previous output device",
+   "es": "Dispositivo de salida anterior",
+   "fr": "Périphérique de sortie précédent",
+   "it": "Dispositivo di uscita precedente",
+   "pl": "Poprzednie urządzenie wyjściowe",
+   "pt": "Dispositivo de saída anterior",
+   "tr": "Önceki çıkış aygıtı"
+  },
   "Порядок пристроїв": {
    "de": "Gerätereihenfolge",
    "en": "Device order",

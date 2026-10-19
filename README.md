@@ -52,9 +52,9 @@ and, if you don't need the settings any more, `%APPDATA%\Arcmix`.
 **Balance.** Open the window and put your apps into groups: the game into *Game*, Discord into *Chat*,
 the browser or a player into *Media*. Drag an app onto a group card, or click “+” on a group to pick one
 of the open apps. Then turn the dial on the headset or move the slider. Default hotkeys:
-`Ctrl+Alt+→` more game, `Ctrl+Alt+←` more chat, `Ctrl+Alt+↓` equal balance, `Ctrl+Alt+M` mute the microphone.
-They can be changed in **Settings → General → Hotkeys** (click an action, then press the new combination);
-there you can also give keys to switching to the next output or input device.
+`Ctrl+Shift+→` more game, `Ctrl+Shift+←` more chat, `Ctrl+Shift+↓` equal balance, `Ctrl+Alt+M` mute the microphone,
+`Ctrl+Alt+→` / `Ctrl+Alt+←` next / previous output device, `Ctrl+Alt+↓` / `Ctrl+Alt+↑` next / previous input device.
+They can be changed in **Settings → General → Hotkeys** (click an action, then press the new combination).
 
 **Equalizer.** **Sound → Equalizer**: pick a preset or drag the curve. A changed curve can be saved as a new
 preset; your presets can be overwritten, renamed and deleted.
