@@ -8,10 +8,10 @@ processing and headset settings in one window next to the clock.
 Arcmix started from the idea of Swiftlyx's [OpenChatMix](https://github.com/Swiftlyx/OpenChatMix); this repository is a fork of it.
 
 <p align="center">
-  <img src="docs/main.png" width="200" alt="Mix: game / chat balance, microphone and app groups">
-  <img src="docs/equalizer.png" width="200" alt="Equalizer: presets, your own presets and the curve">
-  <img src="docs/microphone.png" width="200" alt="Microphone processing: noise suppression, gate, ceiling, VST plugins">
-  <img src="docs/settings.png" width="200" alt="Settings: language, start with Windows, features">
+  <img src="docs/main.png?v=2" width="200" alt="Mix: game / chat balance, microphone and app groups">
+  <img src="docs/equalizer.png?v=2" width="200" alt="Equalizer: presets, your own presets and the curve">
+  <img src="docs/microphone.png?v=2" width="200" alt="Microphone processing: noise suppression, gate, ceiling, VST plugins">
+  <img src="docs/settings.png?v=2" width="200" alt="Settings: language, start with Windows, features">
 </p>
 
 ## Features

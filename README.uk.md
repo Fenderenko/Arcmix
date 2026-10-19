@@ -8,10 +8,10 @@
 Arcmix виріс з ідеї проєкту [OpenChatMix](https://github.com/Swiftlyx/OpenChatMix) від Swiftlyx; цей репозиторій — його форк.
 
 <p align="center">
-  <img src="docs/main.png" width="200" alt="Мікс: баланс гра / чат, мікрофон і групи програм">
-  <img src="docs/equalizer.png" width="200" alt="Еквалайзер: пресети, свої пресети й крива">
-  <img src="docs/microphone.png" width="200" alt="Обробка мікрофона: шумодав, поріг, межа гучності, VST-плагіни">
-  <img src="docs/settings.png" width="200" alt="Налаштування: мова, автозапуск, функції">
+  <img src="docs/main.png?v=2" width="200" alt="Мікс: баланс гра / чат, мікрофон і групи програм">
+  <img src="docs/equalizer.png?v=2" width="200" alt="Еквалайзер: пресети, свої пресети й крива">
+  <img src="docs/microphone.png?v=2" width="200" alt="Обробка мікрофона: шумодав, поріг, межа гучності, VST-плагіни">
+  <img src="docs/settings.png?v=2" width="200" alt="Налаштування: мова, автозапуск, функції">
 </p>
 
 Знімки — англійською, з темою «Місяць»; у програмі є 9 мов, зокрема українська.

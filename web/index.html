@@ -209,6 +209,9 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
 .grp[data-cat=media].drop{box-shadow:inset 0 0 0 2px var(--on)}
 .aico{width:32px;height:32px;border-radius:8px;background:var(--sd);color:var(--g);display:flex;align-items:center;justify-content:center;font-weight:600;flex:none;overflow:hidden;position:relative;cursor:grab}
 .aico img{width:28px;height:28px;object-fit:contain;position:absolute}
+/* a loaded icon is shown as is: no tile behind it, the letter placeholder hidden */
+.aico.img{background:none;color:transparent;border-radius:0}
+.aico.img img{width:32px;height:32px}
 .an{width:108px;min-width:0;flex:none}
 .an .nm{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .an .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px}
@@ -1463,7 +1466,7 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
     setTimeout(function () { img.src = img.src.split('&r=')[0] + '&r=' + (n + 1); }, 1200 * (n + 1));
   };
   function iconHTML(exe, name) {
-    return '<span class="aico">' + esc((name || exe || '?').charAt(0).toUpperCase()) + '<img alt="" draggable="false" style="visibility:hidden" src="/icon?k=' + TOK + '&exe=' + encodeURIComponent(exe) + '" onload="this.style.visibility=\'visible\'" onerror="retryIcon(this)"></span>';
+    return '<span class="aico">' + esc((name || exe || '?').charAt(0).toUpperCase()) + '<img alt="" draggable="false" style="visibility:hidden" src="/icon?k=' + TOK + '&exe=' + encodeURIComponent(exe) + '" onload="this.style.visibility=\'visible\';this.parentNode.classList.add(\'img\')" onerror="retryIcon(this)"></span>';
   }
   var GROUPS = [
     // the same game and chat icons as on the balance card
