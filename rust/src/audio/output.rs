@@ -116,7 +116,7 @@ fn headset_off() -> bool {
 impl Engine {
     /// (audio thread) The current Windows output device.
     pub(crate) fn refresh_out(&mut self) {
-        let mut oi = OutInfo::default();
+        let mut oi = OutInfo { batt: -1, ..Default::default() };
         if let Some(en) = self.en.get().cloned() {
             if let Ok(dev) = unsafe { en.GetDefaultAudioEndpoint(eRender, eConsole) } {
                 oi.id = com::device_id(&dev);
@@ -161,6 +161,9 @@ impl Engine {
                     ""
                 }
                 .into();
+                if oi.conn == "bt" {
+                    oi.batt = self.bt_batt.get(&oi.id);
+                }
             }
         }
         let changed = {

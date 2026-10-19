@@ -2,6 +2,8 @@
 //! Runs on a thread of its own with COM (MTA); other threads hand it work through `run`.
 
 mod activity;
+mod btbatt;
+mod mutetalk;
 pub mod com;
 mod duck;
 pub mod echo;
@@ -46,6 +48,8 @@ pub struct OutInfo {
     pub conn: String,
     /// this is the headset the app works with
     pub headset: bool,
+    /// battery of Bluetooth headphones as Windows knows it, -1 — unknown
+    pub batt: i32,
 }
 
 #[derive(Serialize, Clone, Debug, Default, PartialEq)]
@@ -364,6 +368,7 @@ pub struct Engine {
     devs: output::DevWatch,
     sig: String,
     mic_hold_log: Option<Instant>,
+    bt_batt: btbatt::Cache,
     vol_restore_log: HashMap<String, Instant>,
     endpoints_log: String,
 }
@@ -397,6 +402,7 @@ fn engine_loop(rx: Receiver<Msg>) {
         devs: output::DevWatch::default(),
         sig: String::new(),
         mic_hold_log: None,
+        bt_batt: btbatt::Cache::default(),
         vol_restore_log: HashMap::new(),
         endpoints_log: String::new(),
     };
@@ -824,7 +830,9 @@ impl Engine {
         let mut mi = MicInfo::default();
         let mut log_held = None;
         let hold_log = self.mic_hold_log;
+        let mut mic_id = String::new();
         let r = self.with_mic(&c.mic_dev, |epv, name, dev_id| unsafe {
+            mic_id = dev_id.to_string();
             let v = epv.GetMasterVolumeLevelScalar().unwrap_or(0.0);
             let m = epv.GetMute().map(|b| b.as_bool()).unwrap_or(false);
             mi.name = name.to_string();
@@ -844,6 +852,8 @@ impl Engine {
             }
         });
         mi.ok = r.is_some();
+        // with push-to-talk a muted microphone is the usual state, not a mistake
+        mutetalk::set(if mi.mute && c.mute_talk && !c.ptt { &mic_id } else { "" });
         if let Some((was, want)) = log_held {
             self.mic_hold_log = Some(Instant::now());
             logf!("mic: volume was changed to {was}% outside the app — back to {want}%");

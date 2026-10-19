@@ -102,6 +102,9 @@ pub struct Config {
     #[serde(rename = "pttKey")]
     pub ptt_key: i32,
     pub sounds: bool,
+    /// the on-screen reminder when you talk with the microphone muted
+    #[serde(rename = "muteTalk")]
+    pub mute_talk: bool,
     #[serde(rename = "duckLevel")]
     pub duck_level: i32,
     #[serde(rename = "duckMedia")]
@@ -291,6 +294,7 @@ impl Default for Config {
             ptt: false,
             ptt_key: 0,
             sounds: true,
+            mute_talk: true,
             duck_level: 100,
             duck_media: false,
             hotkeys: BTreeMap::new(),

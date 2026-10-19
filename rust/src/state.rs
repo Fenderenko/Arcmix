@@ -74,6 +74,8 @@ pub struct CfgJson {
     #[serde(rename = "pttKey")]
     pub ptt_key: i32,
     pub sounds: bool,
+    #[serde(rename = "muteTalk")]
+    pub mute_talk: bool,
     #[serde(rename = "duckLevel")]
     pub duck_level: i32,
     #[serde(rename = "duckMedia")]
@@ -237,6 +239,7 @@ pub fn build() -> StateJson {
             ptt: c.ptt,
             ptt_key: c.ptt_key,
             sounds: c.sounds,
+            mute_talk: c.mute_talk,
             duck_level: c.duck_level,
             duck_media: c.duck_media,
             profiles: c.profiles.iter().map(|p| p.name.clone()).collect(),
