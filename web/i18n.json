@@ -1848,6 +1848,26 @@
    "pt": "Saturação",
    "tr": "Doygunluk"
   },
+  "Наступний пристрій вводу": {
+   "de": "Nächstes Eingabegerät",
+   "en": "Next input device",
+   "es": "Siguiente dispositivo de entrada",
+   "fr": "Périphérique d’entrée suivant",
+   "it": "Dispositivo di ingresso successivo",
+   "pl": "Następne urządzenie wejściowe",
+   "pt": "Próximo dispositivo de entrada",
+   "tr": "Sonraki giriş aygıtı"
+  },
+  "Наступний пристрій виводу": {
+   "de": "Nächstes Ausgabegerät",
+   "en": "Next output device",
+   "es": "Siguiente dispositivo de salida",
+   "fr": "Périphérique de sortie suivant",
+   "it": "Dispositivo di uscita successivo",
+   "pl": "Następne urządzenie wyjściowe",
+   "pt": "Próximo dispositivo de saída",
+   "tr": "Sonraki çıkış aygıtı"
+  },
   "Натисни, щоб говорити": {
    "de": "Push-to-Talk",
    "en": "Push to talk",

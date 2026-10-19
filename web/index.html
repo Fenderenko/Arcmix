@@ -2159,7 +2159,7 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
     var o = {}, hk = (S && S.cfg.hotkeys) || {}, nk = { mod: mod, vk: e.keyCode };
     o[capName] = nk;
     // the combination of another action: the two swap
-    HK.forEach(function (h) { var x = hk[h[0]]; if (h[0] !== capName && x && x.mod === mod && x.vk === e.keyCode && hk[capName]) o[h[0]] = hk[capName]; });
+    HK.forEach(function (h) { var x = hk[h[0]]; if (h[0] !== capName && x && x.mod === mod && x.vk === e.keyCode && hk[capName]) o[h[0]] = hk[capName].vk ? hk[capName] : { mod: 0, vk: 0 }; });
     patch({ hotkeys: o }); capEnd();
   }, true);
   document.addEventListener('mousedown', function (e) {
@@ -2174,7 +2174,8 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
     patch({ ptt: on });
     if (!on && capKind === 'ptt') capEnd();
   };
-  var HK = [['game', 'Більше гри'], ['chat', 'Більше чату'], ['balance', 'Порівну'], ['mic', 'Вимкнути / увімкнути мікрофон']];
+  var HK = [['game', 'Більше гри'], ['chat', 'Більше чату'], ['balance', 'Порівну'], ['mic', 'Вимкнути / увімкнути мікрофон'], ['out', 'Наступний пристрій виводу'], ['in', 'Наступний пристрій вводу']];
+  var HK_OPT = { out: 1, in: 1 }; // no combination until one is picked; can be removed
   function renderKeys() {
     if (!S) return;
     var c = S.cfg, hk = c.hotkeys || {}, err = S.hotkeyErr || [];
@@ -2185,11 +2186,13 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
     $('pttRow').classList.toggle('hide', !c.ptt && capKind !== 'ptt');
     $('micHkName').textContent = hk.mic ? comboKeys(hk.mic).join(' + ') : '';
     $('hkList').innerHTML = HK.map(function (h) {
-      var cap = capKind === 'hk' && capName === h[0], keys = hk[h[0]] ? comboKeys(hk[h[0]]) : [];
+      var cap = capKind === 'hk' && capName === h[0], keys = hk[h[0]] && hk[h[0]].vk ? comboKeys(hk[h[0]]) : ['—'];
       return '<div class="hk"><div class="grow"><div>' + tx(h[1]) + '</div>' + (err.indexOf(h[0]) >= 0 ? '<div class="sub st-err">' + tx('Зайнято іншою програмою — оберіть інше поєднання') + '</div>' : '') + '</div>' +
         '<button class="keys' + (cap ? ' cap' : '') + '" data-hk="' + h[0] + '" title="' + tx('Змінити') + '">' + (cap ? '<kbd>' + tx('Натисніть…') + '</kbd>' : keys.map(function (k) { return '<kbd>' + esc(k) + '</kbd>'; }).join('') +
-        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>') + '</button></div>';
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>') + '</button>' +
+        (HK_OPT[h[0]] && hk[h[0]] && hk[h[0]].vk && !cap ? '<button class="ib" data-hkclear="' + h[0] + '" title="' + tx('Прибрати клавішу') + '">' + xSvg + '</button>' : '') + '</div>';
     }).join('');
+    $('hkList').querySelectorAll('[data-hkclear]').forEach(function (b) { b.onclick = function () { var o = {}; o[b.dataset.hkclear] = { mod: 0, vk: 0 }; patch({ hotkeys: o }); }; });
     $('hkList').querySelectorAll('[data-hk]').forEach(function (b) { b.onclick = function () { if (capKind === 'hk' && capName === b.dataset.hk) capEnd(); else capStart('hk', b.dataset.hk); }; });
   }
 

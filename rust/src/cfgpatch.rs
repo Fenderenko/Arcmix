@@ -130,7 +130,12 @@ pub fn apply(p: CfgPatch) {
         set_b(&mut c.taskbar, p.taskbar);
         if let Some(hk) = &p.hotkeys {
             for (name, h) in hk {
-                if hotkeys::DEFAULTS.iter().any(|d| d.0 == name) && h.vk > 0 && h.vk < 255 && h.modifiers <= 0xF {
+                if !hotkeys::DEFAULTS.iter().any(|d| d.0 == name) {
+                    continue;
+                }
+                if h.vk == 0 {
+                    c.hotkeys.remove(name); // back to the default (none for "out" / "in")
+                } else if h.vk < 255 && h.modifiers <= 0xF {
                     c.hotkeys.insert(name.clone(), *h);
                 }
             }

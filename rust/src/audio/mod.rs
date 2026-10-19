@@ -21,7 +21,7 @@ use std::{
 
 use serde::Serialize;
 use windows::Win32::{
-    Media::Audio::{AudioSessionStateActive, AudioSessionStateExpired, eCapture},
+    Media::Audio::{AudioSessionStateActive, AudioSessionStateExpired, eCapture, eRender},
     System::Com::{COINIT_MULTITHREADED, CoInitializeEx},
 };
 
@@ -253,6 +253,27 @@ pub fn set_output(id: &str) {
             logf!("output: switched by user");
         }
         e.refresh_out();
+    });
+}
+
+/// (hotkey) Windows' default output (or input) moves to the next active physical device, in the
+/// order of the device lists, round; the on-screen indicator shows its name. Virtual cables are left out.
+pub fn next_device(input: bool) {
+    run(move |e| {
+        let Some(en) = e.en.get().cloned() else { return };
+        let l: Vec<_> = com::list_flow(&en, if input { eCapture } else { eRender }).into_iter().filter(|d| !d.is_virtual).collect();
+        let i = l.iter().position(|d| d.default).map_or(0, |i| (i + 1) % l.len().max(1));
+        let Some(d) = l.get(i).filter(|d| !d.default) else { return };
+        if com::set_default_endpoint(&d.id) {
+            logf!("{}: switched by hotkey", if input { "input" } else { "output" });
+            let name = d.name.clone();
+            util::run_on_ui(move || crate::osd::show_text(&name));
+        }
+        if input {
+            e.refresh_mic();
+        } else {
+            e.refresh_out();
+        }
     });
 }
 

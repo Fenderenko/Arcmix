@@ -1,4 +1,4 @@
-//! Reassignable hotkeys: more game, more chat, even balance, microphone.
+//! Reassignable hotkeys: more game, more chat, even balance, microphone, next output / input device.
 
 use std::{
     cell::RefCell,
@@ -20,19 +20,24 @@ use crate::{
 };
 
 /// The arrow points where the line in the window moves: more game — the chat line steps right.
-pub const DEFAULTS: [(&str, Hotkey); 4] = [
+/// "out" and "in" have no combination until the user picks one.
+pub const DEFAULTS: [(&str, Hotkey); 6] = [
     ("game", Hotkey { modifiers: 3, vk: 0x27 }),    // Ctrl+Alt+→
     ("chat", Hotkey { modifiers: 3, vk: 0x25 }),    // Ctrl+Alt+←
     ("balance", Hotkey { modifiers: 3, vk: 0x28 }), // Ctrl+Alt+↓
     ("mic", Hotkey { modifiers: 3, vk: b'M' as u32 }), // Ctrl+Alt+M
+    ("out", Hotkey { modifiers: 0, vk: 0 }),
+    ("in", Hotkey { modifiers: 0, vk: 0 }),
 ];
 
 pub const HK_GAME: i32 = 1;
 pub const HK_CHAT: i32 = 2;
 pub const HK_BALANCE: i32 = 3;
 pub const HK_MIC: i32 = 4;
+pub const HK_OUT: i32 = 5;
+pub const HK_IN: i32 = 6;
 
-const IDS: [(i32, &str); 3] = [(HK_GAME, "game"), (HK_CHAT, "chat"), (HK_BALANCE, "balance")];
+const IDS: [(i32, &str); 5] = [(HK_GAME, "game"), (HK_CHAT, "chat"), (HK_BALANCE, "balance"), (HK_OUT, "out"), (HK_IN, "in")];
 
 thread_local! {
     /// What is registered now (UI thread).
@@ -106,6 +111,10 @@ pub fn fails() -> Vec<String> {
 pub fn register(id: i32, name: &str, h: Hotkey, flags: u32) -> bool {
     if CAPTURING.load(Ordering::Relaxed) {
         return true; // registered again when picking ends
+    }
+    if h.vk == 0 {
+        unregister(id, name); // no combination picked
+        return true;
     }
     let hwnd = util::main_hwnd();
     let old = REG.with(|r| r.borrow().get(&id).copied());
