@@ -46,7 +46,7 @@ def page(query=''):
         # headless browsers keep windows at least ~500 px wide: the page is held to the app's 400 px;
         # no live event stream, so a headless browser's virtual time can run out and take the picture
         html = html.replace('<head>', '<head><script>window.EventSource=function(){return{close:function(){}};};</script>', 1)
-        html = html.replace('</body>', '<style>html,body{width:400px!important;max-width:400px!important;overflow:hidden}</style><script>' + js + '</script></body>', 1)
+        html = html.replace('</body>', '<style>html,body{width:400px!important;max-width:400px!important;overflow:hidden}*,*::before,*::after{transition:none!important}</style><script>' + js + '</script></body>', 1)
     return html.encode()
 DEVS2={"render":[{"id":"r1","name":"Headphones (Arctis 7+)","virtual":False,"default":True},{"id":"r2","name":"Speakers (Realtek(R) Audio)","virtual":False},
  {"id":"c1","name":"CABLE Input (VB-Audio Virtual Cable)","virtual":True,"pair":"CABLE Output (VB-Audio Virtual Cable)"},
