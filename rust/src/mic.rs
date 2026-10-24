@@ -257,17 +257,17 @@ pub fn shutdown() {
 pub fn toggle_mute() {
     let m = audio::mic_state();
     if !m.ok {
-        osd::show_text(&t("Мікрофон не знайдено"));
+        osd::show(Some(osd::ICON_MIC_OFF), &t("Мікрофон не знайдено"));
         return;
     }
     let mute = !m.mute;
     audio::set_mic_mute(mute);
     if mute {
         play(&SND_MUTE);
-        osd::show_text(&t("Мікрофон вимкнено"));
+        osd::show(Some(osd::ICON_MIC_OFF), &t("Вимк."));
     } else {
         play(&SND_UNMUTE);
-        osd::show_text(&t("Мікрофон увімкнено"));
+        osd::show(Some(osd::ICON_MIC), &t("Увімк."));
     }
 }
 

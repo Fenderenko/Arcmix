@@ -13,8 +13,10 @@ use windows::{
         Devices::FunctionDiscovery::PKEY_DeviceInterface_FriendlyName,
         Foundation::PROPERTYKEY,
         Media::Audio::{
-            DEVICE_STATE, DEVICE_STATE_ACTIVE, DEVICE_STATE_DISABLED, DEVICE_STATE_UNPLUGGED, EDataFlow, ERole, IDeviceTopology, IMMDevice, IMMDeviceEnumerator, IMMNotificationClient,
-            IMMNotificationClient_Impl, eCapture, eConsole, eRender,
+            AUDIO_VOLUME_NOTIFICATION_DATA, DEVICE_STATE, DEVICE_STATE_ACTIVE, DEVICE_STATE_DISABLED, DEVICE_STATE_UNPLUGGED, EDataFlow, ERole, IDeviceTopology, IMMDevice,
+            IMMDeviceEnumerator, IMMNotificationClient, IMMNotificationClient_Impl,
+            Endpoints::{IAudioEndpointVolumeCallback, IAudioEndpointVolumeCallback_Impl},
+            eCapture, eConsole, eRender,
         },
         System::Com::{CLSCTX_ALL, CoTaskMemFree},
     },
@@ -40,6 +42,21 @@ pub(super) struct DevWatch {
     /// the default device last time
     def: String,
     started: Option<Instant>,
+    /// the user put sound on the headset while its receiver says it is off: it counts as on until the
+    /// receiver state (connected, powered — as it was then) changes or the user picks another device
+    keep_hs: Option<(bool, bool)>,
+}
+
+/// The volume or mute of the current output changed (keys, Windows, another app): the card in the
+/// window follows. Only a signal — the audio thread reads the device itself.
+#[implement(IAudioEndpointVolumeCallback)]
+struct VolNotify;
+
+impl IAudioEndpointVolumeCallback_Impl for VolNotify_Impl {
+    fn OnNotify(&self, _data: *mut AUDIO_VOLUME_NOTIFICATION_DATA) -> windows::core::Result<()> {
+        super::refresh_out();
+        Ok(())
+    }
 }
 
 #[implement(IMMNotificationClient)]
@@ -144,6 +161,22 @@ impl Engine {
                     (h.connected && !n.is_empty() && ln.contains(&n), h.powered)
                 };
                 oi.headset = known || is_headset_name(&oi.name);
+                // the Windows volume of this output, and a watch on it while it stays the output
+                if let Some(epv) = com::endpoint_volume(&dev) {
+                    unsafe {
+                        oi.vol = (epv.GetMasterVolumeLevelScalar().unwrap_or(0.0) * 100.0).round() as i32;
+                        oi.mute = epv.GetMute().map(|b| b.as_bool()).unwrap_or(false);
+                    }
+                    if self.out_vol.as_ref().is_none_or(|w| w.0 != oi.id) {
+                        if let Some((_, old, cb)) = self.out_vol.take() {
+                            let _ = unsafe { old.UnregisterControlChangeNotify(&cb) };
+                        }
+                        let cb: IAudioEndpointVolumeCallback = VolNotify.into();
+                        if unsafe { epv.RegisterControlChangeNotify(&cb) }.is_ok() {
+                            self.out_vol = Some((oi.id.clone(), epv, cb));
+                        }
+                    }
+                }
                 oi.conn = if bus == "bt" || ln.contains("hands-free") {
                     "bt"
                 } else if bus == "virtual" || is_virtual_name(&oi.name) {
@@ -221,7 +254,30 @@ impl Engine {
                 c.prev_out.clear();
             });
         }
-        let hs_off = headset_off();
+        // the receiver may report the headset off while it plays (after a PC restart, until the headset
+        // is switched off and on): a device the user picked by hand stays, priority does not move it
+        let rx = {
+            let h = headset::lock();
+            (h.connected, h.powered)
+        };
+        if self.devs.keep_hs.is_some_and(|k| k != rx) {
+            self.devs.keep_hs = None;
+            logf!("output priority: the headset state changed, the order applies again");
+        }
+        let moved = !self.devs.def.is_empty() && self.devs.def != def;
+        let def_is_hs = eps.iter().any(|e| e.id == def && is_headset_name(&e.name));
+        // the previous device is still there: the change was the user's, not Windows' fallback
+        let prev_there = eps.iter().any(|e| e.id == self.devs.def && e.state != DEV_DISABLED && e.state != DEV_UNPLUGGED);
+        let mut picked_away = false;
+        if moved && self.devs.keep_hs.is_some() && !def_is_hs {
+            self.devs.keep_hs = None;
+            picked_away = true;
+            logf!("output priority: another device picked, the headset follows its receiver again");
+        } else if moved && def_is_hs && prev_there && headset_off() && self.devs.keep_hs.is_none() {
+            self.devs.keep_hs = Some(rx);
+            logf!("output priority: the headset picked by hand while its receiver says it is off — kept");
+        }
+        let hs_off = headset_off() && self.devs.keep_hs.is_none();
         let list: Vec<OutDevJson> = order
             .iter()
             .map(|d| {
@@ -253,6 +309,11 @@ impl Engine {
             return;
         }
         let top = out_top(&list);
+        if picked_away {
+            // the device the user just picked stays; the order applies from the next change on
+            self.devs.top = top;
+            return;
+        }
         if !top.is_empty() && top != def && (force || top != self.devs.top || !on(&def) || lost) {
             let name = list.iter().find(|d| d.id == top).map(|d| d.name.clone()).unwrap_or_default();
             if com::set_default_endpoint(&top) {
@@ -294,6 +355,33 @@ impl Engine {
         let Some(hs_id) = capture.iter().find(|d| is_headset_name(&d.name)).map(|d| d.id.clone()) else { return };
         let mut prev = c.prev_mic.clone();
         let cur = com::default_id(&en, eCapture);
+        if capture.iter().any(|d| d.id == cur && d.is_virtual) {
+            // apps listen to the processed microphone in the cable: the cable stays Windows' default and the
+            // app's own microphone (processing, "listen to yourself") moves instead
+            let mine = c.mic_dev.clone();
+            let mut prev = c.prev_mic.clone();
+            let next = if on {
+                if mine == hs_id {
+                    return;
+                }
+                prev = mine;
+                logf!("auto switch: app mic → headset");
+                hs_id.clone()
+            } else if mine == hs_id && !prev.is_empty() && prev != hs_id && capture.iter().any(|d| d.id == prev) {
+                logf!("auto switch: app mic → previous device");
+                prev.clone()
+            } else {
+                return;
+            };
+            config::set(|c| {
+                c.mic_dev = next;
+                c.prev_mic = prev;
+            });
+            self.refresh_mic();
+            std::thread::spawn(|| crate::router::sync(&config::get()));
+            crate::server::notify_subs();
+            return;
+        }
         if on {
             if cur != hs_id {
                 prev = cur;

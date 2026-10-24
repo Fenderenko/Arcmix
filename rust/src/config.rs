@@ -51,8 +51,20 @@ pub struct Config {
     /// the custom theme in dark mode on a pure black background (OLED)
     #[serde(rename = "customOled")]
     pub custom_oled: bool,
+    /// the custom theme's background ("" — the default one)
+    #[serde(rename = "customS")]
+    pub custom_s: String,
+    /// the glow of the balance lines: "off" | "soft" | "bright"
+    pub glow: String,
+    /// "normal" | "compact"
+    pub density: String,
+    /// "round" | "sharp"
+    pub corners: String,
     #[serde(deserialize_with = "null_default")]
     pub pinned: Vec<String>,
+    /// apps removed from the groups: not shown, even while they play, until added again with "+"
+    #[serde(deserialize_with = "null_default", skip_serializing_if = "Vec::is_empty")]
+    pub hidden: Vec<String>,
     #[serde(deserialize_with = "null_default")]
     pub eq: Vec<f64>,
     #[serde(rename = "eqPreset")]
@@ -75,6 +87,9 @@ pub struct Config {
     pub mic_fx: MicFxCfg,
     #[serde(rename = "softEq", deserialize_with = "null_default", skip_serializing_if = "BTreeMap::is_empty")]
     pub soft_eq: BTreeMap<String, SoftEq>,
+    /// AutoEQ corrections through Equalizer APO: output device id → curve
+    #[serde(rename = "autoEq", deserialize_with = "null_default", skip_serializing_if = "BTreeMap::is_empty")]
+    pub auto_eq: BTreeMap<String, AutoEq>,
     #[serde(rename = "routedApps", deserialize_with = "null_default", skip_serializing_if = "Vec::is_empty")]
     pub routed_apps: Vec<String>,
     /// An app's own output device (exe → device id), over the cable of its category.
@@ -96,12 +111,33 @@ pub struct Config {
     #[serde(rename = "fullNotify")]
     pub full_notify: bool,
     pub osd: bool,
+    /// the corner of the screen for the on-screen hint: "tl" | "tr" | "bl" | "br"
+    #[serde(rename = "osdCorner")]
+    pub osd_corner: String,
     #[serde(rename = "micHotkey")]
     pub mic_hotkey: bool,
     pub ptt: bool,
     #[serde(rename = "pttKey")]
     pub ptt_key: i32,
     pub sounds: bool,
+    /// safe mode of the microphone processing: VST plugins off after crashes (vst::safe_mode)
+    #[serde(rename = "vstSafe")]
+    pub vst_safe: bool,
+    /// the parametric headset equalizer (Nova 7 Gen 2, Nova 5, GameBuds, Nova Elite) — not checked on a
+    /// real headset yet: off, it is neither shown nor sent; a tester sets it in config.json (read when the
+    /// headset is found)
+    #[serde(rename = "untestedEq")]
+    pub untested_eq: bool,
+    /// the microphone chosen in the app becomes Windows' default too; the Windows volume card shows
+    #[serde(rename = "winCtl")]
+    pub win_ctl: bool,
+    /// Equalizer APO also on a headset that has its own equalizer (off: only the headset's one works)
+    #[serde(rename = "apoHs")]
+    pub apo_hs: bool,
+    /// the colours of the chosen theme as the window draws it (card, text, muted text, frame, hover,
+    /// accent; #RRGGBB) — for the tray menu
+    #[serde(rename = "uiColors", deserialize_with = "null_default", skip_serializing_if = "Vec::is_empty")]
+    pub ui_colors: Vec<String>,
     #[serde(rename = "duckLevel")]
     pub duck_level: i32,
     #[serde(rename = "duckMedia")]
@@ -170,6 +206,9 @@ pub struct Profile {
     pub gate: f64,
     pub ceil: f64,
     pub denoise: bool,
+    /// the app (exe, lower case) while which is in the foreground the profile applies (focus.rs)
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub app: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -206,13 +245,16 @@ pub struct MicFxCfg {
     /// limiter ceiling, dB; >= 0 — off
     pub ceil: f64,
     pub denoise: bool,
+    /// "rnn" — RNNoise (light, +10 ms), "nv" — NVIDIA Audio Effects SDK (quality, RTX graphics cards)
+    #[serde(rename = "denoiseKind")]
+    pub denoise_kind: String,
     #[serde(deserialize_with = "null_default", skip_serializing_if = "Vec::is_empty")]
     pub plugins: Vec<VstSlot>,
 }
 
 impl Default for MicFxCfg {
     fn default() -> Self {
-        MicFxCfg { on: false, input: String::new(), out: String::new(), gate: -50.0, ceil: -6.0, denoise: false, plugins: Vec::new() }
+        MicFxCfg { on: false, input: String::new(), out: String::new(), gate: -50.0, ceil: -6.0, denoise: false, denoise_kind: "rnn".into(), plugins: Vec::new() }
     }
 }
 
@@ -224,6 +266,19 @@ pub struct SoftEq {
     pub preset: String,
     #[serde(deserialize_with = "null_default")]
     pub custom: Vec<f64>,
+}
+
+/// An AutoEQ correction curve of one output device (apo.rs).
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
+#[serde(default)]
+pub struct AutoEq {
+    /// the headphone model and who measured it
+    pub name: String,
+    pub src: String,
+    /// [frequency Hz, gain dB]
+    #[serde(deserialize_with = "null_default")]
+    pub pts: Vec<[f32; 2]>,
+    pub on: bool,
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
@@ -254,7 +309,7 @@ impl Default for Config {
         Config {
             theme: "win".into(),
             lang: String::new(),
-            chat: s(&["discord.exe", "telegram.exe", "teams.exe", "zoom.exe", "skype.exe", "viber.exe", "steam.exe"]),
+            chat: s(&["discord.exe", "telegram.exe", "teams.exe", "zoom.exe", "skype.exe", "viber.exe", "steam.exe", "xboxpartychathost.exe", "slack.exe", "whatsapp.exe", "signal.exe"]),
             media: s(&["spotify.exe", "vlc.exe", "chrome.exe", "msedge.exe", "firefox.exe"]),
             game: Vec::new(),
             low_battery: true,
@@ -263,9 +318,14 @@ impl Default for Config {
             sidetone: -1,
             auto_off: -1,
             custom_a: "#FF6A3D".into(),
+            custom_s: String::new(),
+            glow: "soft".into(),
+            density: "normal".into(),
+            corners: "round".into(),
             custom_b: "#3DC8FF".into(),
             custom_oled: false,
             pinned: Vec::new(),
+            hidden: Vec::new(),
             eq: Vec::new(),
             eq_preset: String::new(),
             eq_custom: Vec::new(),
@@ -277,6 +337,7 @@ impl Default for Config {
             route: RouteCfg::default(),
             mic_fx: MicFxCfg::default(),
             soft_eq: BTreeMap::new(),
+            auto_eq: BTreeMap::new(),
             routed_apps: Vec::new(),
             app_outs: BTreeMap::new(),
             auto_switch: false,
@@ -287,10 +348,16 @@ impl Default for Config {
             low_level: 20,
             full_notify: true,
             osd: true,
+            osd_corner: "br".into(),
             mic_hotkey: true,
             ptt: false,
             ptt_key: 0,
             sounds: true,
+            vst_safe: false,
+            untested_eq: false,
+            win_ctl: true,
+            apo_hs: false,
+            ui_colors: Vec::new(),
             duck_level: 100,
             duck_media: false,
             hotkeys: BTreeMap::new(),
@@ -438,6 +505,10 @@ pub fn load() -> Config {
 
 /// Settings from older versions.
 pub fn migrate(c: &mut Config) {
+    // DeepFilterNet (1.0.3–1.0.4) gave way to the NVIDIA denoiser
+    if c.mic_fx.denoise_kind == "dfn" {
+        c.mic_fx.denoise_kind = if crate::nvafx::available() { "nv" } else { "rnn" }.into();
+    }
     // early builds offered a 25 % low-battery alert; the headset LED turns red below 20 %
     if c.low_level == 25 {
         c.low_level = 20;
@@ -459,6 +530,22 @@ pub fn migrate(c: &mut Config) {
     // early builds: a helper is handled as its app (Steam Client WebHelper as Steam); the app's own category
     // wins, the helper's pin and saved volume pass to the app
     let is = |x: &String, n: &str| x.eq_ignore_ascii_case(n);
+    // apps that join "Chat" once, unless placed already: 1.0.20 — Xbox party chat (the Xbox app's
+    // XboxPartyChatHost.exe), 1.0.21 — Slack, WhatsApp, Signal
+    let rev = c.extra.get("defaultsRev").and_then(|v| v.as_u64()).unwrap_or(0);
+    let added: [(u64, &[&str]); 2] = [(1, &["xboxpartychathost.exe"]), (2, &["slack.exe", "whatsapp.exe", "signal.exe"])];
+    for (r, apps) in added {
+        if rev < r {
+            for x in apps {
+                if ![&c.chat, &c.media, &c.game].iter().any(|l| l.iter().any(|y| is(y, x))) {
+                    c.chat.push(x.to_string());
+                }
+            }
+        }
+    }
+    if rev < 2 {
+        c.extra.insert("defaultsRev".into(), Value::from(2));
+    }
     for (helper, app) in crate::appinfo::ALIASES {
         let app_cat = [&c.chat, &c.media, &c.game].iter().any(|l| l.iter().any(|x| is(x, app)));
         for l in [&mut c.chat, &mut c.media, &mut c.game] {
@@ -606,10 +693,29 @@ mod tests {
     }
 
     #[test]
+    fn new_chat_apps_join_once() {
+        let s = |v: &[&str]| v.iter().map(|x| x.to_string()).collect::<Vec<_>>();
+        // an app already placed by the user stays where it is
+        let mut c = Config { chat: s(&["discord.exe"]), media: s(&["slack.exe"]), ..Default::default() };
+        migrate(&mut c);
+        assert_eq!(c.chat, s(&["discord.exe", "xboxpartychathost.exe", "whatsapp.exe", "signal.exe"]));
+        // removed by the user after the first time: not added again
+        c.chat.truncate(1);
+        migrate(&mut c);
+        assert_eq!(c.chat, s(&["discord.exe"]));
+        // settings of 1.0.20 (Xbox added already): only the later ones come
+        let mut c = Config { chat: s(&["discord.exe"]), ..Default::default() };
+        c.extra.insert("defaultsRev".into(), Value::from(1));
+        migrate(&mut c);
+        assert_eq!(c.chat, s(&["discord.exe", "slack.exe", "whatsapp.exe", "signal.exe"]));
+    }
+
+    #[test]
     fn helper_settings_pass_to_its_app() {
         let s = |v: &[&str]| v.iter().map(|x| x.to_string()).collect::<Vec<_>>();
         // the user's case: both in chat, the helper pinned with a saved volume
         let mut c = Config { chat: s(&["steam.exe", "discord.exe", "steamwebhelper.exe"]), pinned: s(&["discord.exe", "steamwebhelper.exe"]), ..Default::default() };
+        c.extra.insert("defaultsRev".into(), Value::from(2)); // the later defaults are a test of their own
         c.app_vols.insert("steamwebhelper.exe".into(), 0.66);
         migrate(&mut c);
         assert_eq!(c.chat, s(&["steam.exe", "discord.exe"]));

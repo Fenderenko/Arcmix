@@ -118,12 +118,16 @@ pub fn open(en: &IMMDeviceEnumerator, id: &str, render: bool, loopback: bool) ->
     }
     let mut flags = STREAM_NO_PERSIST;
     let mut dur = 200_000i64; // 20 ms (100 ns units)
+    // output and a microphone wake their thread by event when data is due; loopback capture is
+    // polled (its events are not reliable on every Windows 10)
     if render {
         flags |= STREAM_EVENT;
     } else {
-        dur = 400_000; // more slack for capture: it is polled
+        dur = 400_000; // more slack for capture
         if loopback {
             flags |= STREAM_LOOPBACK;
+        } else {
+            flags |= STREAM_EVENT;
         }
     }
     unsafe { client.Initialize(AUDCLNT_SHAREMODE_SHARED, flags, dur, 0, wfx, None) }.map_err(|e| hr_err("Initialize", &e))?;
@@ -137,9 +141,11 @@ pub fn open(en: &IMMDeviceEnumerator, id: &str, render: bool, loopback: bool) ->
         period = buf_frames / 2;
     }
     let mut c = Client { dev, client, rc: None, cc: None, event: HANDLE::default(), fmt: f, buf_frames, period };
-    if render {
+    if render || !loopback {
         c.event = unsafe { CreateEventW(None, false, false, None) }.map_err(|e| hr_err("CreateEvent", &e))?;
         unsafe { c.client.SetEventHandle(c.event) }.map_err(|e| hr_err("SetEventHandle", &e))?;
+    }
+    if render {
         c.rc = Some(unsafe { c.client.GetService() }.map_err(|e| hr_err("GetService", &e))?);
     } else {
         c.cc = Some(unsafe { c.client.GetService() }.map_err(|e| hr_err("GetService", &e))?);
@@ -168,7 +174,12 @@ impl Client {
         unsafe { self.client.GetCurrentPadding() }
     }
 
-    /// Waits for the output event (up to ms).
+    /// The stream wakes its thread by event (output, a microphone), not by polling.
+    pub fn evented(&self) -> bool {
+        !self.event.is_invalid()
+    }
+
+    /// Waits for the stream event (up to ms).
     pub fn wait(&self, ms: u32) {
         unsafe {
             WaitForSingleObject(self.event, ms);

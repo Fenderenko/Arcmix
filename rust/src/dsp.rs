@@ -392,6 +392,8 @@ pub struct MicCtl {
     /// f64 bits; ≥ 0 — the limiter is off
     ceil_db: AtomicU64,
     denoise: AtomicBool,
+    /// the NVIDIA denoiser instead of RNNoise (nvafx.rs); RNNoise runs while it loads
+    quality: AtomicBool,
     /// max level at the input since the last read (f64 bits)
     peak: AtomicU64,
     out_peak: AtomicU64,
@@ -415,6 +417,10 @@ impl MicCtl {
 
     pub fn set_denoise(&self, on: bool) {
         self.denoise.store(on, Ordering::Relaxed);
+    }
+
+    pub fn set_quality(&self, on: bool) {
+        self.quality.store(on, Ordering::Relaxed);
     }
 
     /// Peak level at the input and output (dBFS) since the last call, and the gate state.
@@ -484,6 +490,7 @@ pub struct MicProc {
     hold: i64,
     lim_env: f64,
     dn: Option<Box<Denoiser>>,
+    nv: Option<Box<crate::nvafx::NvDenoiser>>,
 }
 
 impl MicProc {
@@ -492,6 +499,7 @@ impl MicProc {
             gate_db: AtomicU64::new((-100f64).to_bits()),
             ceil_db: AtomicU64::new(0f64.to_bits()),
             denoise: AtomicBool::new(false),
+            quality: AtomicBool::new(false),
             peak: AtomicU64::new(0),
             out_peak: AtomicU64::new(0),
             open: AtomicBool::new(false),
@@ -499,7 +507,7 @@ impl MicProc {
             busy: AtomicBool::new(false),
             rate: fs as u32,
         });
-        MicProc { ctl, fs, ch, hp: highpass(fs, 80.0, 0.707), hp_st: vec![BqState::default(); ch], env: 0.0, gate: 1.0, hold: 0, lim_env: 0.0, dn: None }
+        MicProc { ctl, fs, ch, hp: highpass(fs, 80.0, 0.707), hp_st: vec![BqState::default(); ch], env: 0.0, gate: 1.0, hold: 0, lim_env: 0.0, dn: None, nv: None }
     }
 
     pub fn process(&mut self, buf: &mut [f32]) {
@@ -533,11 +541,24 @@ impl MicProc {
                 buf[k * ch + c] = y as f32;
             }
         }
-        // 2) denoiser: created on first use, its state is dropped once switched off
+        // 2) denoiser: created on first use, its state is dropped once switched off; the NVIDIA one
+        //    takes over from RNNoise once it has loaded in the background
         if ctl.denoise.load(Ordering::Relaxed) {
-            self.dn.get_or_insert_with(|| Box::new(Denoiser::new(fs as u32))).process(buf, ch);
+            if !ctl.quality.load(Ordering::Relaxed) {
+                self.nv = None;
+            } else if self.nv.is_none() {
+                if let Some(m) = crate::nvafx::take() {
+                    self.nv = Some(Box::new(crate::nvafx::NvDenoiser::new(m, fs as u32)));
+                    self.dn = None;
+                }
+            }
+            match &mut self.nv {
+                Some(d) => d.process(buf, ch),
+                None => self.dn.get_or_insert_with(|| Box::new(Denoiser::new(fs as u32))).process(buf, ch),
+            }
         } else {
             self.dn = None;
+            self.nv = None;
         }
         // 3) plugins (if any)
         ctl.busy.store(true, Ordering::SeqCst);

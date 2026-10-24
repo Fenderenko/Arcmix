@@ -19,7 +19,7 @@ use windows::{
         Foundation::{CloseHandle, HWND, LPARAM, WPARAM},
         System::{
             Registry::{
-                HKEY, HKEY_CURRENT_USER, KEY_READ, KEY_SET_VALUE, REG_DWORD, REG_OPTION_NON_VOLATILE, REG_SZ, REG_VALUE_TYPE,
+                HKEY, HKEY_CURRENT_USER, KEY_READ, KEY_SET_VALUE, REG_DWORD, REG_MULTI_SZ, REG_OPTION_NON_VOLATILE, REG_SZ, REG_VALUE_TYPE,
                 RegCloseKey, RegCreateKeyExW, RegDeleteValueW, RegOpenKeyExW, RegQueryValueExW, RegSetValueExW,
             },
             SystemInformation::GetLocalTime,
@@ -249,6 +249,18 @@ pub fn reg_open_hklm64(path: &str) -> Option<RegKey> {
     Some(RegKey(k))
 }
 
+/// A HKEY_LOCAL_MACHINE key for writing, the 64-bit registry view (elevated only).
+pub fn reg_create_hklm64(path: &str) -> Option<RegKey> {
+    let mut k = HKEY::default();
+    let p = HSTRING::from(path);
+    unsafe {
+        RegCreateKeyExW(windows::Win32::System::Registry::HKEY_LOCAL_MACHINE, &p, None, None, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE | KEY_READ | windows::Win32::System::Registry::KEY_WOW64_64KEY, None, &mut k, None)
+    }
+    .ok()
+    .ok()?;
+    Some(RegKey(k))
+}
+
 pub fn reg_create(path: &str) -> Option<RegKey> {
     let mut k = HKEY::default();
     let p = HSTRING::from(path);
@@ -303,11 +315,39 @@ impl RegKey {
         unsafe { RegSetValueExW(self.0, &n, None, REG_SZ, Some(bytes)) }.is_ok()
     }
 
+    /// REG_MULTI_SZ: the strings, each ended by NUL, and a final NUL.
+    pub fn set_multi_string(&self, name: &str, values: &[&str]) -> bool {
+        let n = HSTRING::from(name);
+        let mut v: Vec<u16> = values.iter().flat_map(|s| s.encode_utf16().chain(std::iter::once(0))).collect();
+        v.push(0);
+        let bytes = unsafe { std::slice::from_raw_parts(v.as_ptr() as *const u8, v.len() * 2) };
+        unsafe { RegSetValueExW(self.0, &n, None, REG_MULTI_SZ, Some(bytes)) }.is_ok()
+    }
+
+    pub fn set_dword(&self, name: &str, value: u32) -> bool {
+        let n = HSTRING::from(name);
+        unsafe { RegSetValueExW(self.0, &n, None, REG_DWORD, Some(&value.to_le_bytes())) }.is_ok()
+    }
+
     pub fn delete(&self, name: &str) {
         let n = HSTRING::from(name);
         unsafe {
             let _ = RegDeleteValueW(self.0, &n);
         }
+    }
+
+    /// The names of the subkeys.
+    pub fn subkeys(&self) -> Vec<String> {
+        let mut out = Vec::new();
+        let mut buf = [0u16; 256];
+        for i in 0.. {
+            let mut len = buf.len() as u32;
+            if unsafe { windows::Win32::System::Registry::RegEnumKeyExW(self.0, i, Some(windows::core::PWSTR(buf.as_mut_ptr())), &mut len, None, None, None, None) }.is_err() {
+                break;
+            }
+            out.push(String::from_utf16_lossy(&buf[..len as usize]));
+        }
+        out
     }
 }
 

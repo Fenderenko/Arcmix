@@ -3,6 +3,8 @@
 
 #![windows_subsystem = "windows"]
 
+mod apo;
+mod apomod;
 mod appinfo;
 mod audio;
 mod autostart;
@@ -12,12 +14,15 @@ mod devices;
 mod devs;
 mod dsp;
 mod fly;
+mod focus;
 mod headset;
 mod hotkeys;
 mod http;
 mod i18n;
 mod icon;
+mod menu;
 mod mic;
+mod nvafx;
 mod osd;
 mod png;
 mod rnnoise;
@@ -116,6 +121,14 @@ pub fn windows_version() -> (u32, u32, u32) {
 }
 
 fn main() {
+    // the elevated copy for the one-time Equalizer APO setup: it does that and exits (no window, no mutex)
+    let args: Vec<String> = std::env::args().collect();
+    if args.get(1).is_some_and(|a| a == "--apo-setup") {
+        std::process::exit(apo::elevated_setup(args.get(2).map_or("", |s| s.as_str())));
+    }
+    if args.get(1).is_some_and(|a| a == "--apomod") {
+        std::process::exit(apomod::elevated(args.get(2).map_or("", |s| s.as_str()), args.get(3).map_or("", |s| s.as_str())));
+    }
     unsafe {
         let _ = SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
     }
@@ -174,6 +187,8 @@ fn main() {
     unsafe {
         windows::Win32::UI::WindowsAndMessaging::SetTimer(Some(hwnd), TIMER_VST, 10000, None);
     }
+    focus::apply(); // profiles bound to an app
+    vst::check_crash(); // before the plugins load: a crash of the last run may turn them off
     vst::sync();
     std::thread::spawn(fly::cleanup_old);
     devices::start();
@@ -242,6 +257,7 @@ pub fn on_cfg_changed() {
     tray::apply_audio();
     hotkeys::apply();
     mic::apply_hotkeys();
+    focus::apply();
     server::notify_subs();
 }
 
@@ -271,7 +287,13 @@ fn on_hid() {
         tray::set_pos_quiet(p);
         tray::apply_audio();
         tray::start_anim();
-        osd::show_balance(p);
+        // the headset repeats the dial position (and sends it on every connect): the indicator only
+        // when the position really changed since the last one seen
+        static LAST_MIX: AtomicI32 = AtomicI32::new(-1);
+        let prev = LAST_MIX.swap(game * 1000 + chat, Ordering::Relaxed);
+        if prev >= 0 && prev != game * 1000 + chat {
+            osd::show_balance(p);
+        }
     }
     server::notify_subs();
     if have && powered {

@@ -89,10 +89,13 @@ fn gain_enc_from_args(a: &Args) -> Option<GainEnc> {
 /// u16 frequency + u8 type + f32 gain + f32 Q
 const PEQ_BAND_SRC: usize = 11;
 
+/// The headset takes every multi-byte band field little-endian (Arctis Sound Manager, checked against a
+/// Nova 7P Gen 2); the description is serialized big-endian, so the frequency is turned round.
 fn encode_peq_bands(out: &mut Vec<u8>, b: &[u8], off: usize, n: usize, g: GainEnc) {
     for i in 0..n {
         let base = off + i * PEQ_BAND_SRC;
-        out.extend(&b[base..base + 3]);
+        out.extend(u16::from_be_bytes([b[base], b[base + 1]]).to_le_bytes());
+        out.push(b[base + 2]);
         out.push(g.enc(be32f(&b[base + 3..base + 7])));
         let q = (be32f(&b[base + 7..base + 11]) * 1000.0).round().clamp(0.0, 65535.0) as u16;
         out.extend(q.to_le_bytes());

@@ -9,9 +9,9 @@ CYR = re.compile('[Ѐ-ӿ]')
 WORD = re.compile(r'^([^A-Za-zÀ-ɏЀ-ӿ]*)([\s\S]*?)([^A-Za-zÀ-ɏЀ-ӿ.)»]*)$')
 
 def html_keys():
-    src = open(os.path.join(ROOT, 'web/index.html'), encoding='utf-8').read()
+    body = open(os.path.join(ROOT, 'web/index.html'), encoding='utf-8').read()
+    script = open(os.path.join(ROOT, 'web/app.js'), encoding='utf-8').read()
     keys = set()
-    body, script = src.split('<script>', 1)
     class P(HTMLParser):
         skip = False
         def handle_endtag(self, tag):

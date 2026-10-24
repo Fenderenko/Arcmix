@@ -653,7 +653,7 @@ pub fn sync() {
         let m = m.borrow();
         (m.plugs.clone(), m.errs.clone(), m.rate)
     });
-    let want: Vec<VstSlot> = if c.mic_fx.on && c.on("vst") { c.mic_fx.plugins.clone() } else { Vec::new() };
+    let want: Vec<VstSlot> = if c.mic_fx.on && c.on("vst") && !c.vst_safe { c.mic_fx.plugins.clone() } else { Vec::new() };
     let have: HashMap<&str, &Arc<Plug>> = have_list.iter().map(|p| (p.id.as_str(), p)).collect();
     let mut next = Vec::new();
     let mut keep = HashSet::new();
@@ -681,6 +681,7 @@ pub fn sync() {
     if !drop.is_empty() {
         save_state(); // while the list still has the ones being unloaded
     }
+    crash_mark(!next.is_empty());
     MGR.with(|m| {
         let mut m = m.borrow_mut();
         m.plugs = next;
@@ -821,6 +822,65 @@ pub fn shutdown() {
     for p in plugs() {
         p.close_editor();
     }
+    // a clean exit: not a crash, and the count of crashes in a row starts again
+    crash_mark(false);
+    let _ = std::fs::remove_file(crashes_file());
+}
+
+// ---------- safe mode ----------
+
+/// Runs in a row that ended while plugins were loaded, after which the plugins stay off.
+const CRASH_LIMIT: u32 = 2;
+
+/// Lies in the data folder while plugins are loaded: left behind, it means the app ended without
+/// a clean exit with them (a plugin crash takes the whole process down).
+fn marker() -> std::path::PathBuf {
+    util::data_dir().join("vst.running")
+}
+
+fn crashes_file() -> std::path::PathBuf {
+    util::data_dir().join("vst.crashes")
+}
+
+fn crash_mark(on: bool) {
+    let m = marker();
+    if on {
+        if !m.exists() {
+            let _ = std::fs::write(&m, b"");
+        }
+    } else {
+        let _ = std::fs::remove_file(&m);
+    }
+}
+
+/// (UI thread, at start, before plugins load) The last run ended with plugins loaded: one more crash
+/// in a row; at CRASH_LIMIT the plugins stay off (safe mode).
+pub fn check_crash() {
+    if !marker().exists() {
+        return;
+    }
+    let _ = std::fs::remove_file(marker());
+    let n = std::fs::read_to_string(crashes_file()).ok().and_then(|s| s.trim().parse::<u32>().ok()).unwrap_or(0) + 1;
+    logf!("vst: the last run ended while plugins were loaded ({n} in a row)");
+    if n >= CRASH_LIMIT {
+        let _ = std::fs::remove_file(crashes_file());
+        safe_mode("crashes");
+    } else {
+        let _ = std::fs::write(crashes_file(), n.to_string());
+    }
+}
+
+/// (any thread) Safe mode: the plugins go off, the microphone processing goes on without them, so
+/// the voice still reaches Discord and others; a notification and a banner in the window say why.
+pub fn safe_mode(why: &str) {
+    let c = config::get();
+    if c.vst_safe || c.mic_fx.plugins.is_empty() {
+        return;
+    }
+    logf!("vst: safe mode ({why}): plugins off");
+    config::set(|c| c.vst_safe = true);
+    util::run_on_ui(|| crate::tray::balloon(&t("Безпечний режим мікрофона"), &t("Обробка мікрофона аварійно завершувалася, тому VST-плагіни вимкнено. Мікрофон працює без них."), true));
+    util::post_ui(WM_CFG_CHG, 0);
 }
 
 // ---------- finding plugins ----------

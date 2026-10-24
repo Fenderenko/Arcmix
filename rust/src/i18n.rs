@@ -8,7 +8,12 @@ use std::{
 
 use serde::{Deserialize, Serialize};
 
-const I18N_JSON: &str = include_str!("../../web/i18n.json");
+/// Release builds carry the translations; debug builds read web/i18n.json once at start.
+#[cfg(not(debug_assertions))]
+static I18N_JSON: &str = include_str!("../../web/i18n.json");
+#[cfg(debug_assertions)]
+static I18N_JSON: LazyLock<String> =
+    LazyLock::new(|| std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../web/i18n.json")).unwrap_or_default());
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Lang {
@@ -27,7 +32,7 @@ struct Strings {
 }
 
 pub static LANGS: LazyLock<Vec<Lang>> =
-    LazyLock::new(|| serde_json::from_str::<Langs>(I18N_JSON).map(|x| x.langs).unwrap_or_default());
+    LazyLock::new(|| serde_json::from_str::<Langs>(&I18N_JSON).map(|x| x.langs).unwrap_or_default());
 
 struct Tab {
     code: String,
@@ -38,7 +43,7 @@ static CUR: RwLock<Option<Tab>> = RwLock::new(None);
 
 /// All translations of all languages (parsed anew: needed only when the language changes).
 pub fn all_strings() -> HashMap<String, HashMap<String, String>> {
-    serde_json::from_str::<Strings>(I18N_JSON).map(|x| x.strings).unwrap_or_default()
+    serde_json::from_str::<Strings>(&I18N_JSON).map(|x| x.strings).unwrap_or_default()
 }
 
 /// Makes a language current (only its translations stay in memory).

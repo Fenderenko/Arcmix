@@ -34,6 +34,11 @@ pub struct CfgPatch {
     custom_b: Option<String>,
     #[serde(rename = "customOled")]
     custom_oled: Option<bool>,
+    #[serde(rename = "customS")]
+    custom_s: Option<String>,
+    glow: Option<String>,
+    density: Option<String>,
+    corners: Option<String>,
 
     #[serde(rename = "autoSwitch")]
     auto_switch: Option<bool>,
@@ -44,12 +49,22 @@ pub struct CfgPatch {
     #[serde(rename = "fullNotify")]
     full_notify: Option<bool>,
     osd: Option<bool>,
+    #[serde(rename = "osdCorner")]
+    osd_corner: Option<String>,
     #[serde(rename = "micHotkey")]
     mic_hotkey: Option<bool>,
     ptt: Option<bool>,
     #[serde(rename = "pttKey")]
     ptt_key: Option<i32>,
     sounds: Option<bool>,
+    #[serde(rename = "vstSafe")]
+    vst_safe: Option<bool>,
+    #[serde(rename = "winCtl")]
+    win_ctl: Option<bool>,
+    #[serde(rename = "apoHs")]
+    apo_hs: Option<bool>,
+    #[serde(rename = "uiColors")]
+    ui_colors: Option<Vec<String>>,
     #[serde(rename = "duckLevel")]
     duck_level: Option<i32>,
     #[serde(rename = "duckMedia")]
@@ -108,6 +123,18 @@ pub fn apply(p: CfgPatch) {
             c.custom_b = v.clone();
         }
         set_b(&mut c.custom_oled, p.custom_oled);
+        if let Some(v) = p.custom_s.as_ref().filter(|v| v.is_empty() || config::parse_hex(v).is_some()) {
+            c.custom_s = v.clone();
+        }
+        if let Some(v) = p.glow.filter(|v| matches!(v.as_str(), "off" | "soft" | "bright")) {
+            c.glow = v;
+        }
+        if let Some(v) = p.density.filter(|v| matches!(v.as_str(), "normal" | "compact")) {
+            c.density = v;
+        }
+        if let Some(v) = p.corners.filter(|v| matches!(v.as_str(), "round" | "sharp")) {
+            c.corners = v;
+        }
         if let Some(v) = p.auto_off.filter(|v| (0..=90).contains(v)) {
             c.auto_off = v;
         }
@@ -118,6 +145,15 @@ pub fn apply(p: CfgPatch) {
         set_b(&mut c.mic_hotkey, p.mic_hotkey);
         set_b(&mut c.ptt, p.ptt);
         set_b(&mut c.sounds, p.sounds);
+        set_b(&mut c.vst_safe, p.vst_safe);
+        if let Some(k) = p.osd_corner.as_deref().filter(|k| matches!(*k, "tl" | "tr" | "bl" | "br")) {
+            c.osd_corner = k.to_string();
+        }
+        set_b(&mut c.win_ctl, p.win_ctl);
+        set_b(&mut c.apo_hs, p.apo_hs);
+        if let Some(v) = p.ui_colors.filter(|v| v.len() == 6 && v.iter().all(|x| config::parse_hex(x).is_some())) {
+            c.ui_colors = v;
+        }
         if let Some(v) = p.low_level.filter(|v| (5..=75).contains(v)) {
             c.low_level = v;
         }

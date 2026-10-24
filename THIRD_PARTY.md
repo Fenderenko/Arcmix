@@ -117,6 +117,9 @@ Build-time only (procedural macros, not part of the exe): `serde_derive`, `thise
   of the Windows interface for an app's own output device (`rust/src/audio/com.rs`).
 - **HeadsetControl** ([Sapd/HeadsetControl](https://github.com/Sapd/HeadsetControl), GPL-3.0): a reference for the
   Arctis 7+ commands (`rust/src/devs/hid.rs`).
+- **Arctis Sound Manager** ([loteran/Arctis-Sound-Manager](https://github.com/loteran/Arctis-Sound-Manager),
+  GPL-3.0): a reference for the parametric headset equalizer of Nova 7 Gen 2 and others — the little-endian band
+  fields and the pause between frames (`rust/src/devs/builtins.rs`, `rust/src/devs/hid.rs`).
 - **Audio EQ Cookbook** by Robert Bristow-Johnson: the peaking filter formulas (`rust/src/dsp.rs`).
 - **OpenChatMix** ([Swiftlyx/OpenChatMix](https://github.com/Swiftlyx/OpenChatMix), MIT): the idea and the first
   groundwork Arcmix grew out of.
@@ -125,3 +128,15 @@ Build-time only (procedural macros, not part of the exe): `serde_derive`, `thise
 
 [VB-CABLE](https://vb-audio.com/Cable/) and [VB-CABLE A+B](https://shop.vb-audio.com/en/audio-apps/12-vb-cable-ab.html)
 by VB-Audio are not bundled; the app only links to their pages. Install them from VB-Audio.
+
+The [NVIDIA Audio Effects SDK](https://developer.nvidia.com/maxine) is not bundled either. When the user has installed
+it (RTX graphics cards), the "NVIDIA RTX" noise suppression loads `NVAudioEffects.dll` and its denoiser model from that
+installation at run time. NVIDIA and RTX are trademarks of NVIDIA Corporation.
+
+[Equalizer APO](https://sourceforge.net/projects/equalizerapo/) by Jonas Thedering is not bundled. When the user has
+installed it, Arcmix writes its own curve file (`arcmix.txt`) into Equalizer APO's config folder and opens its Device
+Selector; no Equalizer APO code is part of Arcmix.
+
+Headphone correction curves come from [AutoEq](https://github.com/jaakkopasanen/AutoEq) by Jaakko Pasanen (MIT
+License, Copyright (c) 2018-2022 Jaakko Pasanen). They are not bundled: the index and the curve of the chosen model
+are downloaded from that repository on request.

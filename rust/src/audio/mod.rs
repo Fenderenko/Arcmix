@@ -49,6 +49,9 @@ pub struct OutInfo {
     pub headset: bool,
     /// battery of Bluetooth headphones as Windows knows it, -1 — unknown
     pub batt: i32,
+    /// the Windows volume of this output, 0..100, and its mute
+    pub vol: i32,
+    pub mute: bool,
 }
 
 #[derive(Serialize, Clone, Debug, Default, PartialEq)]
@@ -259,20 +262,78 @@ pub fn set_output(id: &str) {
     });
 }
 
-/// (hotkey) Windows' default output (or input) moves to the next (step 1) or previous (-1) active
-/// physical device, in the order of the device lists, round; the on-screen indicator shows its name.
-/// Virtual cables are left out.
+/// (from the window) The Windows volume and / or mute of the current output.
+pub fn set_out_volume(vol: Option<i32>, mute: Option<bool>) {
+    run(move |e| {
+        let Some(en) = e.en.get().cloned() else { return };
+        if let Some(epv) = unsafe { en.GetDefaultAudioEndpoint(eRender, windows::Win32::Media::Audio::eConsole) }.ok().and_then(|d| com::endpoint_volume(&d)) {
+            unsafe {
+                if let Some(v) = vol {
+                    let _ = epv.SetMasterVolumeLevelScalar(v.clamp(0, 100) as f32 / 100.0, std::ptr::null());
+                }
+                if let Some(m) = mute {
+                    let _ = epv.SetMute(m, std::ptr::null());
+                }
+            }
+        }
+        e.refresh_out();
+    });
+}
+
+/// (from the window) The chosen microphone becomes Windows' default too (all roles), so apps that
+/// use the default get it as well; the app then follows Windows (""). A virtual cable stays chosen
+/// by its id: "" never stands for a cable (com::auto_mic). While Windows' default recording device is
+/// a virtual cable (apps listen to the processed microphone there), it is kept: a real microphone is
+/// then chosen for the app only.
+pub fn set_input(id: &str) {
+    let id = id.to_string();
+    run(move |e| {
+        let virt = e.en.get().cloned().and_then(|en| com::get_device(&en, &id)).is_some_and(|d| outprio::is_virtual_name(&com::friendly_name(&d)));
+        let keep = !virt && e.en.get().is_some_and(|en| cable_is_default_mic(en));
+        let ok = !keep && com::set_default_endpoint(&id);
+        if ok {
+            logf!("input: switched by user");
+        }
+        config::set(|c| c.mic_dev = if ok && !virt { String::new() } else { id.clone() });
+        e.refresh_mic();
+        std::thread::spawn(|| crate::router::sync(&config::get())); // processing and "listen to yourself" take this microphone
+        server::notify_subs();
+    });
+}
+
+/// (hotkey) Windows' default output moves to the next (step 1) or previous (-1) active physical
+/// device, in the order of the device lists, round; the on-screen indicator shows its name. Virtual
+/// cables are left out. For input only the app's own microphone (processing, "listen to yourself")
+/// moves: Windows' recording device stays as it is (apps listen to the processed one through a cable).
 pub fn next_device(input: bool, step: i32) {
     run(move |e| {
         let Some(en) = e.en.get().cloned() else { return };
-        let l: Vec<_> = com::list_flow(&en, if input { eCapture } else { eRender }).into_iter().filter(|d| !d.is_virtual).collect();
+        let all = com::list_flow(&en, if input { eCapture } else { eRender });
+        let own = input;
+        let cur = if own {
+            let m = config::get().mic_dev;
+            if m.is_empty() { com::auto_mic(&all).unwrap_or_default() } else { m }
+        } else {
+            all.iter().find(|d| d.default).map(|d| d.id.clone()).unwrap_or_default()
+        };
+        let l: Vec<_> = all.into_iter().filter(|d| !d.is_virtual).collect();
         let n = l.len().max(1) as i32;
-        let i = l.iter().position(|d| d.default).map_or(if step < 0 { n - 1 } else { 0 }, |i| (i as i32 + step).rem_euclid(n)) as usize;
-        let Some(d) = l.get(i).filter(|d| !d.default) else { return };
+        let i = l.iter().position(|d| d.id == cur).map_or(if step < 0 { n - 1 } else { 0 }, |i| (i as i32 + step).rem_euclid(n)) as usize;
+        let Some(d) = l.get(i).filter(|d| d.id != cur) else { return };
+        if own {
+            logf!("input: app microphone switched by hotkey (Windows' default stays)");
+            let (id, name) = (d.id.clone(), d.name.clone());
+            config::set(|c| c.mic_dev = id);
+            util::run_on_ui(move || crate::osd::show(Some(crate::osd::ICON_MIC), &name));
+            e.refresh_mic();
+            std::thread::spawn(|| crate::router::sync(&config::get()));
+            server::notify_subs();
+            return;
+        }
         if com::set_default_endpoint(&d.id) {
             logf!("{}: switched by hotkey", if input { "input" } else { "output" });
             let name = d.name.clone();
-            util::run_on_ui(move || crate::osd::show_text(&name));
+            util::run_on_ui(move || crate::osd::show(Some(if input { crate::osd::ICON_MIC } else { crate::osd::ICON_SPEAKER }), &name));
         }
         if input {
             e.refresh_mic();
@@ -280,6 +341,11 @@ pub fn next_device(input: bool, step: i32) {
             e.refresh_out();
         }
     });
+}
+
+/// Windows' default recording device is a virtual cable: apps listen to the processed microphone.
+fn cable_is_default_mic(en: &windows::Win32::Media::Audio::IMMDeviceEnumerator) -> bool {
+    com::list_flow(en, eCapture).iter().any(|d| d.default && d.is_virtual)
 }
 
 /// (from the window) up | down | order (ids — the new order) | on | off | forget
@@ -368,6 +434,8 @@ pub struct Engine {
     sig: String,
     mic_hold_log: Option<Instant>,
     bt_batt: btbatt::Cache,
+    /// the current output's volume control with the watch on it (output.rs)
+    out_vol: Option<(String, windows::Win32::Media::Audio::Endpoints::IAudioEndpointVolume, windows::Win32::Media::Audio::Endpoints::IAudioEndpointVolumeCallback)>,
     vol_restore_log: HashMap<String, Instant>,
     endpoints_log: String,
 }
@@ -402,6 +470,7 @@ fn engine_loop(rx: Receiver<Msg>) {
         sig: String::new(),
         mic_hold_log: None,
         bt_batt: btbatt::Cache::default(),
+        out_vol: None,
         vol_restore_log: HashMap::new(),
         endpoints_log: String::new(),
     };

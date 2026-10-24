@@ -8,26 +8,27 @@ processing and headset settings in one window next to the clock.
 Arcmix started from the idea of Swiftlyx's [OpenChatMix](https://github.com/Swiftlyx/OpenChatMix); this repository is a fork of it.
 
 <p align="center">
-  <img src="docs/main.png?v=3" width="200" alt="Mix: game / chat balance, microphone and app groups">
-  <img src="docs/equalizer.png?v=3" width="200" alt="Equalizer: presets, your own presets and the curve">
-  <img src="docs/microphone.png?v=3" width="200" alt="Microphone processing: noise suppression, gate, ceiling, VST plugins">
-  <img src="docs/settings.png?v=3" width="200" alt="Settings: language, start with Windows, features">
+  <img src="docs/main.png?v=4" width="200" alt="Mix: game / chat balance, microphone and app groups">
+  <img src="docs/equalizer.png?v=4" width="200" alt="Equalizer: the All sound curve through the Arcmix module">
+  <img src="docs/microphone.png?v=4" width="200" alt="Microphone processing: noise suppression, gate, ceiling, VST plugins">
+  <img src="docs/settings.png?v=4" width="200" alt="Settings: language, start with Windows, features">
 </p>
 
 ## Features
 
-- **Game / chat balance for any app.** Put apps into Game / Chat / Media: drag one onto a group or add it with “+”. Every app keeps its own volume, and the balance (the dial on the headset, the slider in the window or hotkeys) scales those levels instead of overwriting them.
-- **An app's own output device.** The ⋮ menu next to an app sends it to another device, e.g. music to the speakers.
+- **Game / chat balance for any app.** Put apps into Game / Chat / Media: drag one onto a group or add it with “+”; the trash button removes one (“+” brings it back). Every app keeps its own volume, and the balance (the dial on the headset, the slider in the window or hotkeys) scales those levels instead of overwriting them.
 - **Auto-ducking.** While someone talks in a Chat app, the game (and optionally Media) gets quieter. Chat apps are listened to directly, so music or a video never triggers it.
 - **Volume memory.** App volumes and the microphone level come back if Windows or another app resets them.
-- **Equalizer.** Built-in presets, your own presets (edit, save, rename, delete) and presets built into the headset, where it has them.
+- **An equalizer for all sound, on any device.** The *All sound* curve works on everything that plays on the output device — speakers, USB or Bluetooth headphones — with no cables and no delay, through Arcmix's own module in the Windows audio engine. A device's own effects (Windows', Realtek, Dolby…) keep working: the module runs them inside itself. See [The Arcmix module](#the-arcmix-module).
+- **Equalizer presets.** Built-in presets, your own presets (edit, save, rename, delete) and the headset's own equalizer with the presets built into it, where it has them. With [Equalizer APO](https://sourceforge.net/projects/equalizerapo/) installed, Arcmix drives it too and adds AutoEQ correction for your headphone model.
 - **Microphone.** Volume, mute hotkey, push-to-talk on a key or a mouse button, soft sound cues and a mute badge on the tray icon.
 - **Hear yourself.** Record 5 seconds and play them back, or listen to your microphone live, after processing.
-- **Microphone processing.** Neural noise suppression (RNNoise), a noise gate, a loudness ceiling and 64-bit VST2 / VST3 plugins. Needs a virtual audio cable, e.g. the free [VB-CABLE](https://vb-audio.com/Cable/).
+- **Microphone processing.** Neural noise suppression — light RNNoise, or NVIDIA's on RTX graphics cards (with the NVIDIA Audio Effects SDK installed) — a noise gate, a loudness ceiling and 64-bit VST2 / VST3 plugins. Needs a virtual audio cable, e.g. the free [VB-CABLE](https://vb-audio.com/Cable/).
 - **Bluetooth headphones battery** in the header, as Windows knows it.
 - **Headset settings.** Battery with alerts and a time estimate, sidetone, auto power-off, mute light and more, depending on the model.
 - **Output devices by priority.** Sound goes to the highest connected device in your list: headset on, to the headset; off, to the next one. The headset microphone can follow it.
 - **Audio routing** *(experimental)*. Game, chat and media into separate virtual cables, for streaming or a separate equalizer per group.
+- **On-screen hint.** Changing the balance or switching the output or input device with hotkeys shows a small hint on the screen.
 - **Tray icon.** The app logo while the balance is equal; two capsules that show the balance once it moves. The mouse wheel over it changes the balance or shows the battery.
 - **Features you can turn off.** Settings → General → Features: a feature that is off disappears from the window and does not run.
 - **Update check.** Settings → About → *Check for updates* asks GitHub for the latest release. Nothing is checked on its own.
@@ -35,9 +36,9 @@ Arcmix started from the idea of Swiftlyx's [OpenChatMix](https://github.com/Swif
 
 ## Download and install
 
-1. Download `Arcmix-1.0.0.zip` from [Releases](../../releases) and unpack it to any folder (e.g. `C:\Programs\Arcmix`).
+1. Download `Arcmix-1.1.0.zip` from [Releases](../../releases) and unpack it to any folder (e.g. `C:\Programs\Arcmix`).
 2. Run `Arcmix.exe`. The exe is not code-signed, so Windows SmartScreen may warn you: click **More info → Run anyway**.
-3. The icon appears in the tray (click it to open the window). A short first-run guide walks through the basics.
+3. The icon appears in the tray (click it to open the window). A short first-run guide walks through the basics, the equalizer module included.
 
 Requirements: Windows 10 or 11, 64-bit, with the Microsoft Edge WebView2 Runtime (already part of Windows 11;
 on Windows 10 it comes with Edge, or get it from [Microsoft](https://developer.microsoft.com/microsoft-edge/webview2/)).
@@ -58,7 +59,9 @@ of the open apps. Then turn the dial on the headset or move the slider. Default 
 They can be changed in **Settings → General → Hotkeys** (click an action, then press the new combination).
 
 **Equalizer.** **Sound → Equalizer**: pick a preset or drag the curve. A changed curve can be saved as a new
-preset; your presets can be overwritten, renamed and deleted.
+preset; your presets can be overwritten, renamed and deleted. *Headset* is the headset's own equalizer; *All sound*
+is one curve for everything on the output device: click **Install** next to *Arcmix module* (once per device).
+On a headset with its own equalizer, turn on *All sound on the headset* to add both curves.
 
 **Microphone processing** (noise suppression, gate, VST):
 1. Install [VB-CABLE](https://vb-audio.com/Cable/) and restart the PC.
@@ -75,6 +78,20 @@ be bundled with other apps, so get it from their shop).
 **Output devices by priority.** **Settings → Headset → Windows devices → Device order**: drag the devices into
 your order. With *Switch sound automatically* on, the Windows output follows the highest connected device.
 
+## The Arcmix module
+
+The *All sound* equalizer runs as an effect inside the Windows audio engine, so it needs no virtual cables and adds
+no delay. It is installed per output device: **Sound → Equalizer → All sound → Install** (or in the first-run guide).
+
+- **Windows asks for administrator permission** and sound stops for a second while the audio services restart.
+- **What it changes:** it copies `ArcmixApo.dll` to `C:\Program Files\Arcmix`, registers it as an audio effect and adds
+  it to the device's effects. Effects the device already has keep working inside the module. The module is not
+  code-signed, so Arcmix also sets `DisableProtectedAudioDG = 1` (the audio engine then loads unsigned effects —
+  Equalizer APO does the same).
+- **Remove** puts the device's effects back as they were, and the protection too once no device has the module.
+- **Needs** the device's *Audio enhancements* on in Windows; the window says when they are off.
+- **Does not apply** to apps that use exclusive mode or ASIO, and to a Bluetooth headset in its hands-free mode.
+
 ## Headsets
 
 The balance, ducking, equalizer presets, microphone tools, routing and themes work with any headset.
@@ -85,6 +102,9 @@ Battery, sidetone, the hardware equalizer and other headset settings need the he
   the device descriptions of [Linux-Arctis-Manager](https://github.com/elegos/Linux-Arctis-Manager) in
   `web/devices.json`. They are **not tested**: some settings may be missing or behave differently.
   Reports are welcome.
+- **Nova 7 Gen 2, Nova 5, GameBuds, Nova Elite:** their parametric hardware equalizer is ready but off until someone
+  checks it on a real headset. To test it, quit Arcmix, add `"untestedEq": true` to `%APPDATA%\Arcmix\config.json`
+  and start it again; please report how it went.
 - Without a supported headset, the window shows nothing about the headset (no battery, sidetone or
   headset equalizer); everything else works.
 
@@ -98,6 +118,7 @@ Battery, sidetone, the hardware equalizer and other headset settings need the he
   Arcmix. Close it or turn its mixer off.
 - **Wireless headsets after a restart:** the receiver may report the headset as off until the headset is turned
   off and on again (seen with the Arctis 7+).
+- **The Arcmix module** cannot add a separate curve per app: it works on the whole output device.
 - **Not tested live yet:** audio routing, push-to-talk and the microphone sound cues, the taskbar button,
   disabling a Windows device from the device list, headsets other than the Arctis 7+ family.
 - VST plugins must be 64-bit.
@@ -112,11 +133,13 @@ desktop. Please attach it when you open an [issue](../../issues).
 Requires Windows and [Rust](https://rustup.rs/) with the MSVC toolchain. Crate versions are pinned in `rust/Cargo.lock`.
 
 ```sh
-cd rust
+cd rust/apo
+cargo build --release
+cd ..
 cargo build --release
 ```
 
-The app is `rust/target/release/arcmix.exe`; `build.rs` embeds the icon (`assets/app.ico`) and the version from
+The audio-engine module (`rust/apo`) is built first: the app embeds it. The app is `rust/target/release/arcmix.exe`; `build.rs` embeds the icon (`assets/app.ico`) and the version from
 `Cargo.toml`. Tests: `cargo test --release`.
 
 Tools in `tools/` need Python 3:
@@ -126,6 +149,10 @@ Tools in `tools/` need Python 3:
 - `gen_devices.py`: `web/devices.json` from Linux-Arctis-Manager's `device-configs`.
 - `rnnoise_model.py`: `assets/rnnoise.bin` from the RNNoise sources.
 - `mock/srv.py`: the same window with made-up data at http://127.0.0.1:8772/, for UI work without the app.
+
+## Support
+
+Arcmix is free. If it is useful to you, you can support it: [monobank jar](https://send.monobank.ua/jar/6VR4c6nxzz).
 
 ## Credits
 
@@ -142,6 +169,10 @@ Made by **Fenderenko**, written together with Claude Code (Anthropic). Arcmix st
   Windows interface for an app's own output device.
 - **Xiph.Org, Mozilla, Jean-Marc Valin** — [RNNoise](https://github.com/xiph/rnnoise) (BSD-3-Clause): noise
   suppression, ported to Rust together with its model.
+- **loteran** — [Arctis Sound Manager](https://github.com/loteran/Arctis-Sound-Manager) (GPL-3.0): a reference for the
+  parametric headset equalizer of Nova 7 Gen 2 and others.
+- **Jaakko Pasanen** — [AutoEq](https://github.com/jaakkopasanen/AutoEq) (MIT): the headphone correction curves,
+  downloaded when you pick a model.
 - **Robert Bristow-Johnson** — the Audio EQ Cookbook: the equalizer filters.
 - **Microsoft** — [windows-rs](https://github.com/microsoft/windows-rs) (MIT / Apache-2.0) and the WebView2 loader
   from the WebView2 SDK.

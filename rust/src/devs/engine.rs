@@ -1087,6 +1087,31 @@ mod tests {
         assert!(d.detect_eq().is_some());
     }
 
+    /// Nova 7 Gen 2: the parametric curve as Arctis Sound Manager sends it (hardware_eq.py, checked against
+    /// a Nova 7P Gen 2 there): a name frame, a band frame with the connection byte (frequency u16 LE, type,
+    /// gain i8 in tenths of a dB, Q u16 LE in thousandths), then the commit frame.
+    #[test]
+    fn nova_7_gen2_parametric() {
+        let all = all();
+        let d = &all["nova_7_gen2.yaml"];
+        let e = d.detect_eq().expect("parametric eq");
+        assert_eq!((e.kind.as_str(), e.bands, e.min, e.max), ("parametric", 10, -12.0, 12.0));
+        let mut curve = vec![0.0; 10];
+        (curve[0], curve[5], curve[9]) = (12.0, -12.0, 3.5);
+        let acts = d.prepare_write(&e.api, &d.eq_values(&e, &curve)).unwrap();
+        let frames: Vec<&[u8]> = acts.iter().filter(|a| a.sleep.is_zero()).map(|a| a.payload.as_slice()).collect();
+        assert_eq!(frames.len(), 3, "name, bands, commit");
+        assert_eq!(h(&frames[0][..4]), "00a70001", "name: report, 0xA7, wired, custom preset");
+        assert!(frames[0][4..].starts_with(b"Arcmix"));
+        assert_eq!(h(&frames[1][..3]), "003300", "bands: report, 0x33, connection");
+        let band = |i: usize| h(&frames[1][3 + i * 6..3 + i * 6 + 6]);
+        assert_eq!(band(0), format!("2000{}{}{}", "01", "78", "8205"), "32 Hz peak +12 dB Q 1.41");
+        assert_eq!(band(5), format!("e803{}{}{}", "01", "88", "8205"), "1 kHz peak -12 dB");
+        assert_eq!(band(9), format!("803e{}{}{}", "01", "23", "8205"), "16 kHz peak +3.5 dB");
+        assert_eq!(h(&frames[2][..2]), "0027", "commit");
+        assert!(frames.iter().all(|f| f.len() == 65));
+    }
+
     /// Every write and read of every description can be prepared; equalizers too.
     #[test]
     fn all_devices() {

@@ -176,7 +176,7 @@ pub fn make_report() -> Result<String, String> {
 
 // ---------- profiles ----------
 
-fn snapshot_profile(name: &str) -> Profile {
+pub fn snapshot_profile(name: &str) -> Profile {
     let c = config::get();
     Profile {
         name: name.into(),
@@ -187,15 +187,17 @@ fn snapshot_profile(name: &str) -> Profile {
         gate: c.mic_fx.gate,
         ceil: c.mic_fx.ceil,
         denoise: c.mic_fx.denoise,
+        app: String::new(),
     }
 }
 
-pub fn save_profile(name: &str) {
+pub fn save_profile(name: &str, app: &str) {
     let name: String = name.trim().chars().take(40).collect();
     if name.is_empty() {
         return;
     }
-    let p = snapshot_profile(&name);
+    let mut p = snapshot_profile(&name);
+    p.app = crate::appinfo::canonical(&app.trim().to_lowercase()).to_string();
     config::set(|c| match c.profiles.iter().position(|x| x.name.to_lowercase() == name.to_lowercase()) {
         Some(i) => c.profiles[i] = p,
         None => c.profiles.push(p),
@@ -211,6 +213,12 @@ pub fn delete_profile(name: &str) {
 pub fn apply_profile(name: &str) {
     let c = config::get();
     let Some(p) = c.profiles.iter().find(|x| x.name == name).cloned() else { return };
+    apply_profile_data(&p);
+}
+
+/// Applies the settings of a profile (also one made on the fly: what a bound profile replaced).
+pub fn apply_profile_data(p: &Profile) {
+    let name = p.name.clone();
     config::set(|c| {
         if !p.eq.is_empty() {
             c.eq = p.eq.clone();
@@ -224,7 +232,7 @@ pub fn apply_profile(name: &str) {
         c.mic_fx.ceil = p.ceil;
         c.mic_fx.denoise = p.denoise;
     });
-    crate::devices::apply_profile(&p);
+    crate::devices::apply_profile(p);
     logf!("profile applied: {name}");
     util::post_ui(crate::WM_CFG_CHG, 0);
 }

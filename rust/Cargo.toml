@@ -1,6 +1,6 @@
 [package]
 name = "arcmix"
-version = "1.0.0"
+version = "1.1.0"
 edition = "2024"
 description = "Arcmix"
 license = "GPL-3.0-only"
@@ -42,6 +42,7 @@ features = [
     "Win32_System_Threading",
     "Win32_System_Variant",
     "Win32_System_WinRT",
+    "Win32_UI_Accessibility",
     "Win32_UI_Controls_Dialogs",
     "Win32_UI_HiDpi",
     "Win32_UI_Input_KeyboardAndMouse",
@@ -50,6 +51,21 @@ features = [
     "Win32_UI_Shell_PropertiesSystem",
     "Win32_UI_WindowsAndMessaging",
 ]
+
+# Dev builds: the app's own code quick to build, dependencies optimized once and kept in the cache;
+# opt-level 1 keeps the DSP (RNNoise, equalizer) real-time even in a dev build.
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+# Near-release builds for testing: no fat LTO, parallel codegen.
+[profile.fast]
+inherits = "release"
+lto = false
+codegen-units = 16
+incremental = true
 
 [profile.release]
 opt-level = 3

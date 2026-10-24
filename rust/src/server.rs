@@ -23,16 +23,35 @@ use crate::{
     i18n, logf, settings, state, util,
 };
 
-const INDEX_HTML: &str = include_str!("../../web/index.html");
-const FONT_TTF: &[u8] = include_bytes!("../../web/onest.ttf");
+/// Release builds carry the page, its stylesheet and script; debug builds read them from web/ on
+/// every request, so a change needs only a reload of the window, not a rebuild.
+macro_rules! web_file {
+    ($name:ident, $file:literal) => {
+        #[cfg(not(debug_assertions))]
+        fn $name() -> std::borrow::Cow<'static, str> {
+            include_str!(concat!("../../web/", $file)).into()
+        }
+        #[cfg(debug_assertions)]
+        fn $name() -> std::borrow::Cow<'static, str> {
+            std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../web/", $file)).unwrap_or_default().into()
+        }
+    };
+}
+web_file!(index_html, "index.html");
+web_file!(app_css, "app.css");
+web_file!(app_js, "app.js");
+pub(crate) const FONT_TTF: &[u8] = include_bytes!("../../web/onest.ttf");
 
 /// Links the page may open in the browser.
-pub const OPEN_URLS: [&str; 5] = [
+pub const OPEN_URLS: [&str; 7] = [
     "https://vb-audio.com/Cable/",
     "https://shop.vb-audio.com/en/audio-apps/12-vb-cable-ab.html",
     "https://github.com/Swiftlyx/OpenChatMix",
     "https://github.com/Fenderenko/Arcmix",
     crate::update::RELEASES_PAGE,
+    // NVIDIA's redistributables of the Audio Effects SDK (one per RTX generation)
+    "https://www.nvidia.com/en-us/geforce/broadcasting/broadcast-sdk/resources/",
+    crate::apo::DOWNLOAD_PAGE,
 ];
 
 static PORT: AtomicU16 = AtomicU16::new(0);
@@ -78,11 +97,16 @@ pub fn start() {
 
 fn handle(r: &Request, s: &mut TcpStream) -> Reply {
     let host = format!("127.0.0.1:{}", port());
-    if r.path == "/font.ttf" {
+    // static files the page links without the token (no secrets in them): only this host
+    if matches!(r.path.as_str(), "/font.ttf" | "/app.css" | "/app.js") {
         if r.header("Host") != Some(host.as_str()) {
             return Reply::Status(403, "Forbidden");
         }
-        return Reply::Body { ctype: "font/ttf", cache: "max-age=86400", body: FONT_TTF.to_vec() };
+        return match r.path.as_str() {
+            "/app.css" => Reply::Body { ctype: "text/css; charset=utf-8", cache: "no-store", body: app_css().into_owned().into_bytes() },
+            "/app.js" => Reply::Body { ctype: "text/javascript; charset=utf-8", cache: "no-store", body: app_js().into_owned().into_bytes() },
+            _ => Reply::Body { ctype: "font/ttf", cache: "max-age=86400", body: FONT_TTF.to_vec() },
+        };
     }
     // the page, the API and icons: only this host, the token, and no other origin
     let token = TOKEN.lock().unwrap().clone();
@@ -119,6 +143,8 @@ struct OnReq {
 struct OpName {
     op: String,
     name: String,
+    /// profiles: the app the profile is bound to ("" — none)
+    app: String,
 }
 
 #[derive(Deserialize, Default)]
@@ -179,18 +205,24 @@ struct MicFxReq {
     gate: Option<f64>,
     ceil: Option<f64>,
     denoise: Option<bool>,
+    #[serde(rename = "denoiseKind")]
+    denoise_kind: Option<String>,
 }
 
 fn route(r: &Request, s: &mut TcpStream) -> Reply {
     match r.path.as_str() {
         "/" => {
             logf!("page requested by {}", r.header("User-Agent").unwrap_or(""));
-            let page = INDEX_HTML.replacen(r#"/*I18N*/{"lang":"uk","t":{},"langs":[]}"#, &i18n::payload(&config::get().lang), 1);
+            let page = index_html().replacen(r#"/*I18N*/{"lang":"uk","t":{},"langs":[]}"#, &i18n::payload(&config::get().lang), 1);
             Reply::Body { ctype: "text/html; charset=utf-8", cache: "no-store", body: page.into_bytes() }
         }
         "/api/state" => http::json(&state::build()),
         "/api/events" => {
             events(s);
+            Reply::Taken
+        }
+        "/api/meters" => {
+            meters(s, r.query("m"));
             Reply::Taken
         }
         "/api/pos" => {
@@ -238,8 +270,7 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
         }
         "/api/app/remove" => {
             if let Some(v) = r.json::<AppReq>() {
-                let e = v.exe.to_lowercase();
-                config::set(|c| c.pinned.retain(|x| *x != e));
+                remove_app(&v.exe);
                 util::post_ui(crate::WM_CFG_CHG, 0);
             }
             Reply::NoContent
@@ -266,6 +297,97 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
             }
             Reply::NoContent
         }
+        "/api/apo" => {
+            #[derive(Deserialize, Default)]
+            #[serde(default)]
+            struct V {
+                op: String,
+            }
+            // both wait for a UAC prompt and an elevated program: off the server thread
+            match r.json::<V>().map(|v| v.op).as_deref() {
+                Some("setup") => {
+                    std::thread::spawn(|| {
+                        crate::apo::setup();
+                        notify_subs();
+                    });
+                }
+                Some(op @ ("modInstall" | "modRemove")) => {
+                    let id = crate::audio::out_state().id;
+                    let op = if op == "modInstall" { "install" } else { "remove" };
+                    std::thread::spawn(move || crate::apomod::run(op, id));
+                }
+                Some("devices") => {
+                    std::thread::spawn(|| {
+                        crate::apo::choose_devices();
+                        std::thread::spawn(|| crate::router::sync(&config::get()));
+                        notify_subs();
+                    });
+                }
+                _ => {}
+            }
+            Reply::NoContent
+        }
+        "/api/autoeq" => {
+            #[derive(Deserialize, Default)]
+            #[serde(default)]
+            struct V {
+                /// search
+                q: Option<String>,
+                /// the output device to set
+                dev: String,
+                path: String,
+                name: String,
+                src: String,
+                on: Option<bool>,
+                remove: bool,
+            }
+            let Some(v) = r.json::<V>() else { return Reply::NoContent };
+            if let Some(q) = v.q {
+                return match crate::apo::search(&q) {
+                    Ok(l) => http::json(&json!({ "list": l })),
+                    Err(e) => http::json(&json!({ "err": e })),
+                };
+            }
+            if v.dev.is_empty() {
+                return Reply::NoContent;
+            }
+            if v.remove {
+                config::set(|c| {
+                    c.auto_eq.remove(&v.dev);
+                });
+            } else if let Some(on) = v.on {
+                config::set(|c| {
+                    if let Some(a) = c.auto_eq.get_mut(&v.dev) {
+                        a.on = on;
+                    }
+                });
+            } else if !v.path.is_empty() {
+                match crate::apo::fetch_curve(&v.path) {
+                    Ok(pts) => config::set(|c| {
+                        c.auto_eq.insert(v.dev.clone(), config::AutoEq { name: v.name.chars().take(80).collect(), src: v.src.chars().take(80).collect(), pts, on: true });
+                    }),
+                    Err(e) => {
+                        logf!("autoeq: {e}");
+                        return http::json(&json!({ "err": e }));
+                    }
+                }
+            }
+            std::thread::spawn(|| crate::router::sync(&config::get()));
+            notify_subs();
+            http::json(&json!({ "ok": true }))
+        }
+        "/api/outvol" => {
+            #[derive(Deserialize, Default)]
+            #[serde(default)]
+            struct V {
+                vol: Option<i32>,
+                mute: Option<bool>,
+            }
+            if let Some(v) = r.json::<V>() {
+                audio::set_out_volume(v.vol, v.mute);
+            }
+            Reply::NoContent
+        }
         "/api/output" => {
             #[derive(Deserialize, Default)]
             #[serde(default)]
@@ -280,10 +402,15 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
         "/api/mic" => {
             if let Some(v) = r.json::<MicReq>() {
                 if let Some(d) = v.dev {
-                    config::set(|c| c.mic_dev = d);
-                    audio::refresh_mic();
-                    std::thread::spawn(|| crate::router::sync(&config::get())); // processing and "listen to yourself" take this microphone
-                    notify_subs();
+                    if d.is_empty() || !config::get().win_ctl {
+                        // without "control Windows sound" the choice is the app's own
+                        config::set(|c| c.mic_dev = d);
+                        audio::refresh_mic();
+                        std::thread::spawn(|| crate::router::sync(&config::get())); // processing and "listen to yourself" take this microphone
+                        notify_subs();
+                    } else {
+                        audio::set_input(&d); // Windows' default microphone too
+                    }
                 }
                 if let Some(l) = v.level {
                     audio::set_mic_level(l.clamp(0, 100));
@@ -395,17 +522,15 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
                     if let Some(x) = v.denoise {
                         m.denoise = x;
                     }
+                    if let Some(k) = v.denoise_kind.filter(|k| k == "rnn" || k == "nv") {
+                        m.denoise_kind = k;
+                    }
                 });
                 std::thread::spawn(|| crate::router::sync(&config::get()));
                 notify_subs();
             }
             Reply::NoContent
         }
-        "/api/miclevel" => {
-            let (i, o, open, ok) = crate::router::mic_meter();
-            http::json(&json!({ "in": (i * 10.0).round() / 10.0, "out": (o * 10.0).round() / 10.0, "open": open, "ok": ok }))
-        }
-        "/api/duckmeter" => http::json(&audio::duck_meter()),
         "/api/winducking" => {
             util::run_on_ui(|| settings::open_win_sound(3));
             Reply::NoContent
@@ -413,10 +538,6 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
         "/api/winsound" => {
             util::run_on_ui(|| settings::open_win_sound(0));
             Reply::NoContent
-        }
-        "/api/micpeak" => {
-            let (db, ok) = crate::router::mic_peak_db();
-            http::json(&json!({ "db": (db * 10.0).round() / 10.0, "ok": ok }))
         }
         "/api/monitor" => {
             if r.method == "POST" {
@@ -478,7 +599,7 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
         "/api/profile" => {
             if let Some(v) = r.json::<OpName>() {
                 match v.op.as_str() {
-                    "save" => settings::save_profile(&v.name),
+                    "save" => settings::save_profile(&v.name, &v.app),
                     "apply" => settings::apply_profile(&v.name),
                     "delete" => settings::delete_profile(&v.name),
                     _ => {}
@@ -540,13 +661,43 @@ fn events(s: &mut TcpStream) {
     }
 }
 
+/// A level meter as a stream (SSE) while the page shows it, ~30 values a second: one connection
+/// instead of a request per value, and the page draws it smoothly. "mic" — the microphone peak,
+/// "fx" — the levels of the microphone processing (the peak while it does not run), "duck" — the
+/// chat sound that ducks the game. Ends when the window hides or the page closes it.
+fn meters(s: &mut TcpStream, kind: &str) {
+    let head = "HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\nCache-Control: no-store\r\n\r\n";
+    if !matches!(kind, "mic" | "fx" | "duck") || s.write_all(head.as_bytes()).is_err() {
+        return;
+    }
+    let r1 = |v: f64| (v * 10.0).round() / 10.0;
+    loop {
+        if fly::HIDDEN.load(Ordering::Relaxed) {
+            return;
+        }
+        let v = if kind == "duck" {
+            serde_json::to_value(audio::duck_meter()).unwrap_or_default()
+        } else if kind == "fx" && crate::router::mic_running() {
+            let (i, o, open, ok) = crate::router::mic_meter();
+            json!({ "in": r1(i), "out": r1(o), "open": open, "ok": ok, "run": true })
+        } else {
+            let (db, ok) = crate::router::mic_peak_db();
+            json!({ "db": r1(db), "ok": ok })
+        };
+        if s.write_all(format!("data: {v}\n\n").as_bytes()).and_then(|_| s.flush()).is_err() {
+            return;
+        }
+        std::thread::sleep(Duration::from_millis(33));
+    }
+}
+
 pub fn set_app_cat(exe: &str, cat: &str) {
     let e = crate::appinfo::canonical(&exe.trim().to_lowercase()).to_string();
     if e.is_empty() {
         return;
     }
     config::set(|c| {
-        for l in [&mut c.chat, &mut c.media, &mut c.game, &mut c.pinned] {
+        for l in [&mut c.chat, &mut c.media, &mut c.game, &mut c.pinned, &mut c.hidden] {
             l.retain(|x| *x != e);
         }
         c.pinned.push(e.clone());
@@ -558,6 +709,30 @@ pub fn set_app_cat(exe: &str, cat: &str) {
     });
 }
 
+/// Removes an app from the groups altogether: its group, its own output device and its remembered
+/// volume are forgotten, and it stays out of the lists (even while it plays) until added again with "+".
+/// Its sound meanwhile counts as a game, as any app outside the lists.
+fn remove_app(exe: &str) {
+    let e = crate::appinfo::canonical(&exe.trim().to_lowercase()).to_string();
+    if e.is_empty() {
+        return;
+    }
+    let had_out = config::get().app_outs.contains_key(&e);
+    config::set(|c| {
+        for l in [&mut c.chat, &mut c.media, &mut c.game, &mut c.pinned] {
+            l.retain(|x| *x != e);
+        }
+        c.app_outs.remove(&e);
+        c.app_vols.remove(&e);
+        if !c.hidden.contains(&e) {
+            c.hidden.push(e.clone());
+        }
+    });
+    if had_out {
+        audio::reapply(); // back to "As in Windows", as choosing it in the menu does
+    }
+}
+
 fn set_eq(mut v: EqReq) {
     if v.bands.len() < 3 || v.bands.len() > 12 {
         return;
@@ -565,7 +740,7 @@ fn set_eq(mut v: EqReq) {
     for b in v.bands.iter_mut() {
         *b = (((*b * 2.0 + 1000.5) as i64 - 1000) as f64 / 2.0).clamp(-12.0, 12.0);
     }
-    if matches!(v.target.as_str(), "game" | "chat" | "media") {
+    if matches!(v.target.as_str(), "all" | "game" | "chat" | "media") {
         if v.bands.len() == 10 {
             config::set(|c| {
                 let se = c.soft_eq.entry(v.target.clone()).or_default();
@@ -659,10 +834,11 @@ fn list_procs() -> Vec<ProcJson> {
         let exe = if name.eq_ignore_ascii_case(util::base_name(&full)) { util::base_name(&full).to_string() } else { name.clone() };
         out.push(ProcJson { exe, name: crate::appinfo::display_name(&name), listed: listed.contains(&name) });
     }
-    // apps of the groups that run without a window (in the tray, as Discord does after its start)
+    // apps of the groups that run without a window (in the tray, as Discord does after its start), and
+    // removed ones, so that "+" can bring them back
     let c = config::get();
     let procs = crate::appinfo::running_procs();
-    for e in c.chat.iter().chain(&c.media).chain(&c.game) {
+    for e in c.chat.iter().chain(&c.media).chain(&c.game).chain(&c.hidden) {
         let Some(&pid) = procs.get(e) else { continue };
         if seen.contains(e) {
             continue;

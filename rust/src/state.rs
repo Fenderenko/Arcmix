@@ -52,6 +52,11 @@ pub struct CfgJson {
     pub custom_b: String,
     #[serde(rename = "customOled")]
     pub custom_oled: bool,
+    #[serde(rename = "customS")]
+    pub custom_s: String,
+    pub glow: String,
+    pub density: String,
+    pub corners: String,
     pub route: RouteCfg,
     #[serde(rename = "micFx")]
     pub mic_fx: MicFxCfg,
@@ -68,17 +73,31 @@ pub struct CfgJson {
     #[serde(rename = "fullNotify")]
     pub full_notify: bool,
     pub osd: bool,
+    #[serde(rename = "osdCorner")]
+    pub osd_corner: String,
     #[serde(rename = "micHotkey")]
     pub mic_hotkey: bool,
     pub ptt: bool,
     #[serde(rename = "pttKey")]
     pub ptt_key: i32,
     pub sounds: bool,
+    #[serde(rename = "vstSafe")]
+    pub vst_safe: bool,
+    #[serde(rename = "winCtl")]
+    pub win_ctl: bool,
+    #[serde(rename = "apoHs")]
+    pub apo_hs: bool,
+    /// AutoEQ per output device: only whether it is on (the curves stay in the config)
+    #[serde(rename = "autoEq")]
+    pub auto_eq: BTreeMap<String, AeqOn>,
     #[serde(rename = "duckLevel")]
     pub duck_level: i32,
     #[serde(rename = "duckMedia")]
     pub duck_media: bool,
     pub profiles: Vec<String>,
+    /// the app each profile is bound to (only bound ones)
+    #[serde(rename = "profApps")]
+    pub prof_apps: BTreeMap<String, String>,
     pub hotkeys: BTreeMap<String, Hotkey>,
     #[serde(rename = "eqUser")]
     pub eq_user: Vec<EqUserPreset>,
@@ -122,6 +141,8 @@ pub struct StateJson {
     pub route: router::PipeStatus,
     #[serde(rename = "micFx")]
     pub mic_fx: router::PipeStatus,
+    /// the NVIDIA ("quality") denoiser
+    pub nv: crate::nvafx::NvStatus,
     /// Windows lets apps be routed automatically
     #[serde(rename = "appRoute")]
     pub app_route: bool,
@@ -135,6 +156,11 @@ pub struct StateJson {
     #[serde(rename = "winCall")]
     pub win_call: audio::WinCallJson,
     pub out: audio::OutInfo,
+    /// Equalizer APO on the current output
+    pub apo: crate::apo::ApoStatus,
+    /// the Arcmix module on the current output
+    #[serde(rename = "apoMod")]
+    pub apo_mod: crate::apomod::ModStatus,
     /// output devices by priority
     pub outs: Vec<audio::OutDevJson>,
     /// Windows look (for the "As in Windows" theme)
@@ -145,8 +171,12 @@ pub struct StateJson {
 pub fn build_apps() -> Vec<AppJson> {
     let c = config::get();
     let mut out: Vec<AppJson> = Vec::new();
+    let hidden = |k: &str| c.hidden.iter().any(|h| h == crate::appinfo::canonical(k));
     for s in audio::sessions() {
         let k = s.exe.to_lowercase();
+        if hidden(&k) {
+            continue;
+        }
         out.push(AppJson {
             exe: s.exe.clone(),
             name: crate::appinfo::display_name(&s.exe),
@@ -160,7 +190,7 @@ pub fn build_apps() -> Vec<AppJson> {
         });
     }
     for k in &c.pinned {
-        if k.is_empty() || out.iter().any(|a| a.exe.to_lowercase() == *k) {
+        if k.is_empty() || hidden(k) || out.iter().any(|a| a.exe.to_lowercase() == *k) {
             continue;
         }
         out.push(AppJson {
@@ -183,6 +213,11 @@ pub fn build_apps() -> Vec<AppJson> {
             .then(a.name.to_lowercase().cmp(&b.name.to_lowercase()))
     });
     out
+}
+
+#[derive(Serialize, Clone, Debug, PartialEq)]
+pub struct AeqOn {
+    pub on: bool,
 }
 
 pub fn build() -> StateJson {
@@ -223,6 +258,10 @@ pub fn build() -> StateJson {
             mute_led: c.mute_led,
             custom_a: c.custom_a.clone(),
             custom_oled: c.custom_oled,
+            custom_s: c.custom_s.clone(),
+            glow: c.glow.clone(),
+            density: c.density.clone(),
+            corners: c.corners.clone(),
             custom_b: c.custom_b.clone(),
             route: c.route.clone(),
             mic_fx: c.mic_fx.clone(),
@@ -233,13 +272,19 @@ pub fn build() -> StateJson {
             low_level: c.low_level,
             full_notify: c.full_notify,
             osd: c.osd,
+            osd_corner: c.osd_corner.clone(),
             mic_hotkey: c.mic_hotkey,
             ptt: c.ptt,
             ptt_key: c.ptt_key,
             sounds: c.sounds,
+            vst_safe: c.vst_safe,
+            win_ctl: c.win_ctl,
+            apo_hs: c.apo_hs,
+            auto_eq: c.auto_eq.iter().map(|(k, a)| (k.clone(), AeqOn { on: a.on })).collect(),
             duck_level: c.duck_level,
             duck_media: c.duck_media,
             profiles: c.profiles.iter().map(|p| p.name.clone()).collect(),
+            prof_apps: c.profiles.iter().filter(|p| !p.app.is_empty()).map(|p| (p.name.clone(), p.app.clone())).collect(),
             hotkeys: hk,
             eq_user: c.eq_user.clone(),
             onboarded: c.onboarded,
@@ -257,6 +302,7 @@ pub fn build() -> StateJson {
         version: APP_VER,
         route,
         mic_fx,
+        nv: crate::nvafx::status(),
         app_route: audio::app_route_ok(),
         vst: vst::status(),
         batt_hours: devices::batt_hours(),
@@ -264,6 +310,14 @@ pub fn build() -> StateJson {
         monitor: router::monitor_status(),
         hotkey_err: hotkeys::fails(),
         win_call: audio::win_call_state(),
+        apo: {
+            let o = audio::out_state();
+            crate::apo::status(&c, &o.id, &o.name)
+        },
+        apo_mod: {
+            let o = audio::out_state();
+            crate::apomod::status(&o.id, &o.name)
+        },
         out: audio::out_state(),
         outs: audio::outs_state(),
         win: wintheme::get(),

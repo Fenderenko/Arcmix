@@ -10,8 +10,8 @@ use std::{
 use webview2_com::{
     CreateCoreWebView2ControllerCompletedHandler, CreateCoreWebView2EnvironmentCompletedHandler,
     Microsoft::Web::WebView2::Win32::{
-        COREWEBVIEW2_COLOR, COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC, CreateCoreWebView2EnvironmentWithOptions, GetAvailableCoreWebView2BrowserVersionString, ICoreWebView2,
-        ICoreWebView2Controller, ICoreWebView2Controller2, ICoreWebView2Settings3, ICoreWebView2Settings5, ICoreWebView2Settings6,
+        COREWEBVIEW2_COLOR, COREWEBVIEW2_MEMORY_USAGE_TARGET_LEVEL_LOW, COREWEBVIEW2_MEMORY_USAGE_TARGET_LEVEL_NORMAL, COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC, CreateCoreWebView2EnvironmentWithOptions, GetAvailableCoreWebView2BrowserVersionString, ICoreWebView2,
+        ICoreWebView2_19, ICoreWebView2Controller, ICoreWebView2Controller2, ICoreWebView2Settings3, ICoreWebView2Settings5, ICoreWebView2Settings6,
     },
     NavigationCompletedEventHandler,
 };
@@ -511,6 +511,7 @@ pub fn show() {
     }
     if let Some(ctl) = fly(|f| f.ctl.clone()) {
         resize();
+        memory_level(false);
         unsafe {
             let _ = ctl.SetIsVisible(true);
             let _ = ctl.NotifyParentWindowPositionChanged();
@@ -531,6 +532,16 @@ pub fn show() {
     server::notify_subs();
 }
 
+/// WebView2 frees what it can while the window is hidden (its processes take most of the memory)
+/// and goes back to normal before it shows again. Older WebView2 runtimes lack it — then nothing.
+fn memory_level(low: bool) {
+    let Some(wv) = fly(|f| f.wv.clone()) else { return };
+    if let Ok(w) = wv.cast::<ICoreWebView2_19>() {
+        let lv = if low { COREWEBVIEW2_MEMORY_USAGE_TARGET_LEVEL_LOW } else { COREWEBVIEW2_MEMORY_USAGE_TARGET_LEVEL_NORMAL };
+        let _ = unsafe { w.SetMemoryUsageTargetLevel(lv) };
+    }
+}
+
 pub fn hide() {
     let (hwnd, vis, ctl) = fly(|f| (f.hwnd, f.visible, f.ctl.clone()));
     if hwnd.is_invalid() || !vis {
@@ -542,6 +553,7 @@ pub fn hide() {
             let _ = ctl.SetIsVisible(false); // the page does not paint while hidden
         }
     }
+    memory_level(true);
     fly(|f| {
         f.visible = false;
         f.hidden_at = Some(Instant::now());

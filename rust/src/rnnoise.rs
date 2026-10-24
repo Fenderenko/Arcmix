@@ -1140,7 +1140,7 @@ impl State {
 // ---------- wrapper for the microphone stream ----------
 
 /// Rate conversion with an exact integer step (no drift) and cubic interpolation.
-struct RateConv {
+pub(crate) struct RateConv {
     from: u32,
     to: u32,
     h: [f32; 4],
@@ -1148,11 +1148,11 @@ struct RateConv {
 }
 
 impl RateConv {
-    fn new(from: u32, to: u32) -> Self {
+    pub(crate) fn new(from: u32, to: u32) -> Self {
         RateConv { from, to, h: [0.0; 4], phase: 0 }
     }
 
-    fn push(&mut self, x: f32, out: &mut Vec<f32>) {
+    pub(crate) fn push(&mut self, x: f32, out: &mut Vec<f32>) {
         self.h = [self.h[1], self.h[2], self.h[3], x];
         while self.phase < self.to {
             out.push(catmull(self.h[0], self.h[1], self.h[2], self.h[3], self.phase as f32 / self.to as f32));

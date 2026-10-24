@@ -15,8 +15,10 @@ def png(rgb):
             raw+=bytes(rgb)+bytes([a])
     def ch(t,d): c=struct.pack('>I',len(d))+t+d; return c+struct.pack('>I',zlib.crc32(t+d)&0xffffffff)
     return b'\x89PNG\r\n\x1a\n'+ch(b'IHDR',struct.pack('>IIBBBBB',w,h,8,6,0,0,0))+ch(b'IDAT',zlib.compress(raw))+ch(b'IEND',b'')
-STATE = {"win":{"pal":["#99EBFF","#4CC2FF","#0091F8","#0078D4","#0067C0","#003E92","#001A68","#F7630C"],"light":False},"out":{"id":"r1","name":"Headphones (Arctis 7+)","short":"Arctis 7+","conn":"24g","headset":True},"connected":True,"powered":True,"haveBattery":True,"battery":75,"charging":False,"game":100,"chat":100,"pos":0,
- "cfg":{"theme":"pink","mode":"dark","lowBattery":True,"morph":"ink","sidetone":-1,"autoOff":-1,"autostart":True,"micGain":-1,"muteLed":-1,"customA":"#FF6A3D","customB":"#3DC8FF","route":{"on":False,"game":"","chat":"","media":"","out":"","auto":True},"micFx":{"on":False,"in":"","out":"","gate":-50,"ceil":-6,"denoise":True,"plugins":[]},"wheelMode":"battery","micDev":"","softEq":{},"autoSwitch":True,"switchMic":True,"lowLevel":25,"fullNotify":True,"osd":True,"updateCheck":True,"micHotkey":True,"ptt":False,"pttKey":0,"sounds":True,"duckLevel":60,"duckMedia":False,"onboarded":True,"eqUser":[],"hotkeys":{"game":{"mod":6,"vk":39},"chat":{"mod":6,"vk":37},"balance":{"mod":6,"vk":40},"mic":{"mod":3,"vk":77},"out":{"mod":3,"vk":39},"outPrev":{"mod":3,"vk":37},"in":{"mod":3,"vk":40},"inPrev":{"mod":3,"vk":38}},"profiles":["CS2 — кроки","Музика"]},
+# apps removed from the groups ("+" brings them back)
+HIDDEN = []
+STATE = {"win":{"pal":["#99EBFF","#4CC2FF","#0091F8","#0078D4","#0067C0","#003E92","#001A68","#F7630C"],"light":False},"nv":{"state":"ready"},"apo":{"installed":True,"ready":True,"dev":True,"sysfxOff":False,"hs":True},"apoMod":{"inst":False,"live":False,"free":False,"sysfx":False},"out":{"id":"r1","name":"Headphones (Arctis 7+)","short":"Arctis 7+","conn":"24g","headset":True,"vol":64,"mute":False},"connected":True,"powered":True,"haveBattery":True,"battery":75,"charging":False,"game":100,"chat":100,"pos":0,
+ "cfg":{"theme":"pink","mode":"dark","lowBattery":True,"morph":"ink","sidetone":-1,"autoOff":-1,"autostart":True,"micGain":-1,"muteLed":-1,"customA":"#FF6A3D","customB":"#3DC8FF","route":{"on":False,"game":"","chat":"","media":"","out":"","auto":True},"micFx":{"on":False,"in":"","out":"","gate":-50,"ceil":-6,"denoise":True,"plugins":[]},"wheelMode":"battery","micDev":"","softEq":{},"autoSwitch":True,"switchMic":True,"lowLevel":25,"fullNotify":True,"osd":True,"updateCheck":True,"micHotkey":True,"ptt":False,"pttKey":0,"sounds":True,"winCtl":True,"osdCorner":"br","duckLevel":60,"duckMedia":False,"onboarded":True,"eqUser":[],"hotkeys":{"game":{"mod":6,"vk":39},"chat":{"mod":6,"vk":37},"balance":{"mod":6,"vk":40},"mic":{"mod":3,"vk":77},"out":{"mod":3,"vk":39},"outPrev":{"mod":3,"vk":37},"in":{"mod":3,"vk":40},"inPrev":{"mod":3,"vk":38}},"profiles":["CS2 — кроки","Музика"]},
  "duck":{"watching":True,"active":False},"monitor":{"mode":"","progress":0,"has":False,"tap":False},"hotkeyErr":[],"winCall":{"active":False,"who":"","pref":1},
  "apps":[{"exe":"Discord.exe","name":"Discord","cat":"chat","live":True,"playing":True,"sound":True,"removable":False,"vol":100},
          {"exe":"cs2.exe","name":"Counter-Strike 2","cat":"game","live":True,"playing":True,"sound":True,"removable":False,"vol":100},{"exe":"steam.exe","name":"Steam","cat":"game","live":True,"playing":False,"removable":False,"vol":100},
@@ -37,15 +39,16 @@ def page(query=''):
     pl = json.dumps({"lang":l,"pick":STATE['cfg'].get('lang',''),"langs":I18['langs'],"t":t}, ensure_ascii=False)
     html = open(os.path.join(WEB, 'index.html'),encoding='utf-8').read()
     html = html.replace('/*I18N*/{"lang":"uk","t":{},"langs":[]}', pl, 1)
-    # screenshots: ?shot=<tab>[&sub=<settings page>][&to=<element id>] opens that view after the page is drawn
+    # screenshots: ?shot=<tab>[&sub=<settings page>][&eqt=<equalizer tab>][&to=<element id>] opens that view after the page is drawn
     q = dict(x.split('=',1) for x in query.split('&') if '=' in x)
     if q.get('shot'):
         js = ("setTimeout(function(){var q=%s;document.querySelector('#nav [data-tab='+q.shot+']').click();"
               "if(q.sub)document.querySelector('#setTabs [data-p='+q.sub+']').click();"
+              "if(q.eqt)document.querySelector('#eqTarget [data-t='+q.eqt+']').click();"
               "setTimeout(function(){if(q.to){var e=document.getElementById(q.to),v=e.closest('.view');v.scrollTop=e.offsetTop-62;}},300);},700);") % json.dumps(q)
         # headless browsers keep windows at least ~500 px wide: the page is held to the app's 400 px;
         # no live event stream, so a headless browser's virtual time can run out and take the picture
-        html = html.replace('<head>', '<head><script>window.EventSource=function(){return{close:function(){}};};</script>', 1)
+        html = html.replace('<head>', '<head><script>window.EventSource=function(u){var o={close:function(){}};var k=(u.match(/[?&]m=(\\w+)/)||[])[1];var d={mic:{db:-14,ok:true},fx:{in:-18,out:-20,open:true,ok:true,run:true}}[k];if(d)setTimeout(function(){o.onmessage&&o.onmessage({data:JSON.stringify(d)});},50);return o;};</script>', 1)
         html = html.replace('</body>', '<style>html,body{width:400px!important;max-width:400px!important;overflow:hidden}*,*::before,*::after{transition:none!important}</style><script>' + js + '</script></body>', 1)
     return html.encode()
 DEVS2={"render":[{"id":"r1","name":"Headphones (Arctis 7+)","virtual":False,"default":True},{"id":"r2","name":"Speakers (Realtek(R) Audio)","virtual":False},
@@ -79,9 +82,28 @@ class H(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         p=self.path.split('?')[0]
         if p=='/': self.send_response(200); self.send_header('Content-Type','text/html; charset=utf-8'); self.end_headers(); self.wfile.write(page(self.path.split('?',1)[1] if '?' in self.path else ''))
+        elif p in ('/app.css','/app.js'):
+            self.send_response(200); self.send_header('Content-Type','text/css' if p.endswith('css') else 'text/javascript'); self.end_headers()
+            self.wfile.write(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..','web',p[1:]),'rb').read())
         elif p=='/font.ttf': self.send_response(200); self.send_header('Content-Type','font/ttf'); self.end_headers(); self.wfile.write(FONT)
         elif p=='/api/vst/scan': self.send_response(200); self.send_header('Content-Type','application/json'); self.end_headers(); self.wfile.write(json.dumps(VSTFOUND).encode())
         elif p=='/api/audiodevs': self.send_response(200); self.send_header('Content-Type','application/json'); self.end_headers(); self.wfile.write(json.dumps(DEVS2).encode())
+        elif p=='/api/meters':
+            kind=dict(x.split('=',1) for x in self.path.split('?',1)[1].split('&') if '=' in x).get('m','mic') if '?' in self.path else 'mic'
+            self.send_response(200); self.send_header('Content-Type','text/event-stream'); self.end_headers()
+            try:
+                while True:
+                    t=time.time()
+                    if kind=='duck':
+                        talk=STATE.get('duck',{}).get('active',False) or int(t/3)%2==0; db=(-28+10*math.sin(t*9)) if talk else -66+2*math.sin(t)
+                        v={'db':round(db),'thr':-50,'voice':talk and not STATE.get('echo'),'active':talk and not STATE.get('echo'),'echo':STATE.get('echo',''),'watching':True}
+                    elif kind=='fx' and STATE['cfg']['micFx'].get('on'):
+                        x=-62+4*math.sin(t*3) if int(t)%3==0 else -24+8*math.sin(t*7)
+                        v={'in':x,'out':min(x,-6),'open':x>STATE['cfg']['micFx']['gate'],'ok':True,'run':True}
+                    else:
+                        x=-30+18*abs(math.sin(t*2.3))+(8 if int(t*2)%7==0 else 0); v={'db':min(0,x),'ok':True}
+                    self.wfile.write(b'data: '+json.dumps(v).encode()+b'\n\n'); self.wfile.flush(); time.sleep(0.033)
+            except Exception: pass
         elif p=='/api/miclevel':
             t=time.time(); v=-62+4*math.sin(t*3) if int(t)%3==0 else -24+8*math.sin(t*7)
             self.send_response(200); self.send_header('Content-Type','application/json'); self.end_headers(); self.wfile.write(json.dumps({'in':v,'out':min(v,-6),'open':v>STATE['cfg']['micFx']['gate'],'ok':True}).encode())
@@ -113,13 +135,30 @@ class H(http.server.BaseHTTPRequestHandler):
             elif 'cs2' in q: c=(222,150,40)
             else: self.send_response(404); self.end_headers(); return
             self.send_response(200); self.send_header('Content-Type','image/png'); self.end_headers(); self.wfile.write(png(c))
-        elif p=='/api/procs': self.send_response(200); self.send_header('Content-Type','application/json'); self.end_headers(); self.wfile.write(json.dumps([{"exe":"Code.exe","name":"Visual Studio Code","listed":False},{"exe":"obs64.exe","name":"OBS Studio","listed":False}]).encode())
+        elif p=='/api/procs': self.send_response(200); self.send_header('Content-Type','application/json'); self.end_headers(); self.wfile.write(json.dumps([{"exe":"Code.exe","name":"Visual Studio Code","listed":False},{"exe":"obs64.exe","name":"OBS Studio","listed":False}]+[{"exe":a['exe'],"name":a['name'],"listed":False} for a in HIDDEN]).encode())
         else: self.send_response(404); self.end_headers()
     def do_POST(self):
         n=int(self.headers.get('Content-Length',0)); body=json.loads(self.rfile.read(n) or b'{}'); p=self.path.split('?')[0]
         if p=='/api/update':
             time.sleep(0.8); self.send_response(200); self.send_header('Content-Type','application/json'); self.end_headers()
             self.wfile.write(json.dumps({'latest':STATE['version'],'newer':False}).encode()); return
+        if p=='/api/autoeq' and 'q' in body:
+            # a few models, as the AutoEQ index lists them
+            ms=[{'n':'SteelSeries Arctis 7+','s':'Rtings on HMS II.3','p':'x'},{'n':'SteelSeries Arctis 7P','s':'Rtings on HMS II.3','p':'y'},{'n':'Sony LinkBuds S','s':'DHRME','p':'z'},{'n':'Sony WH-1000XM5','s':'oratory1990','p':'w'}]
+            q=body['q'].lower().split(); l=[m for m in ms if all(w in m['n'].lower() for w in q)]
+            time.sleep(0.3); self.send_response(200); self.send_header('Content-Type','application/json'); self.end_headers()
+            self.wfile.write(json.dumps({'list':l}).encode()); return
+        if p=='/api/autoeq':
+            dev=STATE['out']['id']; ae=STATE['cfg'].setdefault('autoEq',{})
+            if body.get('remove'): ae.pop(dev,None); STATE['apo'].pop('autoEq',None)
+            elif 'on' in body and dev in ae: ae[dev]['on']=body['on']
+            elif body.get('path'): ae[dev]={'on':True}; STATE['apo']['autoEq']=[body['name'],body['src']]; time.sleep(0.5)
+            self.send_response(200); self.send_header('Content-Type','application/json'); self.end_headers(); self.wfile.write(b'{"ok":true}'); return
+        if p=='/api/apo':
+            if body.get('op')=='modInstall': STATE['apoMod']={'inst':True,'live':True,'free':False}
+            if body.get('op')=='modRemove': STATE['apoMod']={'inst':False,'live':False,'free':True}
+            if body.get('op')=='setup': STATE['apo']['ready']=True
+            if body.get('op')=='devices': STATE['apo']['dev']=True
         if p=='/api/pos': STATE['pos']=body['v']; STATE['game']=100-max(0,body['v']); STATE['chat']=100-max(0,-body['v'])
         elif p=='/api/cfg':
             hk=body.pop('hotkeys',None); ft=body.pop('features',None); STATE['cfg'].update(body)
@@ -139,10 +178,13 @@ class H(http.server.BaseHTTPRequestHandler):
             n=d['eq']['bands'] if d.get('eq') else 10
             STATE['eq']=[0]*n; STATE['eqCustom']=[0]*n
         elif p=='/api/mock_set': STATE.update(body)
+        elif p=='/api/outvol':
+            if 'vol' in body: STATE['out']['vol']=body['vol']
+            if 'mute' in body: STATE['out']['mute']=body['mute']
         elif p=='/api/output':
             for d in DEVS2['render']:
                 if d['id']==body['dev']:
-                    STATE['out']={'id':d['id'],'name':d['name'],'short':d['name'].split('(')[-1].rstrip(')'),'conn':'wire','headset':False}
+                    STATE['out']={'id':d['id'],'name':d['name'],'short':d['name'].split('(')[-1].rstrip(')'),'conn':'wire','headset':False,'vol':STATE['out'].get('vol',64),'mute':False}
         elif p=='/api/outdev' and body.get('op')=='order':
             by={d['id']:d for d in STATE['outs']}; STATE['outs']=[by[x] for x in body['ids'] if x in by]
         elif p=='/api/winsound': pass
@@ -169,6 +211,9 @@ class H(http.server.BaseHTTPRequestHandler):
         elif p=='/api/profile':
             pr=STATE['cfg']['profiles']
             if body['op']=='save' and body['name'] not in pr: pr.append(body['name'])
+            if body['op']=='save':
+                pa=STATE['cfg'].setdefault('profApps',{}); pa.pop(body['name'],None)
+                if body.get('app'): pa[body['name']]=body['app']
             if body['op']=='delete': STATE['cfg']['profiles']=[x for x in pr if x!=body['name']]
         elif p=='/api/update':
             if body['op']=='install': STATE['update']['status']='downloading'
@@ -196,7 +241,13 @@ class H(http.server.BaseHTTPRequestHandler):
                 l[same[0]]['name']=body['to']
                 if STATE['eqPreset']=='u:'+body['name']: STATE['eqPreset']='u:'+body['to']
             elif body['op']=='delete': STATE['cfg']['eqUser']=[x for x in l if x['name'].lower()!=body['name'].lower()]
+        elif p=='/api/app/remove':
+            # removed apps leave the groups and come back through "+"
+            HIDDEN.extend(a for a in STATE['apps'] if a['exe']==body['exe'])
+            STATE['apps']=[a for a in STATE['apps'] if a['exe']!=body['exe']]
         elif p=='/api/app':
+            back=[a for a in HIDDEN if a['exe']==body['exe']]
+            for a in back: HIDDEN.remove(a); STATE['apps'].append(a)
             for a in STATE['apps']:
                 if a['exe']==body['exe']: a['cat']=body['cat']
         self.send_response(204); self.end_headers()

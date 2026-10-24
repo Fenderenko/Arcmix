@@ -256,7 +256,7 @@ fn peak_loop() {
     PEAK_ERR.store(false, Ordering::Relaxed);
     let mut tmp = Vec::new();
     while alive() && config::with(|c| c.mic_dev == dev) {
-        std::thread::sleep(Duration::from_millis(15));
+        c.wait(50); // the microphone wakes the thread when a packet is ready
         let mut pk = 0f64;
         let r = c.capture_all(&mut tmp, |buf, _| {
             for &v in buf.iter() {

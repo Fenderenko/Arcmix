@@ -16,7 +16,6 @@ use crate::{APP_VER, logf};
 
 /// The page of the latest release ("Download" opens it; listed in server::OPEN_URLS).
 pub const RELEASES_PAGE: &str = "https://github.com/Fenderenko/Arcmix/releases/latest";
-const API_HOST: PCWSTR = w!("api.github.com");
 const API_PATH: PCWSTR = w!("/repos/Fenderenko/Arcmix/releases/latest");
 /// A release description is a few KB; anything far larger is not that answer.
 const MAX_BODY: usize = 1 << 20;
@@ -41,49 +40,94 @@ pub fn latest() -> Option<String> {
     (!tag.is_empty()).then(|| tag.to_string())
 }
 
-fn fetch(path: PCWSTR) -> Option<Vec<u8>> {
+/// An open HTTPS GET with the answer received (status 200); the session and the connection live as
+/// long as the request.
+struct Get {
+    _ses: Handle,
+    _con: Handle,
+    req: Handle,
+}
+
+fn get(host: &str, path: &str, accept: &str) -> Result<Get, String> {
     unsafe {
         let agent = HSTRING::from(format!("Arcmix/{APP_VER}"));
         let ses = Handle(WinHttpOpen(&agent, WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY, PCWSTR::null(), PCWSTR::null(), 0));
         if ses.0.is_null() {
-            return None;
+            return Err("WinHttpOpen".into());
         }
         let _ = WinHttpSetTimeouts(ses.0, 5000, 5000, 5000, 8000);
-        let con = Handle(WinHttpConnect(ses.0, API_HOST, INTERNET_DEFAULT_HTTPS_PORT, 0));
+        let con = Handle(WinHttpConnect(ses.0, &HSTRING::from(host), INTERNET_DEFAULT_HTTPS_PORT, 0));
         if con.0.is_null() {
-            return None;
+            return Err("WinHttpConnect".into());
         }
-        let req = Handle(WinHttpOpenRequest(con.0, w!("GET"), path, PCWSTR::null(), PCWSTR::null(), std::ptr::null(), WINHTTP_FLAG_SECURE));
+        // redirects (to a download host) are followed by WinHTTP itself
+        let req = Handle(WinHttpOpenRequest(con.0, w!("GET"), &HSTRING::from(path), PCWSTR::null(), PCWSTR::null(), std::ptr::null(), WINHTTP_FLAG_SECURE));
         if req.0.is_null() {
-            return None;
+            return Err("WinHttpOpenRequest".into());
         }
-        let headers: Vec<u16> = "Accept: application/vnd.github+json\r\n".encode_utf16().collect();
-        if let Err(e) = WinHttpSendRequest(req.0, Some(&headers), None, 0, 0, 0).and_then(|_| WinHttpReceiveResponse(req.0, std::ptr::null_mut())) {
+        let headers: Vec<u16> = format!("Accept: {accept}
+").encode_utf16().collect();
+        WinHttpSendRequest(req.0, Some(&headers), None, 0, 0, 0).and_then(|_| WinHttpReceiveResponse(req.0, std::ptr::null_mut())).map_err(|e| e.to_string())?;
+        let (mut code, mut len) = (0u32, 4u32);
+        WinHttpQueryHeaders(req.0, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, PCWSTR::null(), Some(&mut code as *mut u32 as *mut c_void), &mut len, std::ptr::null_mut())
+            .map_err(|e| e.to_string())?;
+        if code != 200 {
+            return Err(format!("HTTP {code}"));
+        }
+        Ok(Get { _ses: ses, _con: con, req })
+    }
+}
+
+impl Get {
+    /// The next piece of the body into buf; 0 at the end.
+    fn read(&self, buf: &mut [u8]) -> Result<usize, String> {
+        let mut n = 0u32;
+        unsafe { WinHttpReadData(self.req.0, buf.as_mut_ptr() as *mut c_void, buf.len() as u32, &mut n) }.map_err(|e| e.to_string())?;
+        Ok(n as usize)
+    }
+}
+
+/// (any thread; blocks) A whole file over HTTPS, at most `max` bytes.
+pub fn get_bytes(host: &str, path: &str, max: usize) -> Result<Vec<u8>, String> {
+    let g = get(host, path, "*/*")?;
+    let mut body = Vec::new();
+    let mut buf = vec![0u8; 64 * 1024];
+    loop {
+        let n = g.read(&mut buf)?;
+        if n == 0 {
+            break;
+        }
+        body.extend_from_slice(&buf[..n]);
+        if body.len() > max {
+            return Err("larger than expected".into());
+        }
+    }
+    Ok(body)
+}
+
+fn fetch(path: PCWSTR) -> Option<Vec<u8>> {
+    let path = unsafe { path.to_string() }.ok()?;
+    let g = match get("api.github.com", &path, "application/vnd.github+json") {
+        Ok(g) => g,
+        Err(e) => {
+            // HTTP 404: no release published yet
             logf!("update check: {e}");
             return None;
         }
-        let (mut code, mut len) = (0u32, 4u32);
-        WinHttpQueryHeaders(req.0, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, PCWSTR::null(), Some(&mut code as *mut u32 as *mut c_void), &mut len, std::ptr::null_mut()).ok()?;
-        if code != 200 {
-            // 404: no release published yet
-            logf!("update check: HTTP {code}");
+    };
+    let mut body = Vec::new();
+    let mut buf = [0u8; 8192];
+    loop {
+        let n = g.read(&mut buf).ok()?;
+        if n == 0 {
+            break;
+        }
+        body.extend_from_slice(&buf[..n]);
+        if body.len() > MAX_BODY {
             return None;
         }
-        let mut body = Vec::new();
-        let mut buf = [0u8; 8192];
-        loop {
-            let mut n = 0u32;
-            WinHttpReadData(req.0, buf.as_mut_ptr() as *mut c_void, buf.len() as u32, &mut n).ok()?;
-            if n == 0 {
-                break;
-            }
-            body.extend_from_slice(&buf[..n as usize]);
-            if body.len() > MAX_BODY {
-                return None;
-            }
-        }
-        Some(body)
     }
+    Some(body)
 }
 
 #[cfg(test)]

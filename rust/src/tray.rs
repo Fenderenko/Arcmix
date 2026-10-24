@@ -13,13 +13,11 @@ use windows::{
         UI::{
             Shell::{NIF_ICON, NIF_INFO, NIF_MESSAGE, NIF_TIP, NIIF_INFO, NIIF_WARNING, NIM_ADD, NIM_DELETE, NIM_MODIFY, NOTIFY_ICON_DATA_FLAGS, NOTIFYICONDATAW, NOTIFYICONIDENTIFIER, Shell_NotifyIconGetRect, Shell_NotifyIconW},
             WindowsAndMessaging::{
-                AppendMenuW, CallNextHookEx, CreatePopupMenu, DestroyIcon, DestroyMenu, GetCursorPos, GetSystemMetrics, HHOOK, HICON, HMENU, KillTimer, MENU_ITEM_FLAGS, MF_DISABLED, MF_GRAYED, MF_POPUP,
-                MF_SEPARATOR, MF_STRING, MSLLHOOKSTRUCT, PostMessageW, SM_CXSMICON, SetForegroundWindow, SetTimer, SetWindowsHookExW, TPM_BOTTOMALIGN, TPM_NONOTIFY, TPM_RETURNCMD, TPM_RIGHTBUTTON,
-                TrackPopupMenu, UnhookWindowsHookEx, WH_MOUSE_LL, WM_MOUSEWHEEL,
+                CallNextHookEx, DestroyIcon, GetCursorPos, GetSystemMetrics, HHOOK, HICON, KillTimer, MSLLHOOKSTRUCT, PostMessageW, SM_CXSMICON, SetTimer, SetWindowsHookExW,
+                UnhookWindowsHookEx, WH_MOUSE_LL, WM_MOUSEWHEEL,
             },
         },
     },
-    core::HSTRING,
 };
 
 use crate::{
@@ -356,53 +354,23 @@ pub fn set_light_task(l: bool) -> bool {
 
 // ---------- menu ----------
 
-fn append(m: HMENU, flags: MENU_ITEM_FLAGS, id: usize, text: &str) {
-    let s = HSTRING::from(text);
-    unsafe {
-        let _ = AppendMenuW(m, flags, id, &s);
-    }
-}
-
+/// The tray menu in the app's own style (menu.rs): only what is needed every day, the rest is in the window.
 pub fn show_menu() {
+    use crate::menu::Entry;
     let c = config::get();
-    let Ok(menu) = (unsafe { CreatePopupMenu() }) else { return };
-    let sub = |title: &str, fill: &dyn Fn(HMENU)| {
-        if let Ok(m) = unsafe { CreatePopupMenu() } {
-            fill(m);
-            append(menu, MF_POPUP, m.0 as usize, title);
-        }
-    };
-    append(menu, MF_DISABLED | MF_GRAYED, 0, &format!("{APP_NAME} {APP_VER}"));
-    append(menu, MF_SEPARATOR, 0, "");
-    append(menu, MF_STRING, ID_OPEN as usize, &t("Відкрити вікно"));
-    let mut reset = t("Баланс: порівну");
-    let k = hotkeys::label(hotkeys::hotkey_of(&c, "balance"));
-    if !k.is_empty() {
-        reset += &format!(" ({k})");
-    }
-    append(menu, MF_STRING, ID_RESET as usize, &reset);
-    // only what is needed every day: the rest is in the window
+    let mut e = vec![Entry::Title(APP_NAME.into(), APP_VER.into()), Entry::Separator];
+    e.push(Entry::Item { id: ID_OPEN, icon: '\u{E8A7}', text: t("Відкрити вікно"), hint: String::new(), danger: false });
+    let hint = hotkeys::label(hotkeys::hotkey_of(&c, "balance"));
+    e.push(Entry::Item { id: ID_RESET, icon: '\u{E9E9}', text: t("Баланс: порівну"), hint, danger: false });
     if !c.profiles.is_empty() && c.on("profiles") {
-        sub(&t("Профіль"), &|m| {
-            for (i, p) in c.profiles.iter().enumerate() {
-                append(m, MF_STRING, ID_PROF as usize + i, &p.name);
-            }
-        });
+        e.push(Entry::Caption(t("Профіль")));
+        for (i, p) in c.profiles.iter().enumerate() {
+            e.push(Entry::Item { id: ID_PROF + i as u32, icon: '\u{E77B}', text: p.name.clone(), hint: String::new(), danger: false });
+        }
     }
-    append(menu, MF_SEPARATOR, 0, "");
-    append(menu, MF_STRING, ID_QUIT as usize, &t("Вийти"));
-
-    let mut pt = POINT::default();
-    let hwnd = util::main_hwnd();
-    let cmd = unsafe {
-        let _ = GetCursorPos(&mut pt);
-        let _ = SetForegroundWindow(hwnd);
-        let r = TrackPopupMenu(menu, TPM_RIGHTBUTTON | TPM_BOTTOMALIGN | TPM_NONOTIFY | TPM_RETURNCMD, pt.x, pt.y, None, hwnd, None);
-        let _ = PostMessageW(Some(hwnd), 0, WPARAM(0), LPARAM(0));
-        let _ = DestroyMenu(menu);
-        r.0 as u32
-    };
-    on_menu(cmd);
+    e.push(Entry::Separator);
+    e.push(Entry::Item { id: ID_QUIT, icon: '\u{E7E8}', text: t("Вийти"), hint: String::new(), danger: true });
+    crate::menu::show(e, on_menu);
 }
 
 fn on_menu(id: u32) {

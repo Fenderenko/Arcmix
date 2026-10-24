@@ -521,7 +521,8 @@ fn match_generic(devs: &[DevConfig], all: &[HidIface]) -> Option<GenDev> {
             return Some(GenDev {
                 name: name.strip_prefix("SteelSeries ").unwrap_or(&name).to_string(),
                 pid: hi.pid,
-                eq: c.detect_eq(),
+                // the parametric one is not checked on a real headset yet: only for testers (untestedEq)
+                eq: c.detect_eq().filter(|e| e.kind != "parametric" || config::get().untested_eq),
                 schema: c.settings_schema(),
                 cfg: c.clone(),
                 cmd,
@@ -692,12 +693,19 @@ impl Session {
 
     fn write_api(&mut self, api: &str, vals: &HashMap<String, FVal>) -> Result<(), String> {
         let acts = self.g.cfg.prepare_write(api, vals)?;
+        let mut sent = false;
         for a in acts {
             if !a.sleep.is_zero() {
                 std::thread::sleep(a.sleep);
+                sent = false;
                 continue;
             }
+            // frames of one write at least 30 ms apart: Nova 7 Gen 2 drops faster ones (Arctis Sound Manager)
+            if sent {
+                std::thread::sleep(Duration::from_millis(30));
+            }
             self.write(&a.payload, a.feature)?;
+            sent = true;
         }
         Ok(())
     }

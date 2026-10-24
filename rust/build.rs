@@ -14,6 +14,12 @@ fn main() {
     let ico_path = root.join("assets").join("app.ico");
     println!("cargo:rerun-if-changed={}", ico_path.display());
     println!("cargo:rerun-if-changed=build.rs");
+    // the Arcmix audio-engine module is embedded (src/apomod.rs): build rust/apo first
+    let dll = root.join("rust").join("apo").join("target").join("release").join("arcmix_apo.dll");
+    println!("cargo:rerun-if-changed={}", dll.display());
+    if !dll.is_file() {
+        panic!("{} is missing: run `cargo build --release --offline` in rust/apo first", dll.display());
+    }
     if env::var("CARGO_CFG_TARGET_OS").as_deref() != Ok("windows") {
         return;
     }

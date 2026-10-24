@@ -3,6 +3,7 @@
 log.txt
 __pycache__/
 rust/target/
+rust/apo/target/
 .vscode/
 .idea/
 *.zip

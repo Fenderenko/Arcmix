@@ -37,16 +37,33 @@ struct Paths {
 
 static PATHS: Mutex<Option<Paths>> = Mutex::new(None);
 
+/// The paths of apps seen before (exe → path), kept in the data folder: a closed app keeps its name
+/// and icon after a restart. None outside the app (tests).
+fn store() -> Option<std::path::PathBuf> {
+    let d = util::data_dir();
+    (d != std::path::Path::new(".")).then(|| d.join("apppaths.json"))
+}
+
 fn with<R>(f: impl FnOnce(&mut Paths) -> R) -> R {
     let mut g = PATHS.lock().unwrap();
-    f(g.get_or_insert_with(Paths::default))
+    f(g.get_or_insert_with(|| {
+        let mut p = Paths::default();
+        let saved = store().and_then(|f| std::fs::read_to_string(f).ok()).and_then(|t| serde_json::from_str::<HashMap<String, String>>(&t).ok());
+        p.exe = saved.unwrap_or_default().into_iter().filter(|(_, v)| std::path::Path::new(v).is_file()).collect();
+        p
+    }))
 }
 
 pub fn remember_path(exe: &str, path: &str) {
     if exe.is_empty() || path.is_empty() {
         return;
     }
-    with(|p| p.exe.insert(exe.to_lowercase(), path.to_string()));
+    let key = exe.to_lowercase();
+    // written only when something new is learned
+    let all = with(|p| (p.exe.insert(key, path.to_string()).as_deref() != Some(path)).then(|| p.exe.clone()));
+    if let (Some(all), Some(f)) = (all, store()) {
+        let _ = std::fs::write(f, serde_json::to_string(&all).unwrap_or_default());
+    }
 }
 
 pub fn path_for(exe: &str) -> String {

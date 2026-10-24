@@ -258,5 +258,9 @@ pub fn on_battery(lvl: i32, charging: bool) {
     if let Some((title, text, warn)) = balloon {
         logf!("battery notification: {title}");
         tray::balloon(&title, &text, warn);
+        if warn {
+            // a popup on screen too: a balloon is easy to miss in a game
+            crate::osd::show(Some(crate::osd::ICON_BATTERY_LOW), &format!("{title} · {lvl}%"));
+        }
     }
 }

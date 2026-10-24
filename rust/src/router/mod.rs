@@ -119,6 +119,10 @@ struct Pipeline {
     gate: AtomicU64,
     ceil: AtomicU64,
     denoise: AtomicBool,
+    quality: AtomicBool,
+    /// routing: the software equalizer of the whole mix ("all"), after the categories' own
+    eq_want: Mutex<Option<Arc<Vec<f64>>>>,
+    eq_gen: AtomicU32,
 
     stop: Mutex<bool>,
     stop_cv: Condvar,
@@ -140,6 +144,9 @@ impl Pipeline {
             gate: AtomicU64::new(0),
             ceil: AtomicU64::new(0),
             denoise: AtomicBool::new(false),
+            quality: AtomicBool::new(false),
+            eq_want: Mutex::new(None),
+            eq_gen: AtomicU32::new(0),
             stop: Mutex::new(false),
             stop_cv: Condvar::new(),
             stopping: AtomicBool::new(false),
@@ -219,8 +226,31 @@ fn run_output(p: Arc<Pipeline>) {
     let _at = wasapi::audio_thread();
     if util::safely_value(p.kind, || output_main(&p)).is_none() {
         p.fail("internal error");
+        panicked(&p);
     }
     p.running.store(false, Ordering::Relaxed);
+}
+
+/// Panics of the microphone pipeline within PANIC_WINDOW; at PANIC_LIMIT the plugins go off
+/// (vst::safe_mode), so the pipeline restarts without them instead of failing again and again.
+static MIC_PANICS: Mutex<Vec<Instant>> = Mutex::new(Vec::new());
+const PANIC_LIMIT: usize = 3;
+const PANIC_WINDOW: Duration = Duration::from_secs(600);
+
+fn panicked(p: &Pipeline) {
+    if p.kind != "mic" {
+        return;
+    }
+    let n = {
+        let mut v = lock(&MIC_PANICS);
+        v.retain(|t| t.elapsed() < PANIC_WINDOW);
+        v.push(Instant::now());
+        v.len()
+    };
+    if n >= PANIC_LIMIT {
+        lock(&MIC_PANICS).clear();
+        crate::vst::safe_mode("pipeline failures");
+    }
 }
 
 fn output_main(p: &Arc<Pipeline>) {
@@ -252,11 +282,13 @@ fn output_main(p: &Arc<Pipeline>) {
                 let _at = wasapi::audio_thread();
                 if util::safely_value(p.kind, || run_input(&p, &inp, of)).is_none() {
                     p.fail("internal error");
+                    panicked(&p);
                 }
             });
         }
         if util::safely_value(p.kind, || render_loop(p, &out)).is_none() {
             p.fail("internal error");
+            panicked(p);
         }
         p.halt();
     });
@@ -301,6 +333,7 @@ fn render_loop(p: &Pipeline, out: &wasapi::Client) {
     let mut fifo_gens = vec![0u32; n];
     let mut eqs: Vec<Option<EqChain>> = (0..n).map(|_| None).collect();
     let mut eq_gens = vec![0u32; n];
+    let (mut master, mut master_gen) = (None::<EqChain>, 0u32);
     let mut last_lat = Instant::now();
     while !p.stopped() {
         if !ok_logged && started.elapsed() > Duration::from_secs(3) {
@@ -338,6 +371,12 @@ fn render_loop(p: &Pipeline, out: &wasapi::Client) {
                 eqs[i] = w.filter(|w| eq_active(w)).map(|w| EqChain::new(of.rate as f64, &STD10, &w, of.channels));
             }
         }
+        let g = p.eq_gen.load(Ordering::Acquire);
+        if g != master_gen {
+            master_gen = g;
+            let w = lock(&p.eq_want).clone();
+            master = w.filter(|w| eq_active(w)).map(|w| EqChain::new(of.rate as f64, &STD10, &w, of.channels));
+        }
         let r = out.render_frames(target_pad - pad, &mut tmp, |buf, n| {
             buf.fill(0.0);
             let m = scratch(&mut mix, buf.len());
@@ -360,6 +399,9 @@ fn render_loop(p: &Pipeline, out: &wasapi::Client) {
                 for (b, v) in buf.iter_mut().zip(m.iter()) {
                     *b += *v;
                 }
+            }
+            if let Some(e) = &mut master {
+                e.process(buf, of.channels);
             }
             soft_clip(buf);
         });
@@ -423,6 +465,7 @@ fn run_input(p: &Pipeline, inp: &Arc<PipeIn>, of: SampleFmt) {
         m.ctl.set_gate(f64::from_bits(p.gate.load(Ordering::Relaxed)));
         m.ctl.set_ceil(f64::from_bits(p.ceil.load(Ordering::Relaxed)));
         m.ctl.set_denoise(p.denoise.load(Ordering::Relaxed));
+        m.ctl.set_quality(p.quality.load(Ordering::Relaxed));
         *lock(&inp.mp) = Some(m.ctl.clone());
         let ctl = m.ctl.clone();
         util::run_on_ui(move || crate::vst::attach(&ctl)); // plugins at this rate
@@ -435,8 +478,14 @@ fn run_input(p: &Pipeline, inp: &Arc<PipeIn>, of: SampleFmt) {
     }
     let (mut tmp, mut mapped) = (Vec::new(), Vec::new());
     let mut tap = monitor::TapCache::default();
+    let evented = c.evented();
     while !p.stopped() {
-        std::thread::sleep(Duration::from_millis(4));
+        // a microphone wakes the thread when a packet is ready (~10 ms); loopback is polled
+        if evented {
+            c.wait(50);
+        } else {
+            std::thread::sleep(Duration::from_millis(4));
+        }
         let r = c.capture_all(&mut tmp, |buf, frames| {
             if let Some(m) = &mut mp {
                 m.process(buf);
@@ -540,6 +589,8 @@ pub fn sync(c: &Config) {
     if util::main_hwnd().is_invalid() {
         return; // the app has not started yet (or tests)
     }
+    crate::apo::sync(c);
+    crate::apomod::sync(c);
     let mut g = lock(&MGR);
     let r = &mut *g;
 
@@ -574,6 +625,20 @@ pub fn sync(c: &Config) {
                 inp.eq_gen.fetch_add(1, Ordering::Release);
             }
         }
+        // the equalizer of everything that plays through the cables — unless Equalizer APO applies it
+        // on the device they play to (it would be heard twice)
+        let o = crate::audio::out_state();
+        let (dest, name) = if rc.out.is_empty() || rc.out == o.id {
+            (o.id.clone(), o.name.clone())
+        } else {
+            (rc.out.clone(), crate::audio::list_devices().0.into_iter().find(|d| d.id == rc.out).map(|d| d.name).unwrap_or_default())
+        };
+        let w = if crate::apo::applies_on(c, &dest, &name) || crate::apomod::applies_on(c, &dest, &name) { None } else { soft_bands(c, "all") };
+        let mut cur = lock(&p.eq_want);
+        if !same_bands(&cur, &w) {
+            *cur = w;
+            p.eq_gen.fetch_add(1, Ordering::Release);
+        }
     }
     ROUTE_LIVE.store(r.route.as_ref().is_some_and(|p| p.running.load(Ordering::Relaxed)), Ordering::Relaxed);
 
@@ -583,6 +648,12 @@ pub fn sync(c: &Config) {
     // a category whose cable is this one is not routed (Config::route_cable)
     let want_mic = mc.on && !mc.out.is_empty() && (c.on("denoise") || c.on("vst"));
     let denoise = mc.denoise && c.on("denoise");
+    let quality = want_mic && denoise && mc.denoise_kind == "nv" && crate::nvafx::available();
+    if quality {
+        crate::nvafx::preload(); // the effect waits for the stream, loaded off the audio thread
+    } else {
+        crate::nvafx::release();
+    }
     // the same microphone whose volume and mute the app controls
     let msig = format!("{}|{}", c.mic_dev, mc.out);
     let cur = r.mic.take();
@@ -592,16 +663,19 @@ pub fn sync(c: &Config) {
         p.gate.store(mc.gate.to_bits(), Ordering::Relaxed);
         p.ceil.store(mc.ceil.to_bits(), Ordering::Relaxed);
         p.denoise.store(denoise, Ordering::Relaxed);
+        p.quality.store(quality, Ordering::Relaxed);
         p
     });
     if let Some(p) = &r.mic {
         p.gate.store(mc.gate.to_bits(), Ordering::Relaxed);
         p.ceil.store(mc.ceil.to_bits(), Ordering::Relaxed);
         p.denoise.store(denoise, Ordering::Relaxed);
+        p.quality.store(quality, Ordering::Relaxed);
         if let Some(ctl) = lock(&p.ins[0].mp).as_ref() {
             ctl.set_gate(mc.gate);
             ctl.set_ceil(mc.ceil);
             ctl.set_denoise(denoise);
+            ctl.set_quality(quality);
         }
     }
 
@@ -671,7 +745,7 @@ impl Mgr {
     }
 }
 
-fn mic_running() -> bool {
+pub fn mic_running() -> bool {
     lock(&MGR).mic.as_ref().is_some_and(|p| p.running.load(Ordering::Relaxed))
 }
 
