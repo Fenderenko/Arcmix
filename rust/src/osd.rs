@@ -1,5 +1,6 @@
 //! On-screen hint (OSD): briefly shows the game / chat balance when ChatMix turns (headset dial,
-//! hotkeys, mouse wheel over the icon) and the microphone state on the hotkey. A layered window
+//! hotkeys, mouse wheel over the icon), the microphone state on the hotkey, the output device and the
+//! headset battery (low, charged). A layered window
 //! above everything, without focus and transparent for the mouse. Exclusive full-screen games do
 //! not show such windows — only borderless windowed ones.
 
@@ -40,6 +41,8 @@ const OSD_W: f64 = 232.0; // DIP
 const OSD_W_TEXT: f64 = 300.0;
 const OSD_H: f64 = 58.0;
 const HOLD_MS: u128 = 1100;
+/// the battery stays longer: it is not an answer to a key just pressed and is easy to miss in a game
+const HOLD_BATT_MS: u128 = 4000;
 const FADE_MS: f64 = 220.0;
 
 // ---------- frames in step with the monitor ----------
@@ -84,6 +87,7 @@ fn pace_stop() {
 enum Mode {
     Balance,
     Text,
+    Battery,
 }
 
 /// Icons of the Segoe MDL2 Assets font (in Windows 10 and 11).
@@ -92,7 +96,11 @@ pub const ICON_CHAT: char = '\u{E95B}';
 pub const ICON_MIC: char = '\u{E720}';
 pub const ICON_MIC_OFF: char = '\u{EC54}';
 pub const ICON_SPEAKER: char = '\u{E7F5}';
-pub const ICON_BATTERY_LOW: char = '\u{E851}';
+
+/// Battery0..Battery9 (E850..E859) and Battery10 (E83F) of Segoe MDL2 Assets.
+fn battery_glyph(level: i32) -> char {
+    if level >= 100 { '\u{E83F}' } else { char::from_u32(0xE850 + (level.max(0) / 10) as u32).unwrap_or('\u{E850}') }
+}
 
 struct Line {
     s: String,
@@ -103,14 +111,16 @@ struct Line {
     icon: bool,
     /// extra distance from the edge it is aligned to, DIP
     inset: f64,
+    /// room kept free at the other edge (for a line on the other side), DIP
+    clear: f64,
 }
 
 impl Line {
     fn text(s: String, col: [f64; 3], align: u32, inset: f64) -> Line {
-        Line { s, col, align, icon: false, inset }
+        Line { s, col, align, icon: false, inset, clear: 0.0 }
     }
     fn icon(c: char, col: [f64; 3], align: u32) -> Line {
-        Line { s: c.to_string(), col, align, icon: true, inset: 0.0 }
+        Line { s: c.to_string(), col, align, icon: true, inset: 0.0, clear: 0.0 }
     }
 }
 
@@ -128,6 +138,10 @@ struct Osd {
     /// balance position -100..100: shown and target (shown catches up smoothly)
     cur: f64,
     tgt: f64,
+    /// battery level, % (Mode::Battery; the text is the headset name)
+    level: i32,
+    /// the Nova colour steps of the battery (icon::battery_color)
+    nova: bool,
     bg: Vec<f64>,
     pix: Vec<f64>,
     bg_key: String,
@@ -138,7 +152,7 @@ struct Osd {
 thread_local! {
     static OSD: RefCell<Osd> = RefCell::new(Osd {
         hwnd: HWND::default(), shown_at: Instant::now(), last: None, visible: false, mode: Mode::Balance,
-        text: String::new(), icon: None, cur: 0.0, tgt: 0.0, bg: Vec::new(), pix: Vec::new(), bg_key: String::new(),
+        text: String::new(), icon: None, cur: 0.0, tgt: 0.0, level: 0, nova: false, bg: Vec::new(), pix: Vec::new(), bg_key: String::new(),
         txt: HashMap::new(), class_ok: false,
     });
 }
@@ -212,6 +226,19 @@ pub fn show(icon: Option<char>, text: &str) {
     frame();
 }
 
+/// The headset battery (low, charged), laid out like the balance: the name, the level and a bar of it
+/// in the colours of the headset LED. Shown whatever the hint setting: its own switches ask for it.
+pub fn show_battery(name: &str, level: i32, nova: bool) {
+    OSD.with(|o| {
+        let mut o = o.borrow_mut();
+        o.mode = Mode::Battery;
+        o.text = name.to_string();
+        o.level = level.clamp(0, 100);
+        o.nova = nova;
+    });
+    frame();
+}
+
 fn frame() {
     if !ensure() {
         return;
@@ -223,7 +250,7 @@ fn frame() {
 fn render() -> (usize, usize) {
     let sc = crate::dpi_scale();
     let mode = OSD.with(|o| o.borrow().mode);
-    // messages (a device name, the battery) get more room than the balance
+    // messages (a device name) get more room than the balance; the battery is laid out like the balance
     let w = ((if mode == Mode::Text { OSD_W_TEXT } else { OSD_W }) * sc) as usize;
     let h = if mode == Mode::Text { (40.0 * sc) as usize } else { (OSD_H * sc) as usize };
     // every animation frame: the window theme (not the icon's own), read in place
@@ -302,6 +329,27 @@ fn render() -> (usize, usize) {
                 Line::icon(ICON_CHAT, col_c, 2),
                 Line::text(format!("{chat}%"), col_c, 2, ICON_W),
             ]
+        } else if o.mode == Mode::Battery {
+            let lvl = o.level;
+            let col = crate::icon::battery_color(lvl, light, o.nova);
+            // the level as a bar where the balance bar is, from the left edge
+            let (bx0, bx1) = (16.0 * sc, w as f64 - 16.0 * sc);
+            let by = h as f64 - 15.0 * sc;
+            let bh = 2.5 * sc;
+            let fx = bx0 + (bx1 - bx0) * lvl as f64 / 100.0;
+            let pix = &mut o.pix;
+            for y in (by - 8.0 * sc) as i64..(by + 8.0 * sc) as i64 {
+                for x in (bx0 - 4.0) as i64..(bx1 + 4.0) as i64 {
+                    let (px, py) = (x as f64 + 0.5, y as f64 + 0.5);
+                    put(pix, w, h, x, y, track, clampf(0.5 - sd_box(px, py, (bx0 + bx1) / 2.0, by, (bx1 - bx0) / 2.0, bh, bh), 0.0, 1.0));
+                    if fx - bx0 > 0.5 {
+                        put(pix, w, h, x, y, col, clampf(0.5 - sd_box(px, py, (bx0 + fx) / 2.0, by, (fx - bx0) / 2.0, bh, bh), 0.0, 1.0));
+                    }
+                }
+            }
+            let mut name = Line::text(o.text.clone(), fg, 0, ICON_W);
+            name.clear = 48.0; // the level on the right
+            vec![Line::icon(battery_glyph(lvl), col, 0), name, Line::text(format!("{lvl}%"), col, 2, 0.0)]
         } else if let Some(ic) = o.icon {
             vec![Line::icon(ic, fg, 0), Line::text(o.text.clone(), fg, 0, ICON_W)]
         } else {
@@ -367,7 +415,7 @@ fn text_face() -> windows::core::PCWSTR {
 
 /// Text coverage mask of a line (cached: during the animation the lines are mostly the same).
 fn text_mask(w: usize, h: usize, sc: f64, mode: Mode, ln: &Line) -> Vec<u8> {
-    let key = format!("{} {} {} {} {}", mode as u8, ln.align, ln.icon, ln.inset, ln.s);
+    let key = format!("{} {} {} {} {} {}", mode as u8, ln.align, ln.icon, ln.inset, ln.clear, ln.s);
     if let Some(m) = OSD.with(|o| o.borrow().txt.get(&key).cloned()) {
         return m;
     }
@@ -402,6 +450,12 @@ fn text_mask(w: usize, h: usize, sc: f64, mode: Mode, ln: &Line) -> Vec<u8> {
             } else {
                 RECT { left: edge, top: (7.0 * sc) as i32, right: w as i32 - edge, bottom: (29.0 * sc) as i32 }
             };
+            let far = (ln.clear * sc) as i32;
+            if ln.align == 2 {
+                r.left += far;
+            } else {
+                r.right -= far;
+            }
             let mut s: Vec<u16> = ln.s.encode_utf16().collect();
             DrawTextW(dc, &mut s, &mut r, DRAW_TEXT_FORMAT(ln.align) | DT_SINGLELINE | DT_VCENTER | DT_END_ELLIPSIS);
             std::ptr::copy_nonoverlapping(bits, out.as_mut_ptr(), w * h * 4);
@@ -491,14 +545,14 @@ fn tick() {
         frame();
         return;
     }
-    let (hwnd, el) = OSD.with(|o| {
+    let (hwnd, el, hold) = OSD.with(|o| {
         let o = o.borrow();
-        (o.hwnd, o.shown_at.elapsed().as_millis())
+        (o.hwnd, o.shown_at.elapsed().as_millis(), if o.mode == Mode::Battery { HOLD_BATT_MS } else { HOLD_MS })
     });
-    if el < HOLD_MS {
+    if el < hold {
         return;
     }
-    let a = 255 - ((el - HOLD_MS) as f64 / FADE_MS * 255.0) as i64;
+    let a = 255 - ((el - hold) as f64 / FADE_MS * 255.0) as i64;
     unsafe {
         if a <= 0 {
             pace_stop();
@@ -524,10 +578,17 @@ mod tests {
     fn osd_sheet() {
         let Ok(path) = std::env::var("ARCMIX_OSD_SHEET") else { return };
         let mut frames = Vec::new();
-        for (mode, icon, text, pos) in [(Mode::Balance, None, "", 30.0), (Mode::Text, Some(ICON_MIC_OFF), "Off", 0.0), (Mode::Text, Some(ICON_SPEAKER), "Headphones (LinkBuds Fit)", 0.0), (Mode::Text, Some(ICON_BATTERY_LOW), "Headset battery low · 15%", 0.0)] {
+        for (mode, icon, text, pos, level) in [
+            (Mode::Balance, None, "", 30.0, 0),
+            (Mode::Text, Some(ICON_MIC_OFF), "Off", 0.0, 0),
+            (Mode::Text, Some(ICON_SPEAKER), "Headphones (LinkBuds Fit)", 0.0, 0),
+            (Mode::Battery, None, "Arctis 7+", 0.0, 0),
+            (Mode::Battery, None, "Arctis 7+", 0.0, 25),
+            (Mode::Battery, None, "Arctis Nova Pro Wireless", 0.0, 100),
+        ] {
             OSD.with(|o| {
                 let mut o = o.borrow_mut();
-                (o.mode, o.icon, o.text, o.cur) = (mode, icon, text.to_string(), pos);
+                (o.mode, o.icon, o.text, o.cur, o.level) = (mode, icon, text.to_string(), pos, level);
             });
             let (w, h) = render();
             frames.push((w, h, OSD.with(|o| o.borrow().pix.clone())));

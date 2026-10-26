@@ -110,8 +110,6 @@ S = {
 "Як налаштувати": ("How to set it up", "So richtest du es ein", "Comment le configurer", "Cómo configurarlo", "Como configurar", "Jak to skonfigurować", "Come configurarlo", "Nasıl ayarlanır"),
 "Заряд": ("Battery", "Akku", "Batterie", "Batería", "Bateria", "Bateria", "Batteria", "Pil"),
 "заряджається": ("charging", "lädt", "en charge", "cargando", "carregando", "ładowanie", "in carica", "şarj oluyor"),
-"Низький заряд гарнітури": ("Headset battery low", "Headset-Akku schwach", "Batterie du casque faible", "Batería de los auriculares baja", "Bateria do headset fraca", "Niski poziom baterii słuchawek", "Batteria delle cuffie scarica", "Kulaklık pili zayıf"),
-"Залишилось близько %d%%. Час підключити зарядку.": ("About %d%% left. Time to plug in the charger.", "Noch etwa %d %%. Zeit zum Aufladen.", "Il reste environ %d %%. Pensez à brancher le chargeur.", "Queda alrededor del %d %%. Es hora de cargar.", "Restam cerca de %d%%. Hora de carregar.", "Zostało około %d%%. Czas podłączyć ładowarkę.", "Resta circa il %d%%. È ora di ricaricare.", "Yaklaşık %%%d kaldı. Şarja takma zamanı."),
 "Потрібен WebView2": ("WebView2 required", "WebView2 erforderlich", "WebView2 requis", "Se necesita WebView2", "WebView2 necessário", "Wymagany WebView2", "WebView2 necessario", "WebView2 gerekli"),
 "Встановіть Microsoft Edge WebView2 Runtime. Поки що відкриваю у браузері.": ("Please install Microsoft Edge WebView2 Runtime. Opening in the browser for now.", "Bitte installiere die Microsoft Edge WebView2 Runtime. Vorerst wird der Browser geöffnet.", "Installez Microsoft Edge WebView2 Runtime. Ouverture dans le navigateur en attendant.", "Instala Microsoft Edge WebView2 Runtime. Por ahora se abre en el navegador.", "Instale o Microsoft Edge WebView2 Runtime. Por enquanto, abrindo no navegador.", "Zainstaluj Microsoft Edge WebView2 Runtime. Na razie otwieram w przeglądarce.", "Installa Microsoft Edge WebView2 Runtime. Per ora apro nel browser.", "Lütfen Microsoft Edge WebView2 Runtime'ı yükleyin. Şimdilik tarayıcıda açılıyor."),
 
@@ -288,7 +286,6 @@ S = {
 "Батарея": ("Battery", "Akku", "Batterie", "Batería", "Bateria", "Bateria", "Batteria", "Pil"),
 "Бічна кнопка миші": ("Side mouse button", "Seitliche Maustaste", "Bouton latéral de la souris", "Botón lateral del ratón", "Botão lateral do mouse", "Boczny przycisk myszy", "Tasto laterale del mouse", "Yan fare düğmesi"),
 "Вимикати мікрофон клавішами": ("Mute the mic with a hotkey", "Mikrofon per Tastenkürzel stummschalten", "Couper le micro avec un raccourci", "Silenciar el micrófono con un atajo", "Silenciar o microfone com um atalho", "Wyciszaj mikrofon skrótem", "Disattiva il microfono con una scorciatoia", "Mikrofonu kısayolla kapat"),
-"Гарнітуру заряджено": ("Headset charged", "Headset aufgeladen", "Casque chargé", "Auriculares cargados", "Headset carregado", "Słuchawki naładowane", "Cuffie cariche", "Kulaklık şarj oldu"),
 "Гучність гри, коли говорять у чаті": ("Game volume while someone talks in chat", "Spiellautstärke, wenn im Chat gesprochen wird", "Volume du jeu quand on parle dans le chat", "Volumen del juego cuando hablan en el chat", "Volume do jogo quando falam no chat", "Głośność gry, gdy ktoś mówi na czacie", "Volume del gioco quando qualcuno parla in chat", "Sohbette konuşulurken oyun ses düzeyi"),
 "Діє на мікрофон, гучністю якого керує програма (головний екран). Коли мікрофон вимкнено, на значку в треї є червона позначка.": (
     "Applies to the microphone whose volume the app controls (main screen). While the mic is muted, the tray icon shows a red dot.",
@@ -321,7 +318,6 @@ S = {
     "Gdy ktoś mówi na „Czacie” (Discord itp.), gra płynnie cichnie, a gdy zapada cisza — wraca. Przy 100% wyciszanie jest wyłączone.",
     "Quando qualcuno parla nella «Chat» (Discord ecc.), il gioco si abbassa dolcemente e torna quando c'è silenzio. Al 100% l'attenuazione è disattivata.",
     "“Sohbet”te (Discord vb.) biri konuştuğunda oyun yumuşakça kısılır, sessizlik olunca geri gelir. %100'de kısma kapalıdır."),
-"Можна від'єднати зарядку.": ("You can unplug the charger.", "Du kannst das Ladekabel abziehen.", "Vous pouvez débrancher le chargeur.", "Puedes desconectar el cargador.", "Você já pode desconectar o carregador.", "Można odłączyć ładowarkę.", "Puoi scollegare il caricatore.", "Şarj kablosunu çıkarabilirsiniz."),
 "Мікрофон не знайдено": ("Microphone not found", "Mikrofon nicht gefunden", "Micro introuvable", "Micrófono no encontrado", "Microfone não encontrado", "Nie znaleziono mikrofonu", "Microfono non trovato", "Mikrofon bulunamadı"),
 "Назва профілю": ("Profile name", "Profilname", "Nom du profil", "Nombre del perfil", "Nome do perfil", "Nazwa profilu", "Nome del profilo", "Profil adı"),
 "Натисни, щоб говорити": ("Push to talk", "Push-to-Talk", "Appuyer pour parler", "Pulsar para hablar", "Aperte para falar", "Naciśnij, aby mówić", "Premi per parlare", "Bas-konuş"),

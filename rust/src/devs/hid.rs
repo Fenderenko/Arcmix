@@ -411,6 +411,8 @@ fn run_native(mix: HidIface, st: HidIface) {
         let (stop, wake, last, stc) = (stop.clone(), wake_tx.clone(), last.clone(), st.clone());
         std::thread::spawn(move || {
             let mut last_status = String::new();
+            // the previous frame had the headset on and its data known
+            let mut was_on = false;
             read_reports(&stc, |b| {
                 if b.len() >= 7 && b[1] == 0xb0 {
                     let s = b[..b.len().min(8)].iter().map(|x| format!("{x:02x}")).collect::<Vec<_>>().join(" ");
@@ -418,6 +420,10 @@ fn run_native(mix: HidIface, st: HidIface) {
                         logf!("status: {s}");
                         last_status = s;
                     }
+                    // ff ff in place of the dial: the receiver has nothing from the headset yet (right after it
+                    // is found or the headset comes on, e.g. 03 00 00 ff ff); its battery byte reads 0 there,
+                    // so the battery and the dial wait for a frame with data
+                    let known = !(b[5] == 0xff && b[6] == 0xff);
                     let (g, c) = (clamp_pct(b[5] as i32), clamp_pct(b[6] as i32));
                     let mut l = last.lock().unwrap();
                     let mut h = headset::lock();
@@ -430,14 +436,18 @@ fn run_native(mix: HidIface, st: HidIface) {
                             reapply_eq();
                         });
                     }
-                    h.batt_pct = (b[3] as i32).min(4) * 25;
-                    h.charging = b[4] == 1;
-                    h.have_batt = true;
+                    if known {
+                        h.batt_pct = (b[3] as i32).min(4) * 25;
+                        h.charging = b[4] == 1;
+                        h.have_batt = true;
+                    }
                     // the status repeats the dial position, but a dial resting near the middle reads a few
                     // points off every time (100/91, 99/100…): it gives the position only until the dial
                     // reports itself, and again when the headset comes on; turning it sends its own frames
-                    let fresh = l.is_none() || (h.powered && !was);
-                    if h.powered && fresh && *l != Some((g, c)) {
+                    let on = h.powered && known;
+                    let fresh = l.is_none() || !was_on;
+                    was_on = on;
+                    if on && fresh && *l != Some((g, c)) {
                         (h.game, h.chat, h.mix_new) = (g, c, true);
                         *l = Some((g, c));
                     }

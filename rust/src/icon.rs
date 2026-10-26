@@ -250,7 +250,7 @@ pub fn mark(n: usize, c: [f64; 3]) -> Vec<u8> {
 
 /// As the headset LED (darker for a light taskbar). Older Arctis (7 / 7+ / 7P…): green from 50 %,
 /// yellow 20–49 %, red below 20 %. Arctis Nova: green from 50 %, yellow 15–49 %, orange 6–14 %, red 0–5 %.
-fn battery_color(level: i32, light: bool, nova: bool) -> [f64; 3] {
+pub(crate) fn battery_color(level: i32, light: bool, nova: bool) -> [f64; 3] {
     let red = if nova { level <= 5 } else { level <= 19 };
     let orange = nova && level <= 14;
     let yellow = level <= 49;

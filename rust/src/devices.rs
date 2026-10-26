@@ -8,8 +8,7 @@ use serde::Serialize;
 use crate::{
     config::{self, Profile},
     devs::hid,
-    headset, logf, tray,
-    i18n::t,
+    headset, logf,
 };
 
 #[derive(Serialize, Clone, Debug, Default, PartialEq)]
@@ -222,14 +221,15 @@ pub fn batt_hours() -> f64 {
 pub fn on_battery(lvl: i32, charging: bool) {
     let c = config::get();
     let now = Instant::now();
-    let mut balloon: Option<(String, String, bool)> = None;
+    // what to tell: "low" or "charged"
+    let mut note: Option<&str> = None;
     BATT.with(|b| {
         let b = &mut *b.borrow_mut();
         if charging {
             (b.drop_at, b.hours, b.low_sent) = (None, 0.0, false);
             if lvl >= 100 && !b.full_sent && c.full_notify && b.was_charge {
                 b.full_sent = true;
-                balloon = Some((t("Гарнітуру заряджено"), t("Можна від'єднати зарядку."), false));
+                note = Some("charged");
             }
             b.was_charge = true;
         } else {
@@ -246,8 +246,7 @@ pub fn on_battery(lvl: i32, charging: bool) {
             let thr = if c.low_level <= 0 { 20 } else { c.low_level };
             if lvl <= thr && !b.low_sent && c.low_battery {
                 b.low_sent = true;
-                let msg = t("Залишилось близько %d%%. Час підключити зарядку.").replace("%d%%", &format!("{lvl}%"));
-                balloon = Some((t("Низький заряд гарнітури"), msg, true));
+                note = Some("low");
             } else if lvl > thr {
                 b.low_sent = false;
             }
@@ -255,12 +254,12 @@ pub fn on_battery(lvl: i32, charging: bool) {
         b.last = lvl;
         *HOURS.lock().unwrap() = b.hours;
     });
-    if let Some((title, text, warn)) = balloon {
-        logf!("battery notification: {title}");
-        tray::balloon(&title, &text, warn);
-        if warn {
-            // a popup on screen too: a balloon is easy to miss in a game
-            crate::osd::show(Some(crate::osd::ICON_BATTERY_LOW), &format!("{title} · {lvl}%"));
-        }
+    if let Some(n) = note {
+        logf!("battery notification: {n}, {lvl}%");
+        // the on-screen hint, like the balance and the output device (no system notification: easy to miss
+        // in a game, and it stays in the action center)
+        let name = headset::lock().dev_name.clone();
+        let nova = name.to_lowercase().contains("nova");
+        crate::osd::show_battery(&name, lvl, nova);
     }
 }

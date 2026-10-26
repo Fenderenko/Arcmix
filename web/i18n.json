@@ -938,16 +938,6 @@
    "pt": "Nenhum headset com configurações compatíveis foi encontrado: bateria, retorno de voz e o equalizador do próprio headset não estão disponíveis. O equilíbrio, o microfone e o resto funcionam com qualquer headset.",
    "tr": "Ayarları desteklenen bir kulaklık bulunamadı: pil, kendi sesini duyma ve kulaklığın kendi ekolayzeri kullanılamıyor. Denge, mikrofon ve diğer her şey herhangi bir kulaklıkla çalışır."
   },
-  "Гарнітуру заряджено": {
-   "de": "Headset aufgeladen",
-   "en": "Headset charged",
-   "es": "Auriculares cargados",
-   "fr": "Casque chargé",
-   "it": "Cuffie cariche",
-   "pl": "Słuchawki naładowane",
-   "pt": "Headset carregado",
-   "tr": "Kulaklık şarj oldu"
-  },
   "Гарячі клавіші": {
    "de": "Tastenkürzel",
    "en": "Hotkeys",
@@ -1387,16 +1377,6 @@
    "pl": "Przypnij okno",
    "pt": "Fixar janela",
    "tr": "Pencereyi sabitle"
-  },
-  "Залишилось близько %d%%. Час підключити зарядку.": {
-   "de": "Noch etwa %d %%. Zeit zum Aufladen.",
-   "en": "About %d%% left. Time to plug in the charger.",
-   "es": "Queda alrededor del %d %%. Es hora de cargar.",
-   "fr": "Il reste environ %d %%. Pensez à brancher le chargeur.",
-   "it": "Resta circa il %d%%. È ora di ricaricare.",
-   "pl": "Zostało około %d%%. Czas podłączyć ładowarkę.",
-   "pt": "Restam cerca de %d%%. Hora de carregar.",
-   "tr": "Yaklaşık %%%d kaldı. Şarja takma zamanı."
   },
   "Заокруглені": {
    "de": "Abgerundet",
@@ -2068,16 +2048,6 @@
    "pt": "Módulo do Arcmix (teste)",
    "tr": "Arcmix modülü (test)"
   },
-  "Можна від'єднати зарядку.": {
-   "de": "Du kannst das Ladekabel abziehen.",
-   "en": "You can unplug the charger.",
-   "es": "Puedes desconectar el cargador.",
-   "fr": "Vous pouvez débrancher le chargeur.",
-   "it": "Puoi scollegare il caricatore.",
-   "pl": "Można odłączyć ładowarkę.",
-   "pt": "Você já pode desconectar o carregador.",
-   "tr": "Şarj kablosunu çıkarabilirsiniz."
-  },
   "Мої пресети": {
    "de": "Meine Presets",
    "en": "My presets",
@@ -2477,16 +2447,6 @@
    "pl": "Niski",
    "pt": "Baixo",
    "tr": "Düşük"
-  },
-  "Низький заряд гарнітури": {
-   "de": "Headset-Akku schwach",
-   "en": "Headset battery low",
-   "es": "Batería de los auriculares baja",
-   "fr": "Batterie du casque faible",
-   "it": "Batteria delle cuffie scarica",
-   "pl": "Niski poziom baterii słuchawek",
-   "pt": "Bateria do headset fraca",
-   "tr": "Kulaklık pili zayıf"
   },
   "Новий пресет": {
    "de": "Neues Preset",
