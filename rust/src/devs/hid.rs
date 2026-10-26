@@ -387,7 +387,7 @@ fn run_native(mix: HidIface, st: HidIface) {
 
     let stop = Arc::new(AtomicBool::new(false));
     let (wake_tx, wake_rx) = mpsc::channel::<()>();
-    let last = Arc::new(Mutex::new((0i32, 0i32))); // the last dial position (game, chat)
+    let last = Arc::new(Mutex::new(None::<(i32, i32)>)); // the dial position (game, chat), once known
     {
         // live ChatMix values
         let (stop, wake, last) = (stop.clone(), wake_tx.clone(), last.clone());
@@ -395,7 +395,7 @@ fn run_native(mix: HidIface, st: HidIface) {
             read_reports(&mix, |b| {
                 if b.len() >= 4 && b[1] == 0x45 {
                     let (g, c) = (clamp_pct(b[2] as i32), clamp_pct(b[3] as i32));
-                    *last.lock().unwrap() = (g, c);
+                    *last.lock().unwrap() = Some((g, c));
                     let mut h = headset::lock();
                     (h.game, h.chat, h.mix_new) = (g, c, true);
                     drop(h);
@@ -433,10 +433,13 @@ fn run_native(mix: HidIface, st: HidIface) {
                     h.batt_pct = (b[3] as i32).min(4) * 25;
                     h.charging = b[4] == 1;
                     h.have_batt = true;
-                    if (g, c) != *l {
-                        // only when the dial really moved
+                    // the status repeats the dial position, but a dial resting near the middle reads a few
+                    // points off every time (100/91, 99/100…): it gives the position only until the dial
+                    // reports itself, and again when the headset comes on; turning it sends its own frames
+                    let fresh = l.is_none() || (h.powered && !was);
+                    if h.powered && fresh && *l != Some((g, c)) {
                         (h.game, h.chat, h.mix_new) = (g, c, true);
-                        *l = (g, c);
+                        *l = Some((g, c));
                     }
                     drop(h);
                     drop(l);

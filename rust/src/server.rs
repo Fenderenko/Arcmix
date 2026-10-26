@@ -207,6 +207,18 @@ struct MicFxReq {
     denoise: Option<bool>,
     #[serde(rename = "denoiseKind")]
     denoise_kind: Option<String>,
+    #[serde(rename = "nvMode")]
+    nv_mode: Option<String>,
+    #[serde(rename = "nvStrength")]
+    nv_strength: Option<i32>,
+    comp: Option<bool>,
+    #[serde(rename = "compDb")]
+    comp_db: Option<f64>,
+    #[serde(rename = "compRatio")]
+    comp_ratio: Option<f64>,
+    #[serde(rename = "compGain")]
+    comp_gain: Option<f64>,
+    order: Option<Vec<String>>,
 }
 
 fn route(r: &Request, s: &mut TcpStream) -> Reply {
@@ -524,6 +536,27 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
                     }
                     if let Some(k) = v.denoise_kind.filter(|k| k == "rnn" || k == "nv") {
                         m.denoise_kind = k;
+                    }
+                    if let Some(k) = v.nv_mode.filter(|k| crate::nvafx::mode_index(k).is_some()) {
+                        m.nv_mode = k;
+                    }
+                    if let Some(x) = v.nv_strength {
+                        m.nv_strength = x.clamp(0, 100);
+                    }
+                    if let Some(x) = v.comp {
+                        m.comp = x;
+                    }
+                    if let Some(x) = v.comp_db {
+                        m.comp_db = x.clamp(-60.0, 0.0);
+                    }
+                    if let Some(x) = v.comp_ratio {
+                        m.comp_ratio = x.clamp(1.5, 20.0);
+                    }
+                    if let Some(x) = v.comp_gain {
+                        m.comp_gain = x.clamp(0.0, 24.0);
+                    }
+                    if let Some(x) = v.order {
+                        m.order = x.into_iter().filter(|n| crate::dsp::MIC_STAGES.contains(&n.as_str())).collect();
                     }
                 });
                 std::thread::spawn(|| crate::router::sync(&config::get()));

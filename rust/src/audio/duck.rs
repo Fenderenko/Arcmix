@@ -510,9 +510,10 @@ impl Engine {
         }
     }
 
-    /// Devices whose sound ducking listens to: the headset (Game and Chat); if not found — the
-    /// default output; plus routing cables when routing is on. Sessions on other devices
-    /// (virtual, monitor, speakers) do not count as talk.
+    /// Devices whose sound ducking listens to: the default output (whatever it is: headset,
+    /// headphones on an interface, speakers), the headset (Game and Chat) even when it is not the
+    /// default, the devices picked for single apps, and routing cables when routing is on. Sessions
+    /// on other devices (other virtual ones, a monitor) do not count as talk.
     pub(super) fn listen_endpoints(&mut self, cfg: &Config) -> HashSet<String> {
         let mut set = HashSet::new();
         let mut names = Vec::new();
@@ -525,14 +526,16 @@ impl Engine {
             set.insert(d.id.clone());
             names.push(d.name.clone());
         }
-        if set.is_empty() {
-            let id = com::default_id(&en, eRender);
-            if !id.is_empty() {
-                set.insert(id);
-                names.push("default output".into());
+        let id = com::default_id(&en, eRender);
+        if !id.is_empty() && set.insert(id) {
+            names.push("default output".into());
+        }
+        for id in cfg.app_outs.values().filter(|id| !id.is_empty()) {
+            if set.insert(id.clone()) {
+                names.push("an app's own output".into());
             }
         }
-        if cfg.route.on {
+        if cfg.route_live() {
             for id in ["game", "chat", "media"].map(|k| cfg.route_cable(k)) {
                 if !id.is_empty() {
                     set.insert(id.to_string());

@@ -44,7 +44,8 @@ struct Ui {
     cur_pos: f64,
     cur_b: f64,
     cur_bat: f64,
-    batt_show: bool,
+    /// the mouse wheel flipped mark / battery for a while (config holdSec)
+    batt_flip: bool,
     animating: bool,
     last_tick: Instant,
     light_task: bool,
@@ -60,7 +61,7 @@ struct Ui {
 
 thread_local! {
     static UI: RefCell<Ui> = RefCell::new(Ui {
-        pos: 0.0, cur_pos: 0.0, cur_b: 1.0, cur_bat: 0.0, batt_show: false, animating: false,
+        pos: 0.0, cur_pos: 0.0, cur_b: 1.0, cur_bat: 0.0, batt_flip: false, animating: false,
         last_tick: Instant::now(), light_task: false, icon: HICON::default(), icon_size: 16, retries: 0,
         mouse_hook: HHOOK::default(), hover: false, wheel_accum: 0,
         wheel_last: Instant::now(), wheel_toggle: Instant::now() - Duration::from_secs(1),
@@ -99,7 +100,7 @@ fn nid(flags: NOTIFY_ICON_DATA_FLAGS) -> NOTIFYICONDATAW {
 
 fn params() -> IconParams {
     // called on every animation frame: the settings are read in place, not copied
-    let (cg, cc) = (icon::GAME, icon::CHAT);
+    let (cg, cc) = config::with(|c| config::colors_of(&c.theme, c));
     let hs = headset::snapshot();
     let mic = crate::mic::badge();
     ui(|u| IconParams {
@@ -198,7 +199,19 @@ pub fn retry() {
     }
 }
 
+/// The battery shows instead of the mark: by the setting (trayBattery), flipped for a while by the mouse
+/// wheel; only with a connected headset that reports it.
+fn batt_wanted() -> bool {
+    let hs = headset::snapshot();
+    hs.connected && hs.have_batt && (config::get().tray_battery != ui(|u| u.batt_flip))
+}
+
 pub fn update(with_tip: bool) {
+    // the setting or the headset changed what the icon should show
+    let want = batt_wanted();
+    if ui(|u| if want { u.cur_bat < 1.0 } else { u.cur_bat > 0.0 }) {
+        start_anim();
+    }
     let ic = build_icon();
     let mut fl = NIF_ICON;
     if with_tip {
@@ -260,6 +273,7 @@ fn approach(cur: f64, target: f64, dt: f64, tau: f64, eps: f64) -> (f64, bool) {
 }
 
 pub fn anim_tick() {
+    let want = batt_wanted();
     let done = ui(|u| {
         let now = Instant::now();
         let dt = now.duration_since(u.last_tick).as_secs_f64().min(0.1);
@@ -267,16 +281,16 @@ pub fn anim_tick() {
         let (p, s1) = approach(u.cur_pos, u.pos, dt, 0.07, 0.15);
         u.cur_pos = p;
         let tb = if u.pos.abs() < 4.0 { 1.0 } else { 0.0 };
-        let (b, s2) = approach(u.cur_b, tb, dt, 0.16, 0.01); // logo ↔ capsules: slow enough to be seen
+        let (b, s2) = approach(u.cur_b, tb, dt, 0.16, 0.01); // mark ↔ capsules: slow enough to be seen
         u.cur_b = b;
         // the morph runs on time (0.55 s); easing is in the renderer
         let step = dt / 0.55;
-        if u.batt_show && u.cur_bat < 1.0 {
+        if want && u.cur_bat < 1.0 {
             u.cur_bat = (u.cur_bat + step).min(1.0);
-        } else if !u.batt_show && u.cur_bat > 0.0 {
+        } else if !want && u.cur_bat > 0.0 {
             u.cur_bat = (u.cur_bat - step).max(0.0);
         }
-        let s3 = (u.batt_show && u.cur_bat >= 1.0) || (!u.batt_show && u.cur_bat <= 0.0);
+        let s3 = (want && u.cur_bat >= 1.0) || (!want && u.cur_bat <= 0.0);
         let done = s1 && s2 && s3;
         if done {
             u.animating = false;
@@ -292,12 +306,12 @@ pub fn anim_tick() {
     }
 }
 
-/// Shows (number instead of ChatMix) or hides the battery level.
+/// Flips the mark / battery for config holdSec seconds (on) or back (off).
 pub fn set_battery(on: bool) {
     if on && !headset::lock().connected {
         return;
     }
-    ui(|u| u.batt_show = on);
+    ui(|u| u.batt_flip = on);
     let hwnd = util::main_hwnd();
     unsafe {
         let _ = KillTimer(Some(hwnd), TIMER_BATT);
@@ -314,7 +328,7 @@ pub fn set_battery(on: bool) {
 }
 
 pub fn toggle_battery() {
-    let on = ui(|u| u.batt_show);
+    let on = ui(|u| u.batt_flip);
     set_battery(!on);
 }
 

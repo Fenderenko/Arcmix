@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Перевіряє, що кожен український текст інтерфейсу має переклад усіма мовами з web/i18n.json.
-Використання: python3 tools/check_i18n.py [--keys]   (--keys — лише вивести знайдені ключі)"""
+"""Checks that every Ukrainian UI text has a translation in web/i18n.json: English always, the other
+languages only with --release (between releases new strings carry English alone).
+Usage: python3 tools/check_i18n.py [--release] [--keys]   (--keys: only print the keys found)"""
 import json, re, sys, os
 from html.parser import HTMLParser
 
@@ -72,17 +73,20 @@ def main():
         for k in sorted(keys):
             print(k)
         return
-    bad = 0
+    release = '--release' in sys.argv
+    bad = later = 0
     for k in sorted(keys | {'хв'}):
         m = data['strings'].get(k)
         miss = [l for l in langs if not (m or {}).get(l)]
-        if miss:
+        if 'en' in miss or (miss and release):
             bad += 1
             print('немає перекладу:', repr(k), miss)
+        elif miss:
+            later += 1
     unused = sorted(set(data['strings']) - keys - {'хв'})
     for k in unused:
         print('зайвий ключ:', repr(k))
-    print(f'ключів: {len(keys)}, мов: {len(langs) + 1}, проблем: {bad}')
+    print(f'ключів: {len(keys)}, мов: {len(langs) + 1}, проблем: {bad}' + (f', перекласти до релізу: {later}' if later else ''))
     sys.exit(1 if bad else 0)
 
 main()

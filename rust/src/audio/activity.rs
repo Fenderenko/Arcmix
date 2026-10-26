@@ -220,7 +220,7 @@ impl Engine {
 fn cable_listener(en: &windows::Win32::Media::Audio::IMMDeviceEnumerator, c: &Config) -> CableJson {
     let (render, capture) = com::list_audio_devices(en);
     for r in &render {
-        if !r.is_virtual || r.pair.is_empty() || (c.route.on && ["game", "chat", "media"].iter().any(|k| c.route_cable(k) == r.id)) {
+        if !r.is_virtual || r.pair.is_empty() || (c.route_live() && ["game", "chat", "media"].iter().any(|k| c.route_cable(k) == r.id)) {
             continue;
         }
         for cp in capture.iter().filter(|cp| cp.name == r.pair) {

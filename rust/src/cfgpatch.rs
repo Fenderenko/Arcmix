@@ -36,8 +36,6 @@ pub struct CfgPatch {
     custom_oled: Option<bool>,
     #[serde(rename = "customS")]
     custom_s: Option<String>,
-    glow: Option<String>,
-    density: Option<String>,
     corners: Option<String>,
 
     #[serde(rename = "autoSwitch")]
@@ -73,6 +71,13 @@ pub struct CfgPatch {
     #[serde(rename = "keepOpen")]
     keep_open: Option<bool>,
     taskbar: Option<bool>,
+    #[serde(rename = "trayBattery")]
+    tray_battery: Option<bool>,
+    #[serde(rename = "outOnNew")]
+    out_on_new: Option<String>,
+    #[serde(rename = "outOnLost")]
+    out_on_lost: Option<bool>,
+    cables: Option<bool>,
 
     hotkeys: Option<BTreeMap<String, Hotkey>>,
     features: Option<BTreeMap<String, bool>>,
@@ -126,12 +131,6 @@ pub fn apply(p: CfgPatch) {
         if let Some(v) = p.custom_s.as_ref().filter(|v| v.is_empty() || config::parse_hex(v).is_some()) {
             c.custom_s = v.clone();
         }
-        if let Some(v) = p.glow.filter(|v| matches!(v.as_str(), "off" | "soft" | "bright")) {
-            c.glow = v;
-        }
-        if let Some(v) = p.density.filter(|v| matches!(v.as_str(), "normal" | "compact")) {
-            c.density = v;
-        }
         if let Some(v) = p.corners.filter(|v| matches!(v.as_str(), "round" | "sharp")) {
             c.corners = v;
         }
@@ -164,6 +163,12 @@ pub fn apply(p: CfgPatch) {
         set_b(&mut c.onboarded, p.onboarded);
         set_b(&mut c.keep_open, p.keep_open);
         set_b(&mut c.taskbar, p.taskbar);
+        set_b(&mut c.tray_battery, p.tray_battery);
+        set_b(&mut c.out_on_lost, p.out_on_lost);
+        set_b(&mut c.cables, p.cables);
+        if let Some(v) = p.out_on_new.as_deref().filter(|v| ["order", "always", "never"].contains(v)) {
+            c.out_on_new = v.to_string();
+        }
         if let Some(hk) = &p.hotkeys {
             for (name, h) in hk {
                 if !hotkeys::DEFAULTS.iter().any(|d| d.0 == name) {
@@ -186,6 +191,9 @@ pub fn apply(p: CfgPatch) {
     });
     if p.features.is_some() && !config::get().on("monitor") && crate::router::monitor_wanted() {
         crate::router::monitor_set("stop"); // "listen to yourself" was switched off while running
+    }
+    if let Some(on) = p.cables {
+        crate::audio::set_cables(on);
     }
     if p.auto_switch == Some(true) {
         crate::audio::auto_switch_now();

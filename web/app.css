@@ -14,8 +14,6 @@ svg,canvas{display:block}
 #app{height:100%;display:flex;flex-direction:column}
 .top{flex:none;display:flex;align-items:center;gap:12px;padding:14px 18px 10px;position:relative;z-index:20}
 .top .nm{font-size:16px;font-weight:600;line-height:1.2}
-.dline{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--ov);margin-top:3px;white-space:nowrap}
-.dline .devbtn{flex:none;max-width:52%}
 .bchip{display:inline-flex;align-items:center;gap:5px;min-width:0;background:var(--s1);border-radius:6px;padding:2px 6px 2px 5px;color:var(--on)}
 #bpct{overflow:hidden;text-overflow:ellipsis}
 .views{flex:1;min-height:0;position:relative}
@@ -50,7 +48,6 @@ svg,canvas{display:block}
 .sub{font-size:12px;color:var(--ov)}
 .row{display:flex;align-items:center;gap:12px;min-height:44px}
 .row>.grow{flex:1;min-width:0}
-.sep{height:1px;background:color-mix(in srgb,var(--on) 7%,transparent);margin:6px 0}
 .note{font-size:12px;color:var(--on);background:var(--sd);border-radius:8px;padding:10px 12px;margin:8px 0 2px;line-height:1.4}
 .st-ok{color:var(--g)}.st-err{color:var(--red)}
 
@@ -88,12 +85,6 @@ kbd{font:inherit;font-size:12px;font-weight:500;min-width:26px;height:26px;paddi
 .ichip[aria-pressed=true]{background:var(--gc);color:var(--og)}
 .ichip[aria-pressed=true] svg{opacity:1}
 .ichip.add{color:var(--g)}
-/* equalizer presets: two even columns, the user's own below, actions under them */
-.pgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-.pgrid .ichip{width:100%;min-width:0;justify-content:flex-start}
-.pgrid .ichip span{overflow:hidden;text-overflow:ellipsis}
-.pgrid .ichip.mod span::after{content:" •"}
-.phd{font-size:12px;color:var(--ov);margin:12px 2px 6px}
 .pdrop{display:flex;align-items:center;gap:10px;width:100%;height:40px;padding:0 12px;border-radius:10px;background:var(--sd);font-weight:600;text-align:left;color:var(--on)}
 .pdrop:hover{background:color-mix(in srgb,var(--on) 9%,var(--sd))}
 .pdrop .pt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -125,17 +116,11 @@ html.kb .sl:focus-visible .sl-th{box-shadow:0 0 0 3px var(--s1),0 0 0 5px var(--
 .slv{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--ov);margin-top:8px}
 .slv b{color:var(--on);font-weight:600;font-variant-numeric:tabular-nums}
 
-/* баланс гра / чат: дві лінії, що відступають до своїх країв, коли гучність меншає */
 /* баланс гра / чат лишається вгорі, коли гортаєш сторінку (як рівень мікрофона) */
 .mixc{padding:16px 18px 10px;position:sticky;top:-4px;z-index:4}
 /* смуга кольору тла навколо закріпленого блоку закриває й кути заокруглення — під ними не видно сторінки */
 .mixc::before,.vu-dock::before{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 6px var(--sb);z-index:-1;pointer-events:none}
 .mixc::after{content:"";position:absolute;left:0;right:0;bottom:-12px;height:12px;background:linear-gradient(var(--sb),transparent);pointer-events:none}
-.mx-h{display:flex;justify-content:space-between;align-items:flex-end}
-.mx-side{display:flex;flex-direction:column;gap:2px}
-.mx-side.r{align-items:flex-end}
-.mx-lab{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600}
-.mx-num{font-size:34px;font-weight:500;line-height:1.05;font-variant-numeric:tabular-nums;transition:opacity .3s}
 #balChip{font-size:12px;font-weight:600;padding:5px 11px;border-radius:14px;background:var(--sd);color:var(--ov);transition:background .3s,color .3s;margin-bottom:6px}
 #balChip.on{background:var(--on);color:var(--solid)}
 .xf{position:relative;height:44px;margin-top:6px;touch-action:none;cursor:ew-resize;outline:none}
@@ -155,19 +140,12 @@ html.kb .sl:focus-visible .sl-th{box-shadow:0 0 0 3px var(--s1),0 0 0 5px var(--
 .xf-cap.bal{box-shadow:0 2px 8px rgba(0,0,0,.35),0 0 12px 3px color-mix(in srgb,var(--on) 35%,transparent)}
 .xf.anim .xf-cap{transition:left .38s var(--ease),box-shadow .3s,transform .25s var(--soft)}
 html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
-.mx-ends{display:flex;justify-content:space-between;font-size:11px;color:var(--ol);margin-top:-4px}
 
 /* мікрофон на головній */
 .mic{padding:10px 12px 10px 14px}
 .mrow{display:flex;align-items:center;gap:8px}
 /* a translucent tint: the same look on the window background (header) and on a card (microphone) */
-.devbtn{display:flex;align-items:center;gap:5px;min-width:0;max-width:62%;height:28px;padding:0 7px 0 6px;border-radius:8px;background:color-mix(in srgb,var(--on) 9%,transparent);font-size:12px;font-weight:500;color:var(--on)}
-.isle{margin-top:14px;padding:4px 12px 12px;border-radius:12px;background:var(--s)}
-.devbtn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.devbtn:hover{background:color-mix(in srgb,var(--on) 15%,transparent)}
-.vlab{display:flex;align-items:center;gap:6px;height:28px;font-size:12px;font-weight:500;color:var(--ov)}
 .papp{font-style:normal;font-size:11px;opacity:.65;margin-left:2px}
-.mpct{font-weight:600;font-variant-numeric:tabular-nums;min-width:40px;text-align:right;margin-left:auto}
 .hwm{font-size:11px;font-weight:600;padding:1px 7px;border-radius:6px;background:var(--cc);color:var(--oc);white-space:nowrap}
 .lvl{position:relative;height:4px;border-radius:2px;background:var(--sd);overflow:hidden;margin:2px 10px 0}
 .lvl i{position:absolute;top:0;bottom:0;left:0;border-radius:2px;background:var(--okc);transition:width 60ms linear,background .15s}
@@ -176,16 +154,9 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
 .lvl.clip b{background:var(--red);opacity:1}
 
 /* швидкі перемикачі */
-.quick{display:flex;gap:8px}
 .qt{flex:1;min-width:0;display:flex;align-items:center;gap:6px;min-height:52px;padding:0 6px 0 14px;border-radius:14px;background:var(--s1);box-shadow:var(--card);cursor:pointer;transition:background .25s,color .25s}
 .qt:hover{background:color-mix(in srgb,var(--s1) 90%,var(--on))}
 .qt.on{background:var(--gc);color:var(--og)}
-.qt .qn{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
-.qt .qn b,.qt .qn i{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-style:normal}
-.qt .qn b{font-size:13px;font-weight:600}
-.qt .qn i{font-size:12px;color:var(--ov);transition:color .25s}
-.qt.on .qn i{color:inherit;opacity:.85}
-.qt.warn .qn i{color:var(--warn);opacity:1}
 .note.warn{box-shadow:inset 0 0 0 1.5px var(--warn)}
 .foff{display:none!important}
 .tbadge{position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);font-size:8px;line-height:11px;font-weight:700;letter-spacing:.03em;padding:0 3px;border-radius:4px;background:#000;color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.35);pointer-events:none}
@@ -193,22 +164,13 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
 .qt .go:hover{background:color-mix(in srgb,currentColor 14%,transparent);opacity:1}
 
 /* групи програм */
-.grp{border-radius:14px;background:var(--s1);box-shadow:var(--card);padding:6px 6px 6px 12px;transition:box-shadow .2s,background .2s}
 .gh{display:flex;align-items:center;gap:10px;min-height:40px;padding-right:2px}
-.gi{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none}
-.grp[data-cat=game] .gi{background:var(--gc);color:var(--og)}
-.grp[data-cat=chat] .gi{background:var(--cc);color:var(--oc)}
-.grp[data-cat=media] .gi{background:var(--sd);color:var(--on)}
 .gh .gt{font-weight:600}
-.gh .gn{font-size:12px;color:var(--ol);font-variant-numeric:tabular-nums}
 .ge{font-size:12px;color:var(--ol);padding:4px 2px 10px}
 .ar{display:flex;align-items:center;gap:10px;min-height:50px;padding-right:2px;border-radius:10px;position:relative;touch-action:none}
 .ar+.ar{border-top:1px solid color-mix(in srgb,var(--on) 6%,transparent)}
 .ar.ghost{opacity:.3}
 .drag{position:fixed;z-index:20;pointer-events:none;background:var(--s2);border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,.45);padding:0 8px;opacity:.95}
-.grp.drop{box-shadow:inset 0 0 0 2px var(--g)}
-.grp[data-cat=chat].drop{box-shadow:inset 0 0 0 2px var(--c)}
-.grp[data-cat=media].drop{box-shadow:inset 0 0 0 2px var(--on)}
 .aico{width:32px;height:32px;border-radius:8px;background:var(--sd);color:var(--g);display:flex;align-items:center;justify-content:center;font-weight:600;flex:none;overflow:hidden;position:relative;cursor:grab}
 .aico img{width:28px;height:28px;object-fit:contain;position:absolute}
 /* a loaded icon is shown as is: no tile behind it, the letter placeholder hidden */
@@ -220,8 +182,6 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
 .av{font-size:11px;color:var(--ov);min-width:32px;text-align:right;font-variant-numeric:tabular-nums}
 .pdot{display:inline-block;width:6px;height:6px;border-radius:3px;background:var(--g);margin-right:5px;vertical-align:1px}
 .ar .mb{opacity:.55;width:28px;height:28px}
-.grp[data-cat=chat] .sl-fi,.grp[data-cat=chat] .sl-th{background:var(--c)}
-.grp[data-cat=media] .sl-fi,.grp[data-cat=media] .sl-th{background:var(--ov)}
 .ar:hover .mb{opacity:1}
 
 /* спливні списки */
@@ -242,15 +202,10 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
 #themes{display:grid;grid-template-columns:repeat(6,1fr);gap:10px 8px;justify-items:center}
 #themes button,.obt button{width:36px;height:36px;border-radius:18px;position:relative}
 .tedit{position:absolute;right:-3px;bottom:-3px;width:16px;height:16px;border-radius:8px;background:var(--on);color:var(--s1);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px var(--solid);pointer-events:none}
-.lead{color:var(--g)}
 .slot{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;border-radius:8px;background:var(--sd);font-size:13px;font-weight:500}
 .slot i{width:22px;height:22px;border-radius:6px;display:block}
 .slot[aria-pressed=true]{box-shadow:inset 0 0 0 2px var(--on)}
 .hsl{display:grid;grid-template-columns:76px 1fr;align-items:center;gap:4px 10px;margin-top:8px}
-.meter{position:relative;height:14px;border-radius:7px;background:var(--sd);overflow:hidden;margin:12px 0 4px}
-.meter i{position:absolute;top:0;bottom:0;left:0;border-radius:7px;transition:width 70ms linear,background .15s}
-.meter b{position:absolute;top:-2px;bottom:-2px;width:2px;border-radius:1px;background:var(--on)}
-.mlabel{display:flex;justify-content:space-between;font-size:11px;color:var(--ov)}
 .vrow{display:flex;align-items:center;gap:8px;min-height:44px}
 .vrow .vn{flex:1;min-width:0}
 .vrow .vn div:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -278,7 +233,6 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
 .ol[data-g=disabled] .dn .t,.ol[data-g=gone] .dn .t{color:var(--ov)}
 .od .sw{margin-right:4px}
 .od .dx{width:40px;margin-right:4px;color:var(--ov)}
-.pop .ows{display:flex;width:calc(100% - 8px);margin:10px 4px 2px;justify-content:center}
 .vpick{background:var(--sd);border-radius:10px;padding:6px;margin-top:6px;max-height:220px;overflow-y:auto}
 .vpick button{display:block;width:100%;text-align:left;padding:6px 8px;border-radius:7px}
 .vpick button:hover{background:color-mix(in srgb,var(--sd) 70%,var(--on))}
@@ -314,8 +268,6 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
 .prog{height:4px;border-radius:2px;background:var(--sd);overflow:hidden;margin-top:10px;transition:opacity .3s}
 .prog.idle{opacity:0}
 .prog i{display:block;height:100%;width:0;background:var(--g);transition:width .15s linear}
-#setTabs{position:sticky;top:-4px;z-index:3;background:var(--sb);padding:4px 0 2px;margin:-4px 0 -2px}
-#setTabs button{flex:1 1 auto;min-width:0;padding:0 10px;overflow:hidden;text-overflow:ellipsis}
 .hk{display:flex;align-items:center;gap:8px;min-height:46px}
 .hk .grow{flex:1;min-width:0}
 .hk .keys{display:flex;align-items:center;gap:4px;padding:5px;margin-right:-5px;border-radius:9px;transition:background .2s,box-shadow .2s}
@@ -323,8 +275,6 @@ html.kb .xf:focus-visible .xf-cap{outline:2px solid var(--g);outline-offset:2px}
 .hk .keys.cap{box-shadow:inset 0 0 0 1.5px var(--g)}
 .hk .keys svg{color:var(--ov);margin:0 3px 0 2px}
 .about{display:flex;align-items:center;gap:14px}
-.author{display:flex;align-items:center;gap:10px;margin-top:12px}
-.author .sub{min-width:44px}
 .about svg{flex:none;overflow:visible}
 /* the stars of the icon in "About" twinkle slowly (only while that page is shown) */
 #aboutMark .tw{opacity:var(--o);animation:tw 4s ease-in-out infinite}
@@ -369,7 +319,7 @@ body{font-size:13px;background-color:var(--s);background-image:var(--fx);backgro
 .nav button[aria-current=page]{background:var(--s1);color:var(--on);box-shadow:inset 0 0 0 1px var(--line)}
 .nav button:hover svg{animation:none}
 /* surfaces */
-.card,.qt,.grp,.vu-dock{box-shadow:none;border:1px solid var(--line);border-radius:10px}
+.card,.qt,.vu-dock{box-shadow:none;border:1px solid var(--line);border-radius:10px}
 .card{padding:12px 14px}
 .pop{background:var(--s1);border:1px solid var(--line2);border-radius:10px;box-shadow:0 16px 40px rgba(0,0,0,.45)}
 .pop .it:hover{background:var(--hov)}
@@ -452,7 +402,6 @@ kbd{font-size:10.5px;font-weight:500;min-width:0;height:18px;padding:0 5px;borde
 .bh{display:flex;align-items:center;gap:8px;margin-bottom:8px;min-height:24px}
 .bh .side{display:flex;align-items:center;gap:6px;font-weight:500}
 .bh .num{font-weight:400;color:var(--ov);font-variant-numeric:tabular-nums;transition:opacity .3s}
-.bdot{display:inline-block;width:8px;height:8px;border-radius:4px;flex:none}
 .bkeys{display:flex;gap:3px}
 #balChip{margin:0;background:none;color:var(--on)}
 #balChip.on{background:none}
@@ -569,9 +518,9 @@ kbd{font-size:10.5px;font-weight:500;min-width:0;height:18px;padding:0 5px;borde
 /* marks and counts on a chosen tab stay readable on its fill: a ring in the text colour of the tab */
 .tabs button em{color:var(--ov)}
 .tabs button[aria-selected=true] em{color:var(--tabc);opacity:.8}
-.tabs button[aria-selected=true] .bdot,.tabs button[aria-selected=true] .pdot{box-shadow:0 0 0 1.5px var(--tabc)}
+.tabs button[aria-selected=true] .pdot{box-shadow:0 0 0 1.5px var(--tabc)}
 /* no outlines on rounded blocks (1.0.15): cards, tiles, tabs, buttons and fields stand out by their fill */
-.card,.qt,.grp,.vu-dock,.tabs,.seg,.qgrid .qt.on,.applist{border-color:transparent}
+.card,.qt,.vu-dock,.tabs,.seg,.qgrid .qt.on,.applist{border-color:transparent}
 .tabs,.seg{background:color-mix(in srgb,var(--on) 5%,transparent)}
 .dtile,.ri{border-color:transparent;background:color-mix(in srgb,var(--on) 7%,transparent)}
 .tbtn,.chip,.sel,.tin,.pdrop,kbd{border-color:transparent;background:color-mix(in srgb,var(--on) 7%,transparent)}
@@ -586,7 +535,6 @@ kbd{font-size:10.5px;font-weight:500;min-width:0;height:18px;padding:0 5px;borde
 /* fewer lines: the blocks stand apart by their fill; the hairlines inside cards are gone */
 .dsep{background:transparent;margin-top:4px}
 .applist .ar+.ar,.ar+.ar{border-top-color:transparent}
-.sep{background:transparent}
 /* quick tiles (1.0.18): the 1.0.15 layout — icon and name above, the state and a settings button below;
    an enabled tile fills with the theme colour */
 .qgrid .qt{border-color:transparent}
@@ -598,43 +546,102 @@ kbd{font-size:10.5px;font-weight:500;min-width:0;height:18px;padding:0 5px;borde
 .qgrid .qt.on .go{color:var(--og)}
 .qgrid .qt.on .go:hover{background:color-mix(in srgb,var(--og) 14%,transparent)}
 /* the chosen tab: its marks in a colour that stands out on its fill (no ring) */
-.tabs button[aria-selected=true] .bdot,.tabs button[aria-selected=true] .pdot{box-shadow:none}
-.tabs button[data-cat=game][aria-selected=true] .bdot{background:var(--tdg)!important}
-.tabs button[data-cat=chat][aria-selected=true] .bdot{background:var(--tdc)!important}
+.tabs button[aria-selected=true] .pdot{box-shadow:none}
 .tabs button[aria-selected=true] .pdot{background:var(--tdp)!important}
 /* no lines under the header and above the navigation (1.0.18) */
 .top{border-bottom-color:transparent}
 .nav{border-top-color:transparent}
-/* "playing" in a tab: little bars, not a second dot next to the group's one */
-.pbars{display:inline-flex;align-items:flex-end;gap:1.5px;height:9px;margin-left:1px}
-.pbars i{display:block;width:2px;border-radius:1px;background:var(--okc)}
-.pbars i:nth-child(1){height:5px}.pbars i:nth-child(2){height:9px}.pbars i:nth-child(3){height:6px}
-.tabs button[aria-selected=true] .pbars i{background:var(--tdp)}
 /* "playing" in a tab: the number of apps in a green plate */
 .tabs button em.pl{font-size:10.5px;font-weight:600;padding:0 5px;border-radius:7px;line-height:15px;color:var(--okc);background:color-mix(in srgb,var(--okc) 18%,transparent);opacity:1}
 .tabs button[aria-selected=true] em.pl{color:var(--tabc);background:color-mix(in srgb,var(--tabc) 16%,transparent)}
 /* sticky blocks (balance, microphone level, settings tabs) reach up to the header: nothing shows through
    the view's top padding while scrolling (1.0.20) */
 .mixc,.vu-dock{top:-12px}
-.mixc,.vu-dock{box-shadow:0 -10px 0 2px var(--s)}
-#setTabs{top:-12px;padding:3px;margin:0;background:linear-gradient(color-mix(in srgb,var(--on) 5%,transparent),color-mix(in srgb,var(--on) 5%,transparent)),var(--s);box-shadow:0 -10px 0 2px var(--s)}
-/* the look (1.0.21): glow of the balance lines, density, corners */
-html[data-glow=off] .xf-g{display:none}
-html[data-glow=bright] .xf-g{opacity:.95;filter:blur(9px);height:24px;top:6px}
-html[data-dens=compact] body{font-size:12px}
-html[data-dens=compact] .view{gap:8px;padding:10px 10px 14px}
-html[data-dens=compact] .card{padding:10px 12px}
-html[data-dens=compact] .row{min-height:36px}
-html[data-dens=compact] .drow{padding:8px 10px 2px 10px}
-html[data-dens=compact] .dsl{padding:0 10px 8px 44px}
-html[data-dens=compact] .qgrid .qt{padding:8px 6px 4px 9px}
-html[data-dens=compact] .applist .ar{min-height:38px}
-html[data-dens=compact] .top{height:42px}
-html[data-dens=compact] .nav{padding:4px}
-html[data-dens=compact] .nav button{padding:3px 2px}
+.mixc,.vu-dock{box-shadow:0 -8px 0 2px var(--s)}
+/* the look (1.0.21): corners */
 html[data-corn=sharp] .card,html[data-corn=sharp] .qt,html[data-corn=sharp] .pop,html[data-corn=sharp] .pal-box{border-radius:5px}
 html[data-corn=sharp] .chip,html[data-corn=sharp] .tbtn,html[data-corn=sharp] .sel,html[data-corn=sharp] .tin,html[data-corn=sharp] .pdrop,
 html[data-corn=sharp] .tabs,html[data-corn=sharp] .seg,html[data-corn=sharp] .dtile,html[data-corn=sharp] .ri,html[data-corn=sharp] .nav button,
 html[data-corn=sharp] .gh,html[data-corn=sharp] .pin,html[data-corn=sharp] .note{border-radius:4px}
 html[data-corn=sharp] .tabs button,html[data-corn=sharp] .seg button,html[data-corn=sharp] .seg button:first-child,html[data-corn=sharp] .seg button:last-child,
 html[data-corn=sharp] .pop .it,html[data-corn=sharp] .pal-i,html[data-corn=sharp] kbd,html[data-corn=sharp] .aico{border-radius:3px}
+/* pages inside a tab (1.1.4): a "‹" header; the blocks of the other pages are out */
+.pgoff{display:none!important}
+.phead{display:flex;align-items:center;gap:4px;min-height:34px;margin:-4px 0 -2px -8px;font-size:15px;font-weight:600}
+.pback{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--on);flex:none}
+.pback:hover{background:var(--hov)}
+.glist{padding-top:2px;padding-bottom:2px}
+.prow{width:100%;text-align:left;cursor:pointer}
+.prow>svg{color:var(--ol);flex:none}
+/* the microphone chain: the stages top to bottom as the sound goes; the movable ones by their grip */
+.chain{border-radius:12px;background:var(--s);border:1px solid var(--line)}
+.stg{padding:0 12px 8px}
+.stg+.stg,#stages>.stg+.stg,#stages+.stg{border-top:1px solid var(--line)}
+#stages{border-top:1px solid var(--line)}
+.stg-h{display:flex;align-items:center;gap:10px;min-height:44px}
+.stg-h .grow{flex:1;min-width:0}
+.stg.fix .stg-h{color:var(--ov)}
+/* tiles (1.1.4): neutral, the switch tells on / off */
+.qh .tg{flex:none}
+.qgrid .qt.on,.qgrid .qt.on:hover{background:var(--s1)}
+.qgrid .qt.on .qh,.qgrid .qt.on .qh b{color:var(--on)}
+.qgrid .qt.on .qf i{color:var(--ol);opacity:1}
+.qgrid .qt.on .go{color:var(--ov)}
+/* the device list: a page between the header and the navigation */
+.pal{position:absolute;background:var(--s)}
+.pal-box{position:absolute;inset:0;max-height:none;border:0;border-radius:0;box-shadow:none;background:var(--s);transform:none}
+.pal.off .pal-box{transform:none}
+.pal-s .pback{margin-left:-6px}
+/* the order page of the microphone stages; the fixed low cut and limit around the movable ones */
+.ordl{display:flex;flex-direction:column;gap:4px}
+#ordList{display:flex;flex-direction:column;gap:4px}
+.ordl .od{padding:0 6px 0 2px}
+.ordl .od.fix{background:none;border:1px dashed var(--line2)}
+.ordl .od.fix .dh{cursor:default}
+.ordl .od .dn{padding:6px}
+/* the settings groups: roomier rows */
+.glist .prow{min-height:62px;gap:12px}
+.glist .prow .grow>div:first-child{font-size:14px;font-weight:600}
+.glist .prow .sub{margin-top:2px;font-size:12px}
+.glist .prow .ri{width:34px;height:34px;border-radius:10px}
+.glist+.glist{margin-top:4px}
+/* the game / chat / media icons (Lucide): tabs and the balance card */
+.ti{flex:none;display:block}
+.tabs button[data-cat=game][aria-selected=true] .ti{color:var(--tdg)!important}
+.tabs button[data-cat=chat][aria-selected=true] .ti{color:var(--tdc)!important}
+/* a page head stays on top while its page scrolls */
+.phead{position:sticky;top:-12px;z-index:6;background:var(--s);margin:-12px -12px -2px;padding:8px 12px 4px 4px}
+/* corners (1.1.7): one radius per kind of element, round or sharp alike */
+.chain{border-radius:10px}
+html[data-corn=sharp] .card,html[data-corn=sharp] .qt,html[data-corn=sharp] .vu-dock,html[data-corn=sharp] .pop,
+html[data-corn=sharp] .pal-box,html[data-corn=sharp] .chain,html[data-corn=sharp] .applist{border-radius:4px}
+html[data-corn=sharp] .od,html[data-corn=sharp] .slot,html[data-corn=sharp] .qt .go,html[data-corn=sharp] .pback,html[data-corn=sharp] .ib,
+html[data-corn=sharp] .prow,html[data-corn=sharp] .xf:focus-visible{border-radius:3px}
+html[data-corn=sharp] .od .dh,html[data-corn=sharp] .od .dn,html[data-corn=sharp] .slot i{border-radius:2px}
+html[data-corn=sharp] .vu-tr,html[data-corn=sharp] .vu-tr i,html[data-corn=sharp] .vu-o,html[data-corn=sharp] .vu-o i,html[data-corn=sharp] .lvl,
+html[data-corn=sharp] .lvl i,html[data-corn=sharp] .sl-tr,html[data-corn=sharp] .sl-fi,html[data-corn=sharp] .xf-ln,html[data-corn=sharp] .xf-slot,
+html[data-corn=sharp] .xf-tk{border-radius:1px}
+/* the order page: numbered as the device priority list, the fixed steps a little dimmer */
+.ordl .od.fix .pn{opacity:.75}
+/* the device list footer: "Done" stands out, "Windows" has an edge */
+.pal-f .chip:not(.acc){box-shadow:inset 0 0 0 1px var(--line2)}
+.pal-f .chip.acc{font-weight:600}
+/* a chosen chip looks like a chosen segment or tab: one "chosen" colour of the theme */
+.chip[aria-pressed=true],.ichip[aria-pressed=true]{background:var(--tab);color:var(--tabc);box-shadow:inset 0 0 0 1px var(--line2)}
+/* the sticky blocks (the balance, the microphone level): a solid band of the window colour around them to
+   the view's edges, so nothing scrolling under them shows at the corners; upwards no further than the gap,
+   so the card above keeps its corners */
+.mixc::before,.vu-dock::before{inset:-10px -12px 0;border-radius:0;box-shadow:none;background:var(--sb)}
+/* a value next to a step name stays on one line */
+.stg-h b{white-space:nowrap;flex:none}
+/* About: the author and the idea as two GitHub link rows in one frame */
+.who{margin-top:12px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.whor{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;text-align:left}
+.whor+.whor{border-top:1px solid var(--line)}
+.whor:hover{background:var(--hov)}
+.whor .gh{width:32px;height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--on);background:color-mix(in srgb,var(--on) 8%,transparent)}
+.whor .grow{flex:1;display:flex;flex-direction:column;gap:1px;min-width:0}
+.whor b{font-size:14px;font-weight:600}
+.whor .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.whor .ext{color:var(--ol);flex:none;display:flex}
+html[data-corn=sharp] .who{border-radius:4px}

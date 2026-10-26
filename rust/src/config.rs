@@ -40,6 +40,9 @@ pub struct Config {
     pub low_battery: bool,
     #[serde(rename = "batteryHoldSec")]
     pub hold_sec: i32,
+    /// the tray icon shows the headset battery instead of the mark
+    #[serde(rename = "trayBattery")]
+    pub tray_battery: bool,
     pub mode: String,
     pub sidetone: i32,
     #[serde(rename = "autoOff")]
@@ -54,10 +57,6 @@ pub struct Config {
     /// the custom theme's background ("" — the default one)
     #[serde(rename = "customS")]
     pub custom_s: String,
-    /// the glow of the balance lines: "off" | "soft" | "bright"
-    pub glow: String,
-    /// "normal" | "compact"
-    pub density: String,
     /// "round" | "sharp"
     pub corners: String,
     #[serde(deserialize_with = "null_default")]
@@ -102,6 +101,21 @@ pub struct Config {
     pub out_devs: Vec<OutDev>,
     #[serde(rename = "switchMic")]
     pub switch_mic: bool,
+    /// a newly connected output: "order" — taken when it is above the others, "always", "never"
+    #[serde(rename = "outOnNew")]
+    pub out_on_new: String,
+    /// the playing output gone: the next by the order (otherwise Windows decides)
+    #[serde(rename = "outOnLost")]
+    pub out_on_lost: bool,
+    /// everything through virtual cables (routing, the processed microphone); off — sound and microphone
+    /// go direct, the settings stay
+    pub cables: bool,
+    /// the cable that was Windows' default recording device when the cables were switched off
+    #[serde(rename = "cablesMic", skip_serializing_if = "String::is_empty")]
+    pub cables_mic: String,
+    /// the one-time return of the cables is done (1.1.2 switched them off with every click)
+    #[serde(rename = "cablesChecked")]
+    pub cables_checked: bool,
     #[serde(rename = "prevMic", skip_serializing_if = "String::is_empty")]
     pub prev_mic: String,
     #[serde(rename = "prevOut", skip_serializing_if = "String::is_empty")]
@@ -248,13 +262,30 @@ pub struct MicFxCfg {
     /// "rnn" — RNNoise (light, +10 ms), "nv" — NVIDIA Audio Effects SDK (quality, RTX graphics cards)
     #[serde(rename = "denoiseKind")]
     pub denoise_kind: String,
+    /// what the NVIDIA effect takes out: "denoise" — noise, "dereverb" — room echo, "both"
+    #[serde(rename = "nvMode")]
+    pub nv_mode: String,
+    /// strength of the NVIDIA effect, percent (intensity_ratio)
+    #[serde(rename = "nvStrength")]
+    pub nv_strength: i32,
+    /// compressor: on, threshold (dB), ratio, make-up gain (dB)
+    pub comp: bool,
+    #[serde(rename = "compDb")]
+    pub comp_db: f64,
+    #[serde(rename = "compRatio")]
+    pub comp_ratio: f64,
+    #[serde(rename = "compGain")]
+    pub comp_gain: f64,
+    /// the movable stages in their order (dsp::MIC_STAGES); empty — the default one
+    #[serde(deserialize_with = "null_default", skip_serializing_if = "Vec::is_empty")]
+    pub order: Vec<String>,
     #[serde(deserialize_with = "null_default", skip_serializing_if = "Vec::is_empty")]
     pub plugins: Vec<VstSlot>,
 }
 
 impl Default for MicFxCfg {
     fn default() -> Self {
-        MicFxCfg { on: false, input: String::new(), out: String::new(), gate: -50.0, ceil: -6.0, denoise: false, denoise_kind: "rnn".into(), plugins: Vec::new() }
+        MicFxCfg { on: false, input: String::new(), out: String::new(), gate: -50.0, ceil: -6.0, denoise: false, denoise_kind: "rnn".into(), nv_mode: "denoise".into(), nv_strength: 100, comp: false, comp_db: -24.0, comp_ratio: 3.0, comp_gain: 6.0, order: Vec::new(), plugins: Vec::new() }
     }
 }
 
@@ -307,20 +338,19 @@ impl Default for Config {
     fn default() -> Self {
         let s = |l: &[&str]| l.iter().map(|x| x.to_string()).collect::<Vec<_>>();
         Config {
-            theme: "win".into(),
+            theme: "hole".into(),
             lang: String::new(),
             chat: s(&["discord.exe", "telegram.exe", "teams.exe", "zoom.exe", "skype.exe", "viber.exe", "steam.exe", "xboxpartychathost.exe", "slack.exe", "whatsapp.exe", "signal.exe"]),
             media: s(&["spotify.exe", "vlc.exe", "chrome.exe", "msedge.exe", "firefox.exe"]),
             game: Vec::new(),
             low_battery: true,
             hold_sec: 3,
+            tray_battery: false,
             mode: "dark".into(),
             sidetone: -1,
             auto_off: -1,
             custom_a: "#FF6A3D".into(),
             custom_s: String::new(),
-            glow: "soft".into(),
-            density: "normal".into(),
             corners: "round".into(),
             custom_b: "#3DC8FF".into(),
             custom_oled: false,
@@ -343,6 +373,11 @@ impl Default for Config {
             auto_switch: false,
             out_devs: Vec::new(),
             switch_mic: true,
+            out_on_new: "order".into(),
+            out_on_lost: true,
+            cables: true,
+            cables_mic: String::new(),
+            cables_checked: false,
             prev_mic: String::new(),
             prev_out: String::new(),
             low_level: 20,
@@ -381,6 +416,16 @@ impl Config {
         self.features.get(f).copied().unwrap_or(true)
     }
 
+
+    /// Routing into cables in effect: switched on, and the cables are not off.
+    pub fn route_live(&self) -> bool {
+        self.route.on && self.cables
+    }
+
+    /// Microphone processing in effect: switched on, and the cables are not off.
+    pub fn mic_fx_live(&self) -> bool {
+        self.mic_fx.on && self.cables
+    }
     /// The cable of a routing category: "" when none is chosen or it carries the processed
     /// microphone — the microphone wins, so game sound never reaches the people in a call.
     pub fn route_cable(&self, cat: &str) -> &str {
@@ -390,7 +435,7 @@ impl Config {
             "media" => &self.route.media,
             _ => return "",
         };
-        if self.mic_fx.on && !self.mic_fx.out.is_empty() && *id == self.mic_fx.out { "" } else { id }
+        if self.mic_fx_live() && !self.mic_fx.out.is_empty() && *id == self.mic_fx.out { "" } else { id }
     }
 
     /// "game" | "chat" | "media"
@@ -505,6 +550,11 @@ pub fn load() -> Config {
 
 /// Settings from older versions.
 pub fn migrate(c: &mut Config) {
+    // 1.1.2 showed the cables switch as on whatever it was, and every click switched them off
+    if !c.cables_checked {
+        c.cables = true;
+        c.cables_checked = true;
+    }
     // DeepFilterNet (1.0.3–1.0.4) gave way to the NVIDIA denoiser
     if c.mic_fx.denoise_kind == "dfn" {
         c.mic_fx.denoise_kind = if crate::nvafx::available() { "nv" } else { "rnn" }.into();
@@ -620,16 +670,17 @@ pub fn save(c: &Config) {
 
 /// Game and chat colours (RGB). Must match the THEMES table in web/index.html.
 /// "win" (as in Windows) and "black" (OLED) take their colours from Windows (wintheme::colors).
-pub const PALETTES: [(&str, [u8; 3], [u8; 3]); 10] = [
-    ("pink", [0xFF, 0x8D, 0xB4], [0x8D, 0xB6, 0xFF]),
+pub const PALETTES: [(&str, [u8; 3], [u8; 3]); 11] = [
+    ("hole", [0xE9, 0xEA, 0xEE], [0x8F, 0xB2, 0xE3]),
+    ("pink", [0xFF, 0x2E, 0x97], [0x19, 0xD3, 0xFF]),
     ("blue", [0x6C, 0xB8, 0xFF], [0x4F, 0xE3, 0xD9]),
     ("gray", [0xD3, 0xD6, 0xDD], [0x8F, 0xB2, 0xE3]),
     ("black", [0x26, 0x8C, 0xE6], [0xB3, 0x9B, 0xFF]),
     ("spotify", [0x1E, 0xD7, 0x60], [0xB3, 0xB3, 0xB3]),
-    ("discord", [0x58, 0x65, 0xF2], [0x45, 0xA3, 0x66]),
+    ("discord", [0x58, 0x65, 0xF2], [0x23, 0xA5, 0x5A]),
     ("steam", [0x66, 0xC0, 0xF4], [0xA4, 0xD0, 0x07]),
     ("twitch", [0xBF, 0x94, 0xFF], [0xFF, 0x75, 0xE6]),
-    ("youtube", [0xFF, 0x00, 0x33], [0x3E, 0xA6, 0xFF]),
+    ("youtube", [0xFF, 0x00, 0x33], [0xF1, 0xF1, 0xF1]),
     ("telegram", [0x2A, 0xAB, 0xEE], [0x7B, 0xC8, 0x62]),
 ];
 

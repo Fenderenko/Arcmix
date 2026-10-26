@@ -653,7 +653,7 @@ pub fn sync() {
         let m = m.borrow();
         (m.plugs.clone(), m.errs.clone(), m.rate)
     });
-    let want: Vec<VstSlot> = if c.mic_fx.on && c.on("vst") && !c.vst_safe { c.mic_fx.plugins.clone() } else { Vec::new() };
+    let want: Vec<VstSlot> = if c.mic_fx_live() && c.on("vst") && !c.vst_safe { c.mic_fx.plugins.clone() } else { Vec::new() };
     let have: HashMap<&str, &Arc<Plug>> = have_list.iter().map(|p| (p.id.as_str(), p)).collect();
     let mut next = Vec::new();
     let mut keep = HashSet::new();

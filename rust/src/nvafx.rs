@@ -1,7 +1,7 @@
-//! NVIDIA Audio Effects SDK denoiser: the "quality" noise suppression of the microphone on RTX
-//! graphics cards, next to RNNoise. The SDK is not part of Arcmix: it is NVIDIA's own install
-//! (NVAFX_SDK_DIR, by default Program Files\NVIDIA Corporation\NVIDIA Audio Effects SDK) with
-//! NVAudioEffects.dll, its CUDA / TensorRT libraries and models\denoiser_48k.trtpkg.
+//! NVIDIA Audio Effects SDK: the "quality" noise suppression of the microphone on RTX graphics cards,
+//! next to RNNoise — noise, room echo (dereverb) or both, with a strength. The SDK is not part of
+//! Arcmix: it is NVIDIA's own install (NVAFX_SDK_DIR, by default Program Files\NVIDIA Corporation\
+//! NVIDIA Audio Effects SDK) with NVAudioEffects.dll, its CUDA / TensorRT libraries and the models.
 //! 48 kHz, frames of 10 ms; the effect loads in the background (TensorRT, a few seconds), RNNoise
 //! works meanwhile. A frame runs on the GPU synchronously, in the capture thread of the microphone,
 //! which the output thread reads through a FIFO with its own margin.
@@ -11,7 +11,7 @@ use std::{
     path::PathBuf,
     sync::{
         Mutex, OnceLock,
-        atomic::{AtomicBool, AtomicU8, Ordering},
+        atomic::{AtomicBool, AtomicU8, AtomicU32, Ordering},
     },
 };
 
@@ -24,14 +24,38 @@ use windows::{
 use crate::{logf, rnnoise::RateConv, server};
 
 const DLL: &str = "NVAudioEffects.dll";
-const MODEL: &str = "models\\denoiser_48k.trtpkg";
+/// Modes (config micFx.nvMode): effect name and its 48 kHz model. The denoiser is the base one: its
+/// model marks the SDK as installed.
+const MODES: [(&str, &str, &str); 3] = [
+    ("denoise", "denoiser", "models\\denoiser_48k.trtpkg"),
+    ("dereverb", "dereverb", "models\\dereverb_48k.trtpkg"),
+    ("both", "dereverb_denoiser", "models\\dereverb_denoiser_48k.trtpkg"),
+];
 const RATE: u32 = 48000;
+
+/// The wanted mode (index in MODES) and strength (f32 bits, 0..1), set from the config.
+static MODE: AtomicU8 = AtomicU8::new(0);
+static STRENGTH: AtomicU32 = AtomicU32::new(0x3F80_0000); // 1.0
+
+pub fn mode_index(name: &str) -> Option<u8> {
+    MODES.iter().position(|m| m.0 == name).map(|i| i as u8)
+}
+
+/// Applies micFx.nvMode / nvStrength: the strength reaches a running effect on its next frame; another
+/// mode loads its own effect (RNNoise meanwhile), and a failed load may be tried again.
+pub fn set(mode: &str, strength: i32) {
+    STRENGTH.store((strength.clamp(0, 100) as f32 / 100.0).to_bits(), Ordering::Relaxed);
+    let m = mode_index(mode).unwrap_or(0);
+    if MODE.swap(m, Ordering::Relaxed) != m && LOAD.load(Ordering::Relaxed) == 3 {
+        LOAD.store(0, Ordering::Relaxed);
+    }
+}
 
 /// The SDK folder: NVAFX_SDK_DIR (set by NVIDIA's installer) or the default install path.
 pub fn sdk_dir() -> Option<PathBuf> {
     let env = std::env::var_os("NVAFX_SDK_DIR").map(PathBuf::from);
     let def = std::env::var_os("ProgramFiles").map(|p| PathBuf::from(p).join("NVIDIA Corporation").join("NVIDIA Audio Effects SDK"));
-    [env, def].into_iter().flatten().find(|d| d.join(DLL).is_file() && d.join(MODEL).is_file())
+    [env, def].into_iter().flatten().find(|d| d.join(DLL).is_file() && d.join(MODES[0].2).is_file())
 }
 
 /// The SDK with the 48 kHz denoiser model is installed.
@@ -99,12 +123,16 @@ fn cs(s: &str) -> CString {
     CString::new(s).unwrap_or_default()
 }
 
-/// A loaded denoiser effect, handed from the loading thread to the capture thread once.
+/// A loaded effect, handed from the loading thread to the capture thread once.
 pub struct Model {
     h: Handle,
     api: &'static Api,
     /// samples of one frame at 48 kHz
     frame: usize,
+    /// index in MODES
+    mode: u8,
+    /// intensity_ratio in effect
+    strength: f32,
 }
 
 // SAFETY: the SDK handle has no thread affinity (the effect uses the primary CUDA context of the
@@ -118,18 +146,23 @@ impl Drop for Model {
 }
 
 impl Model {
-    /// Creates and loads the denoiser (blocks for seconds: TensorRT builds its engine).
-    fn load() -> Result<Model, String> {
+    /// Creates and loads the effect of a mode (blocks for seconds: TensorRT builds its engine).
+    fn load(mode: u8) -> Result<Model, String> {
         let api = api().ok_or("NVIDIA Audio Effects SDK not found")?;
         let dir = sdk_dir().ok_or("NVIDIA Audio Effects SDK not found")?;
-        let mut h: Handle = std::ptr::null_mut();
-        let r = unsafe { (api.create)(cs("denoiser").as_ptr(), &mut h) };
-        if r != 0 || h.is_null() {
-            return Err(format!("NvAFX_CreateEffect: {r}"));
+        let (_, effect, model) = MODES[mode as usize];
+        if !dir.join(model).is_file() {
+            return Err(format!("{model} not found"));
         }
+        let mut h: Handle = std::ptr::null_mut();
+        let r = unsafe { (api.create)(cs(effect).as_ptr(), &mut h) };
+        if r != 0 || h.is_null() {
+            return Err(format!("NvAFX_CreateEffect({effect}): {r}"));
+        }
+        let strength = f32::from_bits(STRENGTH.load(Ordering::Relaxed));
         // destroyed on any error below
-        let m = Model { h, api, frame: (RATE / 100) as usize };
-        let path = cs(&dir.join(MODEL).to_string_lossy());
+        let m = Model { h, api, frame: (RATE / 100) as usize, mode, strength };
+        let path = cs(&dir.join(model).to_string_lossy());
         let r = unsafe { (api.set_string)(h, cs("model_path").as_ptr(), path.as_ptr()) };
         if r != 0 {
             return Err(format!("NvAFX_SetString(model_path): {r}"));
@@ -138,7 +171,7 @@ impl Model {
         unsafe {
             (api.set_u32)(h, cs("input_sample_rate").as_ptr(), RATE);
             (api.set_u32)(h, cs("num_streams").as_ptr(), 1);
-            (api.set_float)(h, cs("intensity_ratio").as_ptr(), 1.0);
+            (api.set_float)(h, cs("intensity_ratio").as_ptr(), strength);
         }
         let r = unsafe { (api.load)(h) };
         if r != 0 {
@@ -173,10 +206,12 @@ static LOADING: AtomicBool = AtomicBool::new(false);
 /// A loaded effect waiting for the microphone stream to take it.
 static SLOT: Mutex<Option<Model>> = Mutex::new(None);
 
-/// For the window: "missing" (no SDK) | "loading" | "ready" | "failed".
+/// For the window: "missing" (no SDK) | "loading" | "ready" | "failed", and the modes whose models are
+/// installed.
 #[derive(Serialize, Clone, Debug, Default, PartialEq)]
 pub struct NvStatus {
     pub state: &'static str,
+    pub modes: Vec<&'static str>,
 }
 
 pub fn status() -> NvStatus {
@@ -186,30 +221,37 @@ pub fn status() -> NvStatus {
         3 => "failed",
         _ => "ready",
     };
-    NvStatus { state }
+    let modes = sdk_dir().map(|d| MODES.iter().filter(|m| d.join(m.2).is_file()).map(|m| m.0).collect()).unwrap_or_default();
+    NvStatus { state, modes }
 }
 
-/// Loads the effect in the background unless one waits already or loading failed before.
+/// Loads the effect of the wanted mode in the background unless it waits already or loading failed.
 pub fn preload() {
-    if !available() || LOAD.load(Ordering::Relaxed) == 3 || SLOT.lock().map(|s| s.is_some()).unwrap_or(true) || LOADING.swap(true, Ordering::AcqRel) {
+    let mode = MODE.load(Ordering::Relaxed);
+    let waits = SLOT.lock().map(|s| s.as_ref().is_some_and(|m| m.mode == mode)).unwrap_or(true);
+    if !available() || LOAD.load(Ordering::Relaxed) == 3 || waits || LOADING.swap(true, Ordering::AcqRel) {
         return;
     }
     LOAD.store(1, Ordering::Relaxed);
     server::notify_subs();
     std::thread::Builder::new()
         .name("nvafx load".into())
-        .spawn(|| {
+        .spawn(move || {
+            // an effect of another mode nobody took is freed here, off the audio thread
+            if let Ok(mut s) = SLOT.lock() {
+                s.take();
+            }
             let t = std::time::Instant::now();
-            match Model::load() {
+            match Model::load(mode) {
                 Ok(m) => {
-                    logf!("nvafx: denoiser loaded in {:.1} s", t.elapsed().as_secs_f64());
+                    logf!("nvafx: {} loaded in {:.1} s", MODES[mode as usize].1, t.elapsed().as_secs_f64());
                     if let Ok(mut s) = SLOT.lock() {
                         *s = Some(m);
                     }
                     LOAD.store(2, Ordering::Relaxed);
                 }
                 Err(e) => {
-                    logf!("nvafx: denoiser not loaded: {e}");
+                    logf!("nvafx: {} not loaded: {e}", MODES[mode as usize].1);
                     LOAD.store(3, Ordering::Relaxed);
                 }
             }
@@ -229,7 +271,8 @@ pub fn release() {
 /// (capture thread) The loaded effect, if one waits; otherwise its loading starts and the caller
 /// uses RNNoise meanwhile. Never blocks.
 pub fn take() -> Option<Model> {
-    let m = SLOT.try_lock().ok().and_then(|mut s| s.take());
+    let mode = MODE.load(Ordering::Relaxed);
+    let m = SLOT.try_lock().ok().and_then(|mut s| if s.as_ref().is_some_and(|m| m.mode == mode) { s.take() } else { None });
     if m.is_none() {
         preload();
     }
@@ -268,8 +311,20 @@ impl NvDenoiser {
         NvDenoiser { m, up, down, acc: Vec::with_capacity(2 * hop), q, q_head: 0, inp: vec![0.0; hop], out: vec![0.0; hop] }
     }
 
+    /// The effect is of another mode than the wanted one.
+    pub fn stale(&self) -> bool {
+        self.m.mode != MODE.load(Ordering::Relaxed)
+    }
+
     fn run_frame(&mut self) {
         let hop = self.m.frame;
+        let s = f32::from_bits(STRENGTH.load(Ordering::Relaxed));
+        if s != self.m.strength {
+            self.m.strength = s;
+            if unsafe { (self.m.api.set_float)(self.m.h, c"intensity_ratio".as_ptr(), s) } != 0 {
+                logf!("nvafx: intensity_ratio {s} not set");
+            }
+        }
         for (d, s) in self.inp.iter_mut().zip(self.acc.drain(..hop)) {
             *d = s;
         }
@@ -328,7 +383,7 @@ mod tests {
         };
         println!("SDK: {}", dir.display());
         let t0 = Instant::now();
-        let m = Model::load().unwrap();
+        let m = Model::load(0).unwrap();
         println!("load {:.1} s, frame {}", t0.elapsed().as_secs_f64(), m.frame);
         let mut d = NvDenoiser::new(m, 48000);
         let (mut seed, n, hop) = (1u32, 600usize, 480usize);
@@ -357,5 +412,13 @@ mod tests {
         let avg = sum / (n - 100) as f64;
         println!("per 10 ms frame: avg {avg:.2} ms, max {max:.2} ms; noise {:.1} dB", 10.0 * (e_out / e_in).max(1e-12).log10());
         assert!(e_out < e_in * 0.5, "the noise is suppressed");
+        // the strength changes on a loaded effect
+        assert_eq!(unsafe { (d.m.api.set_float)(d.m.h, c"intensity_ratio".as_ptr(), 0.5) }, 0);
+        // the other modes load too
+        for mode in 1..MODES.len() as u8 {
+            let t0 = Instant::now();
+            let m = Model::load(mode).unwrap();
+            println!("{}: load {:.1} s, frame {}", MODES[mode as usize].1, t0.elapsed().as_secs_f64(), m.frame);
+        }
     }
 }

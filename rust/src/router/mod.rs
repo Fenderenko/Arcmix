@@ -120,6 +120,9 @@ struct Pipeline {
     ceil: AtomicU64,
     denoise: AtomicBool,
     quality: AtomicBool,
+    /// compressor threshold, ratio (≤ 1 — off), gain; the order of the stages (dsp::order_code)
+    comp: Mutex<(f64, f64, f64)>,
+    order: AtomicU32,
     /// routing: the software equalizer of the whole mix ("all"), after the categories' own
     eq_want: Mutex<Option<Arc<Vec<f64>>>>,
     eq_gen: AtomicU32,
@@ -145,6 +148,8 @@ impl Pipeline {
             ceil: AtomicU64::new(0),
             denoise: AtomicBool::new(false),
             quality: AtomicBool::new(false),
+            comp: Mutex::new((0.0, 1.0, 0.0)),
+            order: AtomicU32::new(0),
             eq_want: Mutex::new(None),
             eq_gen: AtomicU32::new(0),
             stop: Mutex::new(false),
@@ -466,6 +471,9 @@ fn run_input(p: &Pipeline, inp: &Arc<PipeIn>, of: SampleFmt) {
         m.ctl.set_ceil(f64::from_bits(p.ceil.load(Ordering::Relaxed)));
         m.ctl.set_denoise(p.denoise.load(Ordering::Relaxed));
         m.ctl.set_quality(p.quality.load(Ordering::Relaxed));
+        let (cd, cr, cg) = *lock(&p.comp);
+        m.ctl.set_comp(cd, cr, cg);
+        m.ctl.set_order(p.order.load(Ordering::Relaxed));
         *lock(&inp.mp) = Some(m.ctl.clone());
         let ctl = m.ctl.clone();
         util::run_on_ui(move || crate::vst::attach(&ctl)); // plugins at this rate
@@ -597,7 +605,7 @@ pub fn sync(c: &Config) {
     // ----- routing -----
     let rc = &c.route;
     let cables = ["game", "chat", "media"].map(|cat| (c.route_cable(cat), cat));
-    let want_route = rc.on && cables.iter().any(|(id, _)| !id.is_empty()) && c.on("route");
+    let want_route = c.route_live() && cables.iter().any(|(id, _)| !id.is_empty()) && c.on("route");
     let sig = format!("{}|{}|{}|{}", cables[0].0, cables[1].0, cables[2].0, rc.out);
     let cur = r.route.take();
     r.route = r.keep(cur, "route", want_route, &sig, || {
@@ -646,9 +654,12 @@ pub fn sync(c: &Config) {
     let mc = &c.mic_fx;
     // microphone processing runs while either the denoiser or VST plugins are on (in "Features");
     // a category whose cable is this one is not routed (Config::route_cable)
-    let want_mic = mc.on && !mc.out.is_empty() && (c.on("denoise") || c.on("vst"));
+    let want_mic = c.mic_fx_live() && !mc.out.is_empty() && (c.on("denoise") || c.on("vst"));
     let denoise = mc.denoise && c.on("denoise");
     let quality = want_mic && denoise && mc.denoise_kind == "nv" && crate::nvafx::available();
+    crate::nvafx::set(&mc.nv_mode, mc.nv_strength);
+    let comp = if mc.comp { (mc.comp_db, mc.comp_ratio, mc.comp_gain) } else { (0.0, 1.0, 0.0) };
+    let order = crate::dsp::order_code(&mc.order);
     if quality {
         crate::nvafx::preload(); // the effect waits for the stream, loaded off the audio thread
     } else {
@@ -664,6 +675,8 @@ pub fn sync(c: &Config) {
         p.ceil.store(mc.ceil.to_bits(), Ordering::Relaxed);
         p.denoise.store(denoise, Ordering::Relaxed);
         p.quality.store(quality, Ordering::Relaxed);
+        *lock(&p.comp) = comp;
+        p.order.store(order, Ordering::Relaxed);
         p
     });
     if let Some(p) = &r.mic {
@@ -671,11 +684,15 @@ pub fn sync(c: &Config) {
         p.ceil.store(mc.ceil.to_bits(), Ordering::Relaxed);
         p.denoise.store(denoise, Ordering::Relaxed);
         p.quality.store(quality, Ordering::Relaxed);
+        *lock(&p.comp) = comp;
+        p.order.store(order, Ordering::Relaxed);
         if let Some(ctl) = lock(&p.ins[0].mp).as_ref() {
             ctl.set_gate(mc.gate);
             ctl.set_ceil(mc.ceil);
             ctl.set_denoise(denoise);
             ctl.set_quality(quality);
+            ctl.set_comp(comp.0, comp.1, comp.2);
+            ctl.set_order(order);
         }
     }
 
@@ -760,7 +777,7 @@ pub fn status(c: &Config) -> (PipeStatus, PipeStatus) {
         }
         s
     };
-    let (mut route, mut mic) = (st(&g.route, c.route.on), st(&g.mic, c.mic_fx.on));
+    let (mut route, mut mic) = (st(&g.route, c.route_live()), st(&g.mic, c.mic_fx_live()));
     route.hint = wasapi::err_hint(&route.err).into();
     mic.hint = wasapi::err_hint(&mic.err).into();
     (route, mic)

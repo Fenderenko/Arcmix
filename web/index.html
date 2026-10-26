@@ -10,7 +10,7 @@
 <div id="app">
 
 <header class="top">
-  <canvas id="mark" width="36" height="36" style="width:22px;height:22px" aria-hidden="true"></canvas>
+  <svg id="mark" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 21 20Q12 14 3 20Z" fill="currentColor"/></svg>
   <div class="nm">Arcmix</div>
   <span class="sp"></span>
   <button class="tbtn" id="profBtn" aria-haspopup="listbox" title="Профілі"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Профілі</span><svg class="ch" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></button>
@@ -51,12 +51,12 @@
 
   <div class="card bal mixc">
     <div class="bh">
-      <span class="side"><i class="bdot" style="background:var(--g)"></i><span>Гра</span><b class="num" id="gPct">100</b></span>
+      <span class="side"><svg class="ti" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--g)"><line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/></svg><span>Гра</span><b class="num" id="gPct">100</b></span>
       <span class="sp"></span>
       <span class="bkeys" id="balKeys"></span>
       <button class="chip sm hide" id="balChip" title="Порівну">Порівну</button>
       <span class="sp"></span>
-      <span class="side"><b class="num" id="cPct">100</b><span>Чат</span><i class="bdot" style="background:var(--c)"></i></span>
+      <span class="side"><b class="num" id="cPct">100</b><span>Чат</span><svg class="ti" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--c)"><path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5Zm0 0a9 9 0 1 1 18 0m0 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z"/><path d="M21 16v2a4 4 0 0 1-4 4h-5"/></svg></span>
     </div>
     <div class="xf anim" id="xf" role="slider" tabindex="0" aria-label="Баланс Гра / Чат" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0">
       <div class="xf-g l" id="xfGL"></div><div class="xf-g r" id="xfGR"></div>
@@ -67,9 +67,9 @@
   </div>
 
   <div class="qgrid" id="quickRow">
-    <div class="qt" id="qNs" role="switch" tabindex="0" aria-label="Шумодав"><div class="qh"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2z"/></svg><b>Шумодав</b></div><div class="qf"><i id="qNsV"></i><button class="go" data-goto="mfxCard" aria-label="Налаштування шумодаву" title="Налаштування шумодаву"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></div></div>
-    <div class="qt" id="qDuck" role="switch" tabindex="0" aria-label="Приглушення гри"><div class="qh"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12h3l3-8 4 16 3-8h7"/></svg><b>Приглушення гри</b></div><div class="qf"><i id="qDuckV"></i><button class="go" data-goto="duckCard" aria-label="Налаштування автоприглушення" title="Налаштування автоприглушення"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></div></div>
-    <div class="qt" id="qRt" role="switch" tabindex="0" aria-label="Маршрутизація"><div class="qh"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></svg><b>Маршрутизація</b></div><div class="qf"><i id="qRtV"></i><button class="go" data-goto="rtCard" aria-label="Налаштування" title="Налаштування"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></div></div>
+    <div class="qt" id="qNs" role="switch" tabindex="0" aria-label="Шумодав"><div class="qh"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2z"/></svg><b>Шумодав</b><i class="tg"></i></div><div class="qf"><i id="qNsV"></i><button class="go" data-goto="mfxCard" aria-label="Налаштування шумодаву" title="Налаштування шумодаву"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></div></div>
+    <div class="qt" id="qDuck" role="switch" tabindex="0" aria-label="Приглушення гри"><div class="qh"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12h3l3-8 4 16 3-8h7"/></svg><b>Приглушення гри</b><i class="tg"></i></div><div class="qf"><i id="qDuckV"></i><button class="go" data-goto="duckCard" aria-label="Налаштування автоприглушення" title="Налаштування автоприглушення"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></div></div>
+    <div class="qt" id="qRt" role="switch" tabindex="0" aria-label="Кабелі"><div class="qh"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></svg><b>Кабелі</b><i class="tg"></i></div><div class="qf"><i id="qRtV"></i><button class="go" data-goto="rtCard" aria-label="Налаштування" title="Налаштування"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></div></div>
   </div>
 
   <div class="lab"><span>Програми</span><span class="sp"></span><button class="gh sm" id="appAdd" title="Додати програму" aria-label="Додати програму"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
@@ -81,21 +81,11 @@
 
 <!-- ============ ЗВУК ============ -->
 <section class="view off" id="sound">
-  <div class="card" id="profCard">
-    <div class="ttl" data-ic="user">Профілі</div>
-    <div class="chips" id="profList"></div>
-    <div class="hide" id="profNew" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
-      <input class="tin" id="profName" maxlength="40" aria-label="Назва профілю" style="flex:1;min-width:0">
-      <button class="chip ok" id="profSave">Зберегти</button>
-      <select class="sel wide" id="profApp" aria-label="Програма, з якою вмикається профіль" style="flex-basis:100%"></select>
-    </div>
-    <div class="sub" style="margin-top:8px">Еквалайзер, sidetone і обробка мікрофона — одним кліком. Профіль можна обрати й у меню значка в треї.</div>
-  </div>
-
-  <div class="card" id="eqCard">
+  <div class="phead hide" id="sndHead"><button class="pback" aria-label="Назад" title="Назад"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><span class="pt"></span></div>
+  <div data-pg="" class="card" id="eqCard">
     <div class="ttl" data-ic="sliders">Еквалайзер<span class="sp"></span><button class="chip" id="eqReset">Скинути</button></div>
     <div class="seg hide" id="eqTarget" style="margin-bottom:10px">
-      <button data-t="hw">Гарнітура</button><button data-t="all">Весь звук</button><button data-t="game">Гра</button><button data-t="chat">Чат</button><button data-t="media">Медіа</button>
+      <button data-t="hw">EQ</button><button data-t="all">EQ Windows</button><button data-t="game">Гра</button><button data-t="chat">Чат</button><button data-t="media">Медіа</button>
     </div>
     <div class="hide" id="apoBox"></div>
     <div class="pop off" id="aeqPop" role="dialog" style="left:12px;right:12px"></div>
@@ -116,13 +106,41 @@
     <div class="note hide" id="eqNoteRt">Програмний еквалайзер для будь-яких навушників працює через маршрутизацію звуку: гра, чат і медіа грають у віртуальні кабелі, а Arcmix передає їх у навушники з еквалайзером.<br><button class="chip acc" data-goto="rtCard" style="margin-top:8px">Налаштувати маршрутизацію</button></div>
   </div>
 
-  <div class="card hide" id="hwPresetCard">
+  <div data-pg="" class="card hide" id="hwPresetCard">
     <div class="ttl" data-ic="headphones">Пресети, вбудовані в гарнітуру</div>
     <div class="ichips" id="hwPresets"></div>
     <div class="sub" style="margin-top:8px">Зокрема ігрові. Будь-який пресет чи крива вище вмикає «власний» слот гарнітури.</div>
   </div>
 
-  <div class="card" id="rtCard">
+  <div data-pg="" class="card" id="profCard">
+    <div class="ttl" data-ic="user">Профілі</div>
+    <div class="chips" id="profList"></div>
+    <div class="hide" id="profNew" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+      <input class="tin" id="profName" maxlength="40" aria-label="Назва профілю" style="flex:1;min-width:0">
+      <button class="chip ok" id="profSave">Зберегти</button>
+      <select class="sel wide" id="profApp" aria-label="Програма, з якою вмикається профіль" style="flex-basis:100%"></select>
+    </div>
+    <div class="sub" style="margin-top:8px">Еквалайзер, sidetone і обробка мікрофона — одним кліком. Профіль можна обрати й у меню значка в треї.</div>
+  </div>
+
+  <div data-pg="" class="card" id="duckCard">
+    <div class="ttl" data-ic="duck">Автоприглушення гри</div>
+    <div class="slv" style="margin-top:0"><span>Гучність гри, коли говорять у чаті</span><b id="duckV"></b></div>
+    <div id="duck" aria-label="Гучність гри, коли говорять у чаті"></div>
+    <div class="row">
+      <div class="grow"><div>Приглушувати й «Медіа»</div><div class="sub">музика теж стихає під час розмови</div></div>
+      <button class="sw" id="swDuckMedia" role="switch" aria-label="Приглушувати й «Медіа»"><i></i></button>
+    </div>
+    <div class="vu" aria-hidden="true" style="margin-top:8px">
+      <div class="vu-tr" style="height:8px"><i id="dkLvl" style="background:var(--ol)"></i><b class="gm" id="dkThr"></b></div>
+    </div>
+    <div class="vu-t dk"><span id="duckSt"></span><b id="dkDb"></b></div>
+    <div class="sub hide" id="dkEcho" style="margin-top:4px"></div>
+    <div class="note hide" id="winDuck"><b class="hide" id="winDuckNow" style="display:block;margin-bottom:6px;color:var(--warn)"></b><span id="winDuckT"></span><br><button class="chip acc" id="winDuckGo" style="margin-top:8px">Відкрити налаштування звуку Windows</button></div>
+    <div class="sub" style="margin-top:6px">Коли в «Чаті» (Discord тощо) хтось говорить, гра плавно стихає, а коли там тиша — повертається. На 100% приглушення вимкнено.</div>
+  </div>
+  <div class="card" data-pg="" id="rtEntry"><button class="row prow" data-page="cables"><div class="grow"><div>Кабелі</div><div class="sub" id="rtSum"></div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></div>
+  <div data-pg="cables" class="card" id="rtCard">
     <div class="ttl" data-ic="route">Маршрутизація звуку<span class="exp">експериментально</span></div>
     <div class="row">
       <div class="grow"><div>Змішувати гру, чат і медіа через кабелі</div><div class="sub" id="rtStatus"></div></div>
@@ -149,27 +167,21 @@
     </div>
   </div>
 
-  <div class="card" id="duckCard">
-    <div class="ttl" data-ic="duck">Автоприглушення гри</div>
-    <div class="slv" style="margin-top:0"><span>Гучність гри, коли говорять у чаті</span><b id="duckV"></b></div>
-    <div id="duck" aria-label="Гучність гри, коли говорять у чаті"></div>
-    <div class="row">
-      <div class="grow"><div>Приглушувати й «Медіа»</div><div class="sub">музика теж стихає під час розмови</div></div>
-      <button class="sw" id="swDuckMedia" role="switch" aria-label="Приглушувати й «Медіа»"><i></i></button>
-    </div>
-    <div class="vu" aria-hidden="true" style="margin-top:8px">
-      <div class="vu-tr" style="height:8px"><i id="dkLvl" style="background:var(--ol)"></i><b class="gm" id="dkThr"></b></div>
-    </div>
-    <div class="vu-t dk"><span id="duckSt"></span><b id="dkDb"></b></div>
-    <div class="sub hide" id="dkEcho" style="margin-top:4px"></div>
-    <div class="note hide" id="winDuck"><b class="hide" id="winDuckNow" style="display:block;margin-bottom:6px;color:var(--warn)"></b><span id="winDuckT"></span><br><button class="chip acc" id="winDuckGo" style="margin-top:8px">Відкрити налаштування звуку Windows</button></div>
-    <div class="sub" style="margin-top:6px">Коли в «Чаті» (Discord тощо) хтось говорить, гра плавно стихає, а коли там тиша — повертається. На 100% приглушення вимкнено.</div>
-  </div>
 </section>
 
 <!-- ============ МІКРОФОН ============ -->
 <section class="view off" id="micTab">
-  <div class="vu-dock" id="vuDock">
+  <div class="phead hide" id="micHead"><button class="pback" aria-label="Назад" title="Назад"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><span class="pt"></span></div>
+  <div class="card" data-pg="order" id="ordCard">
+    <div class="sub" style="margin-bottom:10px">Звук іде згори вниз. Тягніть рядок за ⠿ (або ↑ ↓ на ручці).</div>
+    <div class="ordl">
+      <div class="od fix"><span class="dh"></span><span class="pn">1</span><div class="dn"><span class="t">Зріз низу</span><span class="s">завжди перший — прибирає гул нижче 80 Гц</span></div></div>
+      <div id="ordList"></div>
+      <div class="od fix"><span class="dh"></span><span class="pn">6</span><div class="dn"><span class="t">Межа гучності</span><span class="s">завжди остання — не дає голосу перевищити межу</span></div></div>
+    </div>
+    <div class="chips" style="margin-top:12px"><button class="chip" id="ordReset">Як за замовчуванням</button></div>
+  </div>
+  <div class="vu-dock" data-pg="" id="vuDock">
     <div class="vu-h"><span>Рівень мікрофона</span><span class="w" id="vuWord"></span></div>
     <div class="vu" aria-hidden="true">
       <div class="vu-tr"><div class="vu-z"></div><i id="vuIn"></i><b id="vuPk"></b><b class="gm hide" id="vuGate"></b><b class="cm hide" id="vuCeil"></b></div>
@@ -179,7 +191,71 @@
     <div class="vu-t"><span><i class="ld" style="background:var(--okc)"></i>мікрофон <b id="vuDbIn">—</b></span><span id="vuLegOut"><i class="ld" style="background:var(--c)"></i>інші чують <b id="vuDbOut">—</b></span></div>
   </div>
 
-  <div class="card" id="monCard">
+  <div class="card" data-pg="" id="mfxCard">
+    <div class="ttl" data-ic="wand">Обробка мікрофона</div>
+    <div class="row">
+      <div class="grow"><div>Обробляти мікрофон</div><div class="sub" id="mfxStatus"></div></div>
+      <button class="sw" id="swMfx" role="switch" aria-label="Обробляти мікрофон"><i></i></button>
+    </div>
+    <div class="note hide" id="mfxNoCable">Потрібен віртуальний аудіокабель — наприклад, безкоштовний VB-CABLE. Після встановлення перезапустіть комп'ютер.<br><button class="chip acc" data-get-cable style="margin-top:8px">Завантажити VB-CABLE</button></div>
+    <div id="mfxBody">
+      <div class="sub" style="margin:6px 0 6px">Мікрофон</div>
+      <select class="sel wide" id="mfxIn" aria-label="Мікрофон"></select>
+      <div class="sub" style="margin-top:6px">Той самий мікрофон, що й на головному екрані: гучність, вимкнення й «натисни, щоб говорити» діють саме на нього.</div>
+      <div class="sub" style="margin:10px 0 6px">Передавати в (віртуальний кабель)</div>
+      <select class="sel wide" id="mfxOut" aria-label="Передавати в (віртуальний кабель)"></select>
+      <div class="sub" style="margin:6px 0 14px" id="mfxHint"></div>
+      <div class="chain">
+        <div id="stages">
+        <div class="stg" data-k="denoise" id="denoiseRow"><div class="stg-h">
+          <div class="grow"><div>Нейромережевий шумодав</div><div class="sub">прибирає клавіатуру, вентилятор, вуличний шум</div></div>
+          <button class="sw" id="swDenoise" role="switch" aria-label="Нейромережевий шумодав"><i></i></button>
+        </div>
+        <div id="dnBox">
+          <div class="seg" id="dnKind" style="margin:2px 0 6px"><button data-v="rnn">Легкий</button><button data-v="nv">NVIDIA RTX</button></div>
+          <div class="sub" id="dnHint"></div>
+          <div class="hide" id="nvOpts" style="margin-top:8px">
+            <div class="seg" id="nvMode"><button data-v="denoise">Шум</button><button data-v="dereverb">Луна</button><button data-v="both">Шум і луна</button></div>
+            <div class="slv"><span>Сила</span><b id="nvStrV"></b></div>
+            <div id="nvStr" aria-label="Сила"></div>
+          </div>
+          <div class="note hide" id="dnModel" style="margin-top:8px"><span id="dnModelT"></span><br><button class="chip acc hide" id="dnGet" data-url="https://www.nvidia.com/en-us/geforce/broadcasting/broadcast-sdk/resources/" style="margin-top:8px">Завантажити NVIDIA Audio Effects</button></div>
+        </div>
+        </div>
+        <div class="stg" data-k="comp"><div class="stg-h">
+          <div class="grow"><div>Компресор</div><div class="sub">вирівнює гучність голосу: тихе ближче до гучного</div></div>
+          <button class="sw" id="swComp" role="switch" aria-label="Компресор"><i></i></button>
+        </div>
+        <div class="hide" id="compBox">
+          <div class="slv"><span>Поріг компресора</span><b id="compDbV"></b></div>
+          <div id="compDb" aria-label="Поріг компресора"></div>
+          <div class="slv"><span>Ступінь</span><b id="compRatioV"></b></div>
+          <div id="compRatio" aria-label="Ступінь"></div>
+          <div class="slv"><span>Підсилення</span><b id="compGainV"></b></div>
+          <div id="compGain" aria-label="Підсилення"></div>
+        </div>
+        </div>
+        <div class="stg" data-k="plugins" id="vstBox"><div class="stg-h"><div class="grow"><div>VST-плагіни</div></div></div>
+      <div class="note warn hide" id="vstSafe" style="margin:8px 0"><b style="display:block;margin-bottom:4px">Безпечний режим мікрофона</b>Обробка мікрофона аварійно завершувалася, тому VST-плагіни вимкнено. Мікрофон працює без них.<br><button class="chip acc" id="vstSafeOff" style="margin-top:8px">Увімкнути плагіни знову</button></div>
+      <div id="vstList"></div>
+      <div class="chips" style="margin-top:6px"><button class="chip" id="vstAdd">+ Додати плагін</button></div>
+      <div id="vstPick" class="vpick hide"></div>
+      <div class="sub" style="margin-top:8px">Підтримуються 64-бітні VST2 (.dll) і VST3 (.vst3).</div>
+        </div>
+        <div class="stg" data-k="gate"><div class="stg-h"><div class="grow">Поріг шумодаву</div><b id="mfxGateV"></b></div>
+          <div id="mfxGate" aria-label="Поріг шумодаву"></div>
+        </div>
+        </div>
+        <div class="stg fix"><div class="stg-h"><div class="grow"><div>Межа гучності</div><div class="sub">завжди остання: не дає голосу перевищити межу</div></div><b id="mfxCeilV"></b></div>
+          <div id="mfxCeil" aria-label="Межа гучності"></div>
+        </div>
+      </div>
+      <div class="sub" style="margin-top:4px"><span>Тихіше за поріг — тиша; голосніше за межу — м’яко приглушується.</span> <span>Рівень видно на шкалі в «Послухати себе»: біла риска — поріг, червона — межа.</span></div>
+      <button class="row prow" data-page="order" style="margin-top:10px"><div class="grow"><div>Порядок обробки</div><div class="sub" id="ordSum"></div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+    </div>
+  </div>
+
+  <div class="card" data-pg="" id="monCard">
     <div class="ttl" data-ic="ear">Послухати себе</div>
     <div class="chips">
       <button class="rec" id="monRec"><span class="rdot"></span><span id="monRecT">Записати 5 с</span></button>
@@ -193,49 +269,7 @@
     <div class="sub" id="monHint"></div>
   </div>
 
-  <div class="card" id="mfxCard">
-    <div class="ttl" data-ic="wand">Обробка мікрофона</div>
-    <div class="row">
-      <div class="grow"><div>Обробляти мікрофон</div><div class="sub" id="mfxStatus"></div></div>
-      <button class="sw" id="swMfx" role="switch" aria-label="Обробляти мікрофон"><i></i></button>
-    </div>
-    <div class="note hide" id="mfxNoCable">Потрібен віртуальний аудіокабель — наприклад, безкоштовний VB-CABLE. Після встановлення перезапустіть комп'ютер.<br><button class="chip acc" data-get-cable style="margin-top:8px">Завантажити VB-CABLE</button></div>
-    <div id="mfxBody">
-      <div class="sub" style="margin:6px 0 6px">Мікрофон</div>
-      <select class="sel wide" id="mfxIn" aria-label="Мікрофон"></select>
-      <div class="sub" style="margin-top:6px">Той самий мікрофон, що й на головному екрані: гучність, вимкнення й «натисни, щоб говорити» діють саме на нього.</div>
-      <div class="sub" style="margin:10px 0 6px">Передавати в (віртуальний кабель)</div>
-      <select class="sel wide" id="mfxOut" aria-label="Передавати в (віртуальний кабель)"></select>
-      <div class="sub" style="margin-top:6px" id="mfxHint"></div>
-      <div class="isle">
-        <div class="row" id="denoiseRow">
-          <div class="grow"><div>Нейромережевий шумодав</div><div class="sub">прибирає клавіатуру, вентилятор, вуличний шум</div></div>
-          <button class="sw" id="swDenoise" role="switch" aria-label="Нейромережевий шумодав"><i></i></button>
-        </div>
-        <div id="dnBox">
-          <div class="seg" id="dnKind" style="margin:2px 0 6px"><button data-v="rnn">Легкий</button><button data-v="nv">NVIDIA RTX</button></div>
-          <div class="sub" id="dnHint"></div>
-          <div class="note hide" id="dnModel" style="margin-top:8px"><span id="dnModelT"></span><br><button class="chip acc hide" id="dnGet" data-url="https://www.nvidia.com/en-us/geforce/broadcasting/broadcast-sdk/resources/" style="margin-top:8px">Завантажити NVIDIA Audio Effects</button></div>
-        </div>
-        <div class="slv"><span>Поріг шумодаву</span><b id="mfxGateV"></b></div>
-        <div id="mfxGate" aria-label="Поріг шумодаву"></div>
-        <div class="slv"><span>Межа гучності</span><b id="mfxCeilV"></b></div>
-        <div id="mfxCeil" aria-label="Межа гучності"></div>
-        <div class="sub" style="margin-top:8px"><span>Тихіше за поріг — тиша; голосніше за межу — м’яко приглушується.</span> <span>Рівень видно на шкалі в «Послухати себе»: біла риска — поріг, червона — межа.</span></div>
-      </div>
-      <div id="vstBox">
-      <div class="sep" style="margin:14px 0 10px"></div>
-      <div style="font-weight:600;margin-bottom:2px">VST-плагіни</div>
-      <div class="note warn hide" id="vstSafe" style="margin:8px 0"><b style="display:block;margin-bottom:4px">Безпечний режим мікрофона</b>Обробка мікрофона аварійно завершувалася, тому VST-плагіни вимкнено. Мікрофон працює без них.<br><button class="chip acc" id="vstSafeOff" style="margin-top:8px">Увімкнути плагіни знову</button></div>
-      <div id="vstList"></div>
-      <div class="chips" style="margin-top:6px"><button class="chip" id="vstAdd">+ Додати плагін</button></div>
-      <div id="vstPick" class="vpick hide"></div>
-      <div class="sub" style="margin-top:8px">Плагіни обробляють звук до шумового порогу. Підтримуються 64-бітні VST2 (.dll) і VST3 (.vst3).</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
+  <div class="card" data-pg="">
     <div class="ttl" data-ic="micoff">Вимкнення мікрофона</div>
     <div class="row">
       <div class="grow"><div>Вимикати мікрофон клавішами</div><div class="sub" id="micHkName"></div></div>
@@ -259,12 +293,21 @@
 
 <!-- ============ НАЛАШТУВАННЯ ============ -->
 <section class="view off" id="settings">
-  <div class="seg" id="setTabs" style="flex:none">
-    <button data-p="gen">Загальне</button><button data-p="dev">Гарнітура</button><button data-p="look">Вигляд</button><button data-p="about">Про програму</button>
+  <div class="phead hide" id="setHead"><button class="pback" aria-label="Назад" title="Назад"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><span class="pt"></span></div>
+  <div class="card glist" data-pg="">
+    <button class="row prow" data-page="dev"><div class="grow"><div>Пристрої</div><div class="sub">автоперемикання, пріоритет, віртуальні кабелі</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+    <button class="row prow" data-page="hs" id="grpHs"><div class="grow"><div>Гарнітура</div><div class="sub">заряд і сповіщення, sidetone, вимкнення</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+    <button class="row prow" data-page="keys"><div class="grow"><div>Гарячі клавіші</div><div class="sub">баланс, вивід, мікрофон, підказка на екрані</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+    <button class="row prow" data-page="look"><div class="grow"><div>Вигляд</div><div class="sub">тема, іконка в треї, кути</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+    <button class="row prow" data-page="gen"><div class="grow"><div>Загальне</div><div class="sub">мова, запуск з Windows, панель завдань, функції</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+  </div>
+  <div class="card glist" data-pg="">
+    <button class="row prow" data-page="about" id="grpAbout"><div class="grow"><div>Про програму</div><div class="sub"></div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+    <button class="row prow" data-page="help"><div class="grow"><div>Налаштування й допомога</div><div class="sub">у файл і з файлу, звіт, скинути, вийти</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
   </div>
 
   <div class="sp-look">
-    <div class="card">
+    <div data-pg="look" class="card">
       <div class="ttl" id="themeName" data-ic="palette">Тема</div>
       <div id="themes"></div>
       <div id="customBox" class="hide" style="margin-top:12px">
@@ -290,16 +333,14 @@
       <div class="seg" id="modeSeg">
         <button data-v="dark">Темна</button><button data-v="light">Світла</button><button data-v="auto">Як у Windows</button>
       </div>
-      <div class="sub" style="margin:14px 0 6px">Світіння балансу</div>
-      <div class="seg" id="glowSeg"><button data-v="off">Вимк.</button><button data-v="soft">М’яко</button><button data-v="bright">Яскраво</button></div>
-      <div class="sub" style="margin:14px 0 6px">Щільність</div>
-      <div class="seg" id="densSeg"><button data-v="normal">Звичайно</button><button data-v="compact">Компактно</button></div>
       <div class="sub" style="margin:14px 0 6px">Кути</div>
       <div class="seg" id="cornSeg"><button data-v="round">Заокруглені</button><button data-v="sharp">Гостріші</button></div>
     </div>
-    <div class="card" style="margin-top:12px">
-      <div class="ttl" data-ic="window">Значок у треї</div>
-      <div class="sub" style="margin-bottom:6px">Колесо миші над значком</div>
+    <div data-pg="look" class="card" style="margin-top:12px">
+      <div class="ttl" data-ic="window">Іконка в треї</div>
+      <div class="sub" style="margin-bottom:6px">Показує</div>
+      <div class="seg" id="trayShow"><button data-v="icon">Іконку</button><button data-v="battery">Заряд</button></div>
+      <div class="sub" style="margin:14px 0 6px">Колесо миші над іконкою</div>
       <div class="seg" id="wheelSeg">
         <button data-v="battery">Заряд</button><button data-v="balance">Баланс</button><button data-v="off">Вимк.</button>
       </div>
@@ -307,9 +348,17 @@
     </div>
   </div>
 
-  <div class="sp-dev hide">
-    <div class="card">
+  <div class="sp-dev">
+    <div data-pg="dev" class="card">
       <div class="ttl" data-ic="speaker">Пристрої Windows</div>
+      <div class="row">
+        <div class="grow"><div>Віртуальні кабелі</div><div class="sub">маршрутизація й оброблений мікрофон; вимкнено — звук і мікрофон напряму, налаштування лишаються</div></div>
+        <button class="sw" id="swCables" role="switch" aria-label="Віртуальні кабелі"><i></i></button>
+      </div>
+      <div class="row">
+        <div class="grow"><div>Керувати звуком Windows</div><div class="sub">мікрофон, обраний у програмі, стає типовим у Windows; гучність Windows — на головному екрані</div></div>
+        <button class="sw" id="swWinCtl" role="switch" aria-label="Керувати звуком Windows"><i></i></button>
+      </div>
       <div class="row">
         <div class="grow"><div>Перемикати звук автоматично</div><div class="sub">на найвищий у списку пристрій, що зараз під'єднаний</div></div>
         <button class="sw" id="swSwitch" role="switch" aria-label="Перемикати звук автоматично"><i></i></button>
@@ -318,13 +367,23 @@
         <div class="grow"><div>Пріоритет пристроїв виводу</div><div class="sub">звук іде на найвищий у списку під’єднаний пристрій; там само — вмикання й вимкнення в Windows</div></div>
         <button class="chip" id="outOrder">Змінити</button>
       </div>
+      <div id="switchOpts">
+        <div class="row">
+          <div class="grow"><div>Під’єднали пристрій</div><div class="sub">перемкнути звук на нього</div></div>
+        </div>
+        <div class="seg" id="outOnNew" style="margin:0 0 8px"><button data-v="order">Якщо вищий у списку</button><button data-v="always">Завжди</button><button data-v="never">Ні</button></div>
+        <div class="row">
+          <div class="grow"><div>Від’єднали пристрій</div><div class="sub">звук — на наступний у списку; вимкнено — куди вирішить Windows</div></div>
+          <button class="sw" id="swOnLost" role="switch" aria-label="Від’єднали пристрій"><i></i></button>
+        </div>
+      </div>
       <div class="row" id="switchMicRow">
         <div class="grow"><div>Мікрофон слідує за гарнітурою</div><div class="sub">увімкнули гарнітуру — працює її мікрофон; вимкнули — попередній</div></div>
         <button class="sw" id="swSwitchMic" role="switch" aria-label="Мікрофон слідує за гарнітурою"><i></i></button>
       </div>
     </div>
     <div class="note hide" id="devNone" style="margin-top:12px">Гарнітуру з підтримкою налаштувань не знайдено: заряд, sidetone і власний еквалайзер гарнітури недоступні. Баланс, мікрофон і решта працюють з будь-якою гарнітурою.</div>
-    <div class="card" id="battCard" style="margin-top:12px">
+    <div data-pg="hs" class="card" id="battCard" style="margin-top:12px">
       <div class="ttl" data-ic="battery">Батарея</div>
       <div class="row">
         <div class="grow">Сповіщати про низький заряд</div>
@@ -339,7 +398,7 @@
       </div>
       <div class="sub" id="battEst"></div>
     </div>
-    <div class="card" id="devCard" style="margin-top:12px">
+    <div data-pg="hs" class="card" id="devCard" style="margin-top:12px">
       <div class="ttl" id="devTitle" data-ic="headphones">Гарнітура</div>
       <div id="genBox"></div>
       <div id="nativeBox">
@@ -348,9 +407,8 @@
           <button data-v="0">Вимк.</button><button data-v="1">Низький</button><button data-v="2">Середній</button><button data-v="3">Високий</button>
         </div>
         <div class="sub" style="margin:12px 0 6px">Автовимкнення</div>
-        <div class="chips" id="offChips">
-          <button class="chip" data-v="0">Ніколи</button><button class="chip" data-v="15">15 хв</button><button class="chip" data-v="30">30 хв</button><button class="chip" data-v="60">60 хв</button>
-        </div>
+        <button class="pdrop" id="offDrop" aria-haspopup="listbox" aria-label="Автовимкнення"><span class="pt" id="offDropT"></span><svg class="ch" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="pop off" id="offPop" role="listbox" aria-label="Автовимкнення" style="left:16px;right:16px"></div>
         <div class="sub" style="margin:12px 0 6px">Підсилення мікрофона (у самій гарнітурі)</div>
         <div class="seg" id="gainSeg">
           <button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button><button data-v="5">5</button><button data-v="6">6</button><button data-v="7">7</button>
@@ -364,15 +422,11 @@
     </div>
   </div>
 
-  <div class="sp-gen hide">
-    <div class="card">
+  <div class="sp-gen">
+    <div data-pg="gen" class="card">
       <div class="row">
         <div class="grow">Мова</div>
         <select class="sel" id="langSel" aria-label="Мова"></select>
-      </div>
-      <div class="row">
-        <div class="grow"><div>Керувати звуком Windows</div><div class="sub">мікрофон, обраний у програмі, стає типовим у Windows; гучність Windows — на головному екрані</div></div>
-        <button class="sw" id="swWinCtl" role="switch" aria-label="Керувати звуком Windows"><i></i></button>
       </div>
       <div class="row">
         <div class="grow">Запускати разом з Windows</div>
@@ -383,14 +437,14 @@
         <button class="sw" id="swTaskbar" role="switch" aria-label="Кнопка на панелі завдань"><i></i></button>
       </div>
     </div>
-    <div class="card" style="margin-top:12px">
+    <div data-pg="gen" class="card" style="margin-top:12px">
       <div class="ttl" data-ic="toggle">Функції</div>
       <div class="seg" id="featSet"><button data-v="basic">Основне</button><button data-v="all">Усе</button></div>
       <div class="sub" style="margin-top:8px">Вимкнена функція зникає з вікна й не працює — програма легша.</div>
       <div id="featList"></div>
       <div class="note warn hide" id="featWarn">Обробку мікрофона вимкнено: програми, що слухають віртуальний кабель (наприклад, Discord), не чутимуть мікрофон. Оберіть у них звичайний мікрофон.</div>
     </div>
-    <div class="card" style="margin-top:12px">
+    <div data-pg="keys" class="card" style="margin-top:12px">
       <div class="ttl" data-ic="keyboard">Гарячі клавіші</div>
       <div id="hkList"></div>
       <div class="sub" style="margin-top:6px">Натисніть на поєднання, а потім нові клавіші — наприклад, Ctrl + Alt + клавіша. Esc — скасувати.</div>
@@ -403,7 +457,7 @@
         <div class="seg" id="osdCorner"><button data-v="tl" aria-label="↖">↖</button><button data-v="tr" aria-label="↗">↗</button><button data-v="bl" aria-label="↙">↙</button><button data-v="br" aria-label="↘">↘</button></div>
       </div>
     </div>
-    <div class="card" style="margin-top:12px">
+    <div data-pg="help" class="card" style="margin-top:12px">
       <div class="ttl" data-ic="help">Налаштування й допомога</div>
       <div class="row">
         <div class="grow"><div>Налаштування у файл</div><div class="sub">щоб перенести на інший ПК чи після перевстановлення</div></div>
@@ -424,8 +478,8 @@
     </div>
   </div>
 
-  <div class="sp-about hide">
-    <div class="card">
+  <div class="sp-about">
+    <div data-pg="about" class="card">
       <div class="about">
         <!-- the app icon in vector form: python tools/mkicon.py --svg -->
         <svg id="aboutMark" width="64" height="64" viewBox="0 0 100 100" aria-hidden="true">
@@ -457,26 +511,32 @@
       <div class="chips" style="margin-top:12px"><button class="chip" id="updCheck">Перевірити оновлення</button><button class="chip acc hide" id="updGet">Завантажити</button></div>
       <div class="sub hide" id="updStatus" style="margin-top:6px"></div>
       <div class="sub" style="margin-top:12px;line-height:1.5">Баланс гри й чату для будь-яких програм, еквалайзер, мікрофон і налаштування гарнітури.</div>
-      <div class="author"><span class="sub">Автор</span><b>Fenderenko</b></div>
-      <div class="chips" style="margin-top:8px"><button class="chip" id="authorLink">Arcmix на GitHub</button></div>
-      <div class="author" style="margin-top:14px"><span class="sub">Ідея</span><b>Swiftlyx</b></div>
-      <div class="sub" style="margin-top:10px;line-height:1.5">Перші напрацювання — проєкт OpenChatMix. Arcmix виріс із нього.</div>
-      <div class="chips" style="margin-top:8px"><button class="chip" id="creditLink">OpenChatMix на GitHub</button></div>
+      <div class="who">
+        <button class="whor" id="authorLink"><span class="gh"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></span><span class="grow"><b>Fenderenko</b><span class="sub">автор · Arcmix на GitHub</span></span><span class="ext"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></span></button>
+        <button class="whor" id="creditLink"><span class="gh"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></span><span class="grow"><b>Swiftlyx</b><span class="sub">ідея · OpenChatMix, з якого виріс Arcmix</span></span><span class="ext"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></span></button>
+      </div>
     </div>
-    <div class="card" style="margin-top:12px;background:color-mix(in srgb,var(--s1) 55%,var(--s))">
+    <div class="card" data-pg="about" style="margin-top:12px">
+      <div class="ttl" data-ic="headphones">Підтримувані пристрої</div>
+      <div class="sub" style="margin-bottom:4px">Гарнітури: заряд, sidetone, еквалайзер гарнітури та інше</div>
+      <div style="line-height:1.6">Arctis 7+, Arctis 7P+, Arctis 7X+, Arctis 1 Wireless, Arctis 5, Arctis 7, Arctis 9, Arctis Pro, Arctis Pro Wireless, Arctis Pro GameDAC, Arctis GameBuds, Arctis Nova 3, Arctis Nova 3 Wireless, Arctis Nova 4, Arctis Nova 5 Wireless, Arctis Nova 7, Arctis Nova 7P, Arctis Nova Elite, Arctis Nova Pro, Arctis Nova Pro Wireless, Arctis Nova Pro Omni</div>
+      <div class="sub" style="margin-top:12px;line-height:1.5">Будь-які навушники, колонки й мікрофони: баланс програм, EQ Windows, обробка мікрофона, автоприглушення, пріоритет пристроїв.</div>
+    </div>
+    <div data-pg="about" class="card" style="margin-top:12px;background:color-mix(in srgb,var(--s1) 55%,var(--s))">
       <div class="sub" style="line-height:1.5">Ліцензія GNU GPL v3. Використано: описи пристроїв Linux-Arctis-Manager, RNNoise (BSD-3-Clause), windows-rs і webview2-com (MIT / Apache-2.0), шрифт Onest (SIL OFL).</div>
     </div>
   </div>
 </section>
-</div>
 
 <div class="pal off" id="pal" role="dialog" aria-label="Пристрої">
   <div class="pal-box">
-    <div class="pal-s"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="palQ" class="pal-in" autocomplete="off" spellcheck="false" placeholder="Пошук пристрою…" aria-label="Пошук пристрою…"></div>
+    <div class="pal-s"><button class="pback" id="palBack" aria-label="Назад" title="Назад"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="palQ" class="pal-in" autocomplete="off" spellcheck="false" placeholder="Пошук пристрою…" aria-label="Пошук пристрою…"></div>
     <div class="pal-l" id="palL" role="listbox"></div>
     <div class="pal-f"><span class="pal-k" id="palKeys"><kbd>↑↓</kbd><span>вибрати</span><kbd>↵</kbd><span>застосувати</span></span><span class="sp"></span><button class="chip sm" id="palOrder">Пріоритет</button><button class="chip sm" id="palWin">Windows</button></div>
   </div>
 </div>
+</div>
+
 
 <nav class="nav" id="nav" aria-label="Розділи">
   <button data-tab="mix" aria-current="page" title="Мікс"><i class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 12h5M16 12h5"/><rect x="8" y="6" width="8" height="12" rx="2.5"/><path d="M10.5 10h3M10.5 14h3"/></svg></i><span>Мікс</span></button>

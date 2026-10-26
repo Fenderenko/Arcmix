@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Draws the app icon (assets/app.ico + assets/app.png): a rounded square with a starry sky, layers of
-a concave triangle (an arch, the "A" of Arcmix) stepping from violet to pink, and a planet below.
-Sizes under 40 px are plainer: three layers, no stars and no planet. Every size is rendered separately
-(SDF), so small sizes stay sharp. No third-party dependencies.
+"""Draws the app icon (assets/app.ico + assets/app.png): the app mark — a concave triangle, the "A" of
+Arcmix — light on a dark rounded tile (the same mark as the tray icon, rust/src/icon.rs, and the window
+header). Every size is rendered separately (SDF), so small sizes stay sharp. No third-party dependencies.
+"About" keeps the earlier starry icon: --svg prints it (#aboutMark in web/index.html).
 Usage: python3 tools/mkicon.py         — writes the icon files
-       python3 tools/mkicon.py --svg   — prints the vector icon for "About" (#aboutMark in web/index.html)"""
+       python3 tools/mkicon.py --svg   — prints the vector icon for "About"
+"""
 import math, os, struct, sys, zlib
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -12,10 +13,8 @@ SIZES = [16, 20, 24, 32, 40, 48, 64, 96, 128, 256]
 
 POW = 1.5  # the sides are superellipse quarters (2 would be a quarter ellipse, deeper)
 LAYERS = ['#3B2A9A', '#5631C4', '#7638DD', '#9D44E6', '#C855E2', '#EE74D8', '#FFCDEB']
-LAYERS_SMALL = ['#6A36D8', '#C24FE0', '#FFCDEB']
 # wing tip inset, back layer apex and wing height, step between layers, bottom edge bow
 BIG = (0.16, 0.13, 0.5, 0.036, 0.08)
-SMALL = (0.13, 0.15, 0.62, 0.075, 0.08)
 PLANET_R = 0.68
 STARS = [(0.19, 0.19, 0.022), (0.8, 0.15, 0.016), (0.87, 0.34, 0.02), (0.11, 0.4, 0.016), (0.9, 0.57, 0.013), (0.33, 0.1, 0.012)]
 
@@ -38,57 +37,39 @@ def sd_box(px, py, cx, cy, hw, hh, r):
     return (max(qx, 0) ** 2 + max(qy, 0) ** 2) ** 0.5 + min(max(qx, qy), 0) - r
 
 
-def sd_tri(x, y, l, apex, wing, sag):
-    """Approximate signed distance to one layer: outside both corner superellipses, above the bottom."""
-    a, b = 0.5 - l, wing - apex
-    d = -1e9
-    for cx in (l, 1 - l):
-        dx, dy = abs(x - cx) / a, abs(y - apex) / b
-        e = dx ** POW + dy ** POW
-        g = math.hypot(POW * dx ** (POW - 1) / a, POW * dy ** (POW - 1) / b) or 1e-9
-        d = max(d, -(e - 1) / g)
-    t = (x - 0.5) / (0.5 - l)
-    slope = 2 * sag * t / (0.5 - l)
-    bottom = wing - sag * (1 - t * t)
-    return max(d, (y - bottom) / math.hypot(1, slope), l - x, x - (1 - l), apex - y)
+# the mark on a 24-unit box: apex (12, 3), wing tips (3, 20) and (21, 20), control point of the bowed
+# bottom (12, 14) — in units of the side: wing inset, apex, wing tips, control point
+MARK = (3 / 24, 3 / 24, 20 / 24, 14 / 24)
+MARK_Z = 0.8  # size of the mark on the tile
+TILE, INK = '#1C1D20', '#E9EAEE'
+
+
+def sd_mark(x, y, z):
+    """Approximate signed distance to the mark scaled by z about the centre (its middle between the apex
+    and the wing tips at the centre): inside both sides and above the bottom curve."""
+    l, apex, wing, ctl = MARK
+    x, y = 0.5 + (x - 0.5) / z, (apex + wing) / 2 + (y - 0.5) / z
+    side = (abs(x - 0.5) * (wing - apex) - (y - apex) * (0.5 - l)) / math.hypot(wing - apex, 0.5 - l)
+    t = (x - l) / (1 - 2 * l)  # the control point is over the middle: x is linear in the curve parameter
+    bottom = wing - 2 * t * (1 - t) * (wing - ctl)
+    slope = -2 * (wing - ctl) * (1 - 2 * t) / (1 - 2 * l)
+    return max(side, (y - bottom) / math.hypot(1, slope)) * z
 
 
 def render(n):
     """RGBA rows, top to bottom (straight alpha)."""
-    small = n < 40
-    pal = [hexc(c) for c in (LAYERS_SMALL if small else LAYERS)]
-    l, a0, w0, step, sag = SMALL if small else BIG
-    front_bottom = w0 + (len(pal) - 1) * step - sag
-    pcy = front_bottom + 0.012 + PLANET_R
     out = bytearray(n * n * 4)
+    tile, ink, rim = hexc(TILE), hexc(INK), hexc('#3A3C41')
     for yy in range(n):
         y = (yy + 0.5) / n
         for xx in range(n):
             x = (xx + 0.5) / n
-            ta = cov(sd_box(x, y, 0.5, 0.5, 0.47, 0.47, 0.215), n)
+            d = sd_box(x, y, 0.5, 0.5, 0.47, 0.47, 0.215)
+            ta = cov(d, n)
             if ta <= 0:
                 continue
-            # sky: darker at the top, a faint light low in the middle
-            c = mix(hexc('#0C0E2C'), hexc('#1E2460'), y)
-            c = mix(c, hexc('#3B3F92'), 0.35 * max(0.0, 1 - math.hypot(x - 0.5, y - 0.95) / 0.6))
-            if not small:
-                for sx, sy, r in STARS:
-                    dx, dy = abs(x - sx), abs(y - sy)
-                    d = min(dx / r + dy / (r * 0.22), dx / (r * 0.22) + dy / r) - 1  # a four-point sparkle
-                    if d < 0.5:
-                        c = mix(c, hexc('#C9C6F2'), cov(d * r * 0.3, n) * 0.85)
-            for i, col in enumerate(pal):
-                a = cov(sd_tri(x, y, l, a0 + i * step, w0 + i * step, sag), n)
-                if a > 0:
-                    c = mix(c, col, a * (0.88 + 0.12 * i / (len(pal) - 1)))
-            if not small:
-                d = math.hypot(x - 0.5, y - pcy) - PLANET_R
-                if d > 0:
-                    rim = max(0.0, 1 - d / 0.045)  # thin air above the horizon
-                    c = mix(c, hexc('#9A97EA'), rim * rim * 0.32)
-                pa = cov(d, n)
-                if pa > 0:
-                    c = mix(c, mix(hexc('#2D3080'), hexc('#1F225A'), min(1.0, max(0.0, (y - front_bottom) / 0.3))), pa)
+            c = mix(tile, rim, cov(abs(d + 0.6 / n) - 0.5 / n, n) * 0.6)  # a faint edge on dark taskbars
+            c = mix(c, ink, cov(sd_mark(x, y, MARK_Z), n))
             o = (yy * n + xx) * 4
             out[o:o + 4] = bytes([int(v * 255 + 0.5) for v in c] + [int(ta * 255 + 0.5)])
     return out

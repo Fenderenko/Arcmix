@@ -88,16 +88,6 @@
    "pt": "O Arcmix controla o volume e o silenciamento do microfone escolhido na tela principal. Discord, jogos ou OBS usam o microfone escolhido nas próprias configurações. Para que ouçam o microfone do Arcmix com o antirruído, escolha neles um cabo virtual e ligue aqui o processamento do microfone: ele envia o microfone para o cabo.",
    "tr": "Arcmix, ana ekranda seçilen mikrofonun ses düzeyini ve sessize alınmasını yönetir. Discord, oyunlar veya OBS kendi ayarlarında seçilen mikrofonu kullanır. Arcmix'teki mikrofonu gürültü önlemeyle duymaları için onlarda sanal bir kablo seçin ve burada mikrofon işlemeyi açın: mikrofonu kabloya gönderir."
   },
-  "Arcmix на GitHub": {
-   "de": "Arcmix auf GitHub",
-   "en": "Arcmix on GitHub",
-   "es": "Arcmix en GitHub",
-   "fr": "Arcmix sur GitHub",
-   "it": "Arcmix su GitHub",
-   "pl": "Arcmix na GitHubie",
-   "pt": "Arcmix no GitHub",
-   "tr": "GitHub'da Arcmix"
-  },
   "Bluetooth при ввімкненні": {
    "de": "Bluetooth beim Einschalten",
    "en": "Bluetooth on power-up",
@@ -107,6 +97,16 @@
    "pl": "Bluetooth po włączeniu",
    "pt": "Bluetooth ao ligar",
    "tr": "Açılışta Bluetooth"
+  },
+  "EQ Windows на гарнітурі": {
+   "de": "EQ Windows auf dem Headset",
+   "en": "EQ Windows on the headset",
+   "es": "EQ Windows en los auriculares",
+   "fr": "EQ Windows sur le casque",
+   "it": "EQ Windows sulle cuffie",
+   "pl": "EQ Windows na słuchawkach",
+   "pt": "EQ Windows no headset",
+   "tr": "EQ Windows kulaklıkta"
   },
   "Equalizer APO встановлено. Дозвольте Arcmix керувати ним — один раз, Windows попросить дозволу адміністратора.": {
    "de": "Equalizer APO ist installiert. Erlaube Arcmix, es zu steuern – einmalig; Windows fragt nach Administratorrechten.",
@@ -148,16 +148,6 @@
    "pt": "NVIDIA RTX · a voz mais limpa, na placa de vídeo; o aplicativo usará ~200 MB a mais de memória",
    "tr": "NVIDIA RTX · en temiz ses, ekran kartında; uygulama ~200 MB daha fazla bellek kullanır"
   },
-  "OpenChatMix на GitHub": {
-   "de": "OpenChatMix auf GitHub",
-   "en": "OpenChatMix on GitHub",
-   "es": "OpenChatMix en GitHub",
-   "fr": "OpenChatMix sur GitHub",
-   "it": "OpenChatMix su GitHub",
-   "pl": "OpenChatMix na GitHubie",
-   "pt": "OpenChatMix no GitHub",
-   "tr": "GitHub'da OpenChatMix"
-  },
   "RNNoise · найменша затримка, +10 мс": {
    "de": "RNNoise · geringste Verzögerung, +10 ms",
    "en": "RNNoise · the lowest delay, +10 ms",
@@ -198,15 +188,35 @@
    "pt": "“%s” transmite o microfone processado, então não serve para jogo, chat ou mídia: quem está na chamada ouviria o seu som. Cada categoria precisa do próprio cabo.",
    "tr": "“%s” işlenmiş mikrofonu taşıyor, bu yüzden oyun, sohbet veya medya için kullanılamaz: görüşmedekiler sesinizi duyardı. Her kategorinin kendi kablosu gerekir."
   },
-  "Ідея": {
-   "de": "Idee",
-   "en": "Idea",
-   "es": "Idea",
-   "fr": "Idée",
-   "it": "Idea",
-   "pl": "Pomysł",
-   "pt": "Ideia",
-   "tr": "Fikir"
+  "Іконка": {
+   "de": "Symbol",
+   "en": "Icon",
+   "es": "Icono",
+   "fr": "Icône",
+   "it": "Icona",
+   "pl": "Ikona",
+   "pt": "Ícone",
+   "tr": "Simge"
+  },
+  "Іконка в треї": {
+   "de": "Tray-Symbol",
+   "en": "Tray icon",
+   "es": "Icono de la bandeja",
+   "fr": "Icône de la zone de notification",
+   "it": "Icona nell'area di notifica",
+   "pl": "Ikona w zasobniku",
+   "pt": "Ícone da bandeja",
+   "tr": "Tepsi simgesi"
+  },
+  "Іконку": {
+   "de": "Symbol",
+   "en": "The icon",
+   "es": "El icono",
+   "fr": "L'icône",
+   "it": "L'icona",
+   "pl": "Ikonę",
+   "pt": "O ícone",
+   "tr": "Simge"
   },
   "Індикатор вимкненого мікрофона": {
    "de": "Stummschalt-Anzeige",
@@ -277,16 +287,6 @@
    "pl": "Automatyczne wzmocnienie mikrofonu",
    "pt": "Ganho automático do microfone",
    "tr": "Otomatik mikrofon kazancı"
-  },
-  "Автор": {
-   "de": "Autor",
-   "en": "Author",
-   "es": "Autor",
-   "fr": "Auteur",
-   "it": "Autore",
-   "pl": "Autor",
-   "pt": "Autor",
-   "tr": "Geliştirici"
   },
   "Архів на робочому столі:": {
    "de": "Archiv auf dem Desktop:",
@@ -398,6 +398,16 @@
    "pt": "Modo seguro do microfone",
    "tr": "Mikrofon güvenli modu"
   },
+  "Будь-які навушники, колонки й мікрофони: баланс програм, EQ Windows, обробка мікрофона, автоприглушення, пріоритет пристроїв.": {
+   "de": "Beliebige Kopfhörer, Lautsprecher und Mikrofone: App-Balance, EQ Windows, Mikrofonverarbeitung, automatisches Absenken, Gerätepriorität.",
+   "en": "Any headphones, speakers and microphones: app balance, EQ Windows, microphone processing, ducking, device priority.",
+   "es": "Cualquier auricular, altavoz o micrófono: balance de apps, EQ Windows, procesamiento del micrófono, atenuación automática, prioridad de dispositivos.",
+   "fr": "Tous casques, haut-parleurs et micros : balance des applis, EQ Windows, traitement du micro, atténuation auto, priorité des appareils.",
+   "it": "Qualsiasi cuffia, altoparlante e microfono: bilanciamento delle app, EQ Windows, elaborazione del microfono, attenuazione automatica, priorità dei dispositivi.",
+   "pl": "Dowolne słuchawki, głośniki i mikrofony: balans aplikacji, EQ Windows, przetwarzanie mikrofonu, automatyczne ściszanie, priorytet urządzeń.",
+   "pt": "Quaisquer fones, alto-falantes e microfones: balanço de apps, EQ Windows, processamento do microfone, atenuação automática, prioridade de dispositivos.",
+   "tr": "Her türlü kulaklık, hoparlör ve mikrofon: uygulama dengesi, EQ Windows, mikrofon işleme, otomatik kısma, aygıt önceliği."
+  },
   "Більше басу": {
    "de": "Mehr Bass",
    "en": "Bass boost",
@@ -457,26 +467,6 @@
    "pl": "Wersja",
    "pt": "Versão",
    "tr": "Sürüm"
-  },
-  "Весь звук": {
-   "de": "Gesamter Klang",
-   "en": "All sound",
-   "es": "Todo el sonido",
-   "fr": "Tout le son",
-   "it": "Tutto l'audio",
-   "pl": "Cały dźwięk",
-   "pt": "Todo o som",
-   "tr": "Tüm ses"
-  },
-  "Весь звук на гарнітурі": {
-   "de": "Gesamter Klang auf dem Headset",
-   "en": "All sound on the headset",
-   "es": "Todo el sonido en los auriculares",
-   "fr": "Tout le son sur le casque",
-   "it": "Tutto l'audio sulle cuffie",
-   "pl": "Cały dźwięk na słuchawkach",
-   "pt": "Todo o som no headset",
-   "tr": "Tüm ses kulaklıkta"
   },
   "Вивід": {
    "de": "Ausgabe",
@@ -617,6 +607,16 @@
    "pl": "Wyłączone",
    "pt": "Desligado",
    "tr": "Kapalı"
+  },
+  "Вимкнено разом з віртуальними кабелями": {
+   "de": "Mit den virtuellen Kabeln aus",
+   "en": "Off together with the virtual cables",
+   "es": "Desactivado junto con los cables virtuales",
+   "fr": "Désactivé avec les câbles virtuels",
+   "it": "Disattivato insieme ai cavi virtuali",
+   "pl": "Wyłączone razem z kablami wirtualnymi",
+   "pt": "Desativado junto com os cabos virtuais",
+   "tr": "Sanal kablolarla birlikte kapalı"
   },
   "Вимкнені в Windows": {
    "de": "In Windows deaktiviert",
@@ -838,6 +838,16 @@
    "pt": "Matiz",
    "tr": "Ton"
   },
+  "Від’єднали пристрій": {
+   "de": "Gerät getrennt",
+   "en": "A device disconnected",
+   "es": "Dispositivo desconectado",
+   "fr": "Appareil déconnecté",
+   "it": "Dispositivo scollegato",
+   "pl": "Odłączono urządzenie",
+   "pt": "Dispositivo desconectado",
+   "tr": "Aygıt bağlantısı kesildi"
+  },
   "Від’єднані": {
    "de": "Getrennt",
    "en": "Disconnected",
@@ -858,6 +868,26 @@
    "pt": "Janela",
    "tr": "Pencere"
   },
+  "Віртуальні кабелі": {
+   "de": "Virtuelle Kabel",
+   "en": "Virtual cables",
+   "es": "Cables virtuales",
+   "fr": "Câbles virtuels",
+   "it": "Cavi virtuali",
+   "pl": "Kable wirtualne",
+   "pt": "Cabos virtuais",
+   "tr": "Sanal kablolar"
+  },
+  "Віртуальні кабелі вимкнено: у кабель не йде оброблений мікрофон, і програми, що слухають кабель, вас не почують.": {
+   "de": "Die virtuellen Kabel sind aus: Kein bearbeitetes Mikrofon erreicht das Kabel, und Apps, die es abhören, hören dich nicht.",
+   "en": "The virtual cables are off: no processed microphone reaches the cable, and apps that listen to it won't hear you.",
+   "es": "Los cables virtuales están desactivados: el micrófono procesado no llega al cable y las apps que lo escuchan no te oirán.",
+   "fr": "Les câbles virtuels sont désactivés : aucun micro traité n'arrive dans le câble, et les applis qui l'écoutent ne vous entendront pas.",
+   "it": "I cavi virtuali sono disattivati: il microfono elaborato non arriva al cavo e le app che lo ascoltano non ti sentiranno.",
+   "pl": "Kable wirtualne są wyłączone: przetworzony mikrofon nie trafia do kabla, a aplikacje, które go słuchają, cię nie usłyszą.",
+   "pt": "Os cabos virtuais estão desativados: o microfone processado não chega ao cabo, e os apps que o escutam não vão ouvir você.",
+   "tr": "Sanal kablolar kapalı: işlenmiş mikrofon kabloya ulaşmıyor ve kabloyu dinleyen uygulamalar sizi duymayacak."
+  },
   "Вітаємо в Arcmix": {
    "de": "Willkommen bei Arcmix",
    "en": "Welcome to Arcmix",
@@ -877,6 +907,16 @@
    "pl": "Słuchawki",
    "pt": "Headset",
    "tr": "Kulaklık"
+  },
+  "Гарнітури: заряд, sidetone, еквалайзер гарнітури та інше": {
+   "de": "Headsets: Akku, Sidetone, Headset-Equalizer und mehr",
+   "en": "Headsets: battery, sidetone, the headset equalizer and more",
+   "es": "Auriculares: batería, sidetone, ecualizador de los auriculares y más",
+   "fr": "Casques : batterie, sidetone, égaliseur du casque et plus",
+   "it": "Cuffie: batteria, sidetone, equalizzatore delle cuffie e altro",
+   "pl": "Słuchawki: bateria, sidetone, korektor słuchawek i więcej",
+   "pt": "Headsets: bateria, sidetone, equalizador do headset e mais",
+   "tr": "Kulaklıklar: pil, sidetone, kulaklık ekolayzeri ve daha fazlası"
   },
   "Гарнітуру вимкнено": {
    "de": "Headset ist aus",
@@ -1308,6 +1348,16 @@
    "pt": "Baixando…",
    "tr": "İndiriliyor…"
   },
+  "Завжди": {
+   "de": "Immer",
+   "en": "Always",
+   "es": "Siempre",
+   "fr": "Toujours",
+   "it": "Sempre",
+   "pl": "Zawsze",
+   "pt": "Sempre",
+   "tr": "Her zaman"
+  },
   "Загальне": {
    "de": "Allgemein",
    "en": "General",
@@ -1518,16 +1568,6 @@
    "pt": "Salvar como nova",
    "tr": "Yeni olarak kaydet"
   },
-  "Звичайно": {
-   "de": "Normal",
-   "en": "Normal",
-   "es": "Normal",
-   "fr": "Normale",
-   "it": "Normale",
-   "pl": "Normalnie",
-   "pt": "Normal",
-   "tr": "Normal"
-  },
   "Звук": {
    "de": "Sound",
    "en": "Sound",
@@ -1547,6 +1587,16 @@
    "pl": "Dźwięk gry podczas rozmowy",
    "pt": "Som do jogo durante chamadas",
    "tr": "Arama sırasında oyun sesi"
+  },
+  "Звук іде згори вниз. Тягніть рядок за ⠿ (або ↑ ↓ на ручці).": {
+   "de": "Der Ton läuft von oben nach unten. Zeile an ⠿ ziehen (oder ↑ ↓ am Griff).",
+   "en": "Sound goes top to bottom. Drag a row by ⠿ (or ↑ ↓ on the handle).",
+   "es": "El sonido va de arriba abajo. Arrastra una fila por ⠿ (o ↑ ↓ en el asa).",
+   "fr": "Le son va de haut en bas. Faites glisser une ligne par ⠿ (ou ↑ ↓ sur la poignée).",
+   "it": "Il suono va dall'alto in basso. Trascina una riga da ⠿ (o ↑ ↓ sulla maniglia).",
+   "pl": "Dźwięk płynie z góry na dół. Przeciągnij wiersz za ⠿ (lub ↑ ↓ na uchwycie).",
+   "pt": "O som vai de cima para baixo. Arraste uma linha por ⠿ (ou ↑ ↓ na alça).",
+   "tr": "Ses yukarıdan aşağı akar. Bir satırı ⠿ ile sürükleyin (veya tutamakta ↑ ↓)."
   },
   "Звук іде на найвищий у списку під’єднаний пристрій. Перетягніть ⠿, щоб змінити пріоритет.": {
    "de": "Der Ton geht an das höchste angeschlossene Gerät der Liste. Ziehe ⠿, um die Priorität zu ändern.",
@@ -1608,16 +1658,6 @@
    "pt": "Valor",
    "tr": "Değer"
   },
-  "Значок у треї": {
-   "de": "Tray-Symbol",
-   "en": "Tray icon",
-   "es": "Icono de la bandeja",
-   "fr": "Icône de la barre",
-   "it": "Icona nell'area di notifica",
-   "pl": "Ikona w zasobniku",
-   "pt": "Ícone da bandeja",
-   "tr": "Tepsi simgesi"
-  },
   "Зокрема ігрові. Будь-який пресет чи крива вище вмикає «власний» слот гарнітури.": {
    "de": "Darunter Spiel-Presets. Jede Voreinstellung oder Kurve oben schaltet das Headset auf den „Benutzerdefiniert“-Slot.",
    "en": "Including game presets. Any preset or curve above switches the headset to its “custom” slot.",
@@ -1627,6 +1667,16 @@
    "pl": "W tym ustawienia gier. Każde ustawienie lub krzywa powyżej włącza „własny” slot słuchawek.",
    "pt": "Inclui predefinições de jogos. Qualquer predefinição ou curva acima ativa o slot “personalizado” do headset.",
    "tr": "Oyun ayarları dahil. Yukarıdaki herhangi bir ayar veya eğri kulaklığın “özel” yuvasını etkinleştirir."
+  },
+  "Зріз низу": {
+   "de": "Low-Cut",
+   "en": "Low cut",
+   "es": "Corte de graves",
+   "fr": "Coupe-bas",
+   "it": "Taglio dei bassi",
+   "pl": "Odcięcie basu",
+   "pt": "Corte de graves",
+   "tr": "Bas kesme"
   },
   "Зупинити": {
    "de": "Stopp",
@@ -1647,6 +1697,16 @@
    "pl": "Zatrzymaj nagrywanie",
    "pt": "Parar gravação",
    "tr": "Kaydı durdur"
+  },
+  "Кабелі": {
+   "de": "Kabel",
+   "en": "Cables",
+   "es": "Cables",
+   "fr": "Câbles",
+   "it": "Cavi",
+   "pl": "Kable",
+   "pt": "Cabos",
+   "tr": "Kablolar"
   },
   "Кейс": {
    "de": "Case",
@@ -1708,12 +1768,12 @@
    "pt": "Código de cor (HEX)",
    "tr": "Renk kodu (HEX)"
   },
-  "Колесо миші над значком": {
+  "Колесо миші над іконкою": {
    "de": "Mausrad über dem Symbol",
    "en": "Mouse wheel over the icon",
    "es": "Rueda del ratón sobre el icono",
-   "fr": "Molette sur l'icône",
-   "it": "Rotellina sull'icona",
+   "fr": "Molette de la souris sur l'icône",
+   "it": "Rotellina del mouse sull'icona",
    "pl": "Kółko myszy nad ikoną",
    "pt": "Roda do mouse sobre o ícone",
    "tr": "Simge üzerinde fare tekerleği"
@@ -1768,16 +1828,6 @@
    "pt": "A cor e o modo claro ou escuro vêm do Windows: Configurações → Personalização → Cores.",
    "tr": "Renk ve açık veya koyu mod Windows'tan alınır: Ayarlar → Kişiselleştirme → Renkler."
   },
-  "Компактно": {
-   "de": "Kompakt",
-   "en": "Compact",
-   "es": "Compacta",
-   "fr": "Compacte",
-   "it": "Compatta",
-   "pl": "Kompaktowo",
-   "pt": "Compacta",
-   "tr": "Sıkı"
-  },
   "Компресор": {
    "de": "Kompressor",
    "en": "Compressor",
@@ -1798,15 +1848,15 @@
    "pt": "Correção AutoEQ",
    "tr": "AutoEQ düzeltmesi"
   },
-  "Крива «Весь звук» діє на все, що грає на пристрої, — без кабелів і без затримки. Для цього Arcmix додає свій модуль у звук Windows: Windows попросить дозволу адміністратора, а звук на мить зникне. Прибрати модуль можна будь-коли на вкладці «Звук».": {
-   "de": "Die Kurve „Gesamter Klang“ wirkt auf alles, was auf dem Gerät spielt – ohne Kabel und ohne Verzögerung. Dafür fügt Arcmix sein Modul in den Windows-Sound ein: Windows fragt nach Administratorrechten, und der Ton setzt kurz aus. Das Modul lässt sich jederzeit im Tab „Sound“ entfernen.",
-   "en": "The “All sound” curve works on everything that plays on the device, with no cables and no delay. For that Arcmix adds its module to Windows sound: Windows will ask for administrator permission, and sound drops for a moment. The module can be removed any time on the Sound tab.",
-   "es": "La curva «Todo el sonido» actúa sobre todo lo que suena en el dispositivo, sin cables ni retardo. Para ello Arcmix añade su módulo al sonido de Windows: Windows pedirá permiso de administrador y el sonido se cortará un momento. El módulo se puede quitar en cualquier momento en la pestaña Sonido.",
-   "fr": "La courbe « Tout le son » agit sur tout ce qui joue sur l'appareil, sans câbles ni latence. Pour cela, Arcmix ajoute son module au son de Windows : Windows demandera l'autorisation d'administrateur et le son se coupera un instant. Le module peut être retiré à tout moment dans l'onglet Son.",
-   "it": "La curva «Tutto l'audio» agisce su tutto ciò che suona sul dispositivo, senza cavi né ritardo. Per farlo Arcmix aggiunge il suo modulo all'audio di Windows: Windows chiederà il permesso di amministratore e l'audio si interromperà un attimo. Il modulo si può rimuovere in qualsiasi momento nella scheda Audio.",
-   "pl": "Krzywa „Cały dźwięk” działa na wszystko, co gra na urządzeniu — bez kabli i bez opóźnienia. W tym celu Arcmix dodaje swój moduł do dźwięku Windows: Windows poprosi o uprawnienia administratora, a dźwięk na chwilę zniknie. Moduł można usunąć w każdej chwili na karcie Dźwięk.",
-   "pt": "A curva “Todo o som” age em tudo o que toca no dispositivo, sem cabos e sem atraso. Para isso o Arcmix adiciona seu módulo ao som do Windows: o Windows vai pedir permissão de administrador e o som some por um instante. O módulo pode ser removido a qualquer momento na aba Som.",
-   "tr": "“Tüm ses” eğrisi aygıtta çalan her şeye etki eder; kablosuz ve gecikmesiz. Bunun için Arcmix kendi modülünü Windows sesine ekler: Windows yönetici izni isteyecek ve ses bir an kesilecek. Modül, Ses sekmesinden istediğiniz zaman kaldırılabilir."
+  "Крива «EQ Windows» діє на все, що грає на пристрої, — без кабелів і без затримки. Для цього Arcmix додає свій модуль у звук Windows: Windows попросить дозволу адміністратора, а звук на мить зникне. Прибрати модуль можна будь-коли на вкладці «Звук».": {
+   "de": "Die Kurve „EQ Windows“ wirkt auf alles, was auf dem Gerät spielt – ohne Kabel und ohne Verzögerung. Dafür fügt Arcmix sein Modul in den Windows-Sound ein: Windows fragt nach Administratorrechten, und der Ton setzt kurz aus. Das Modul lässt sich jederzeit im Tab „Sound“ entfernen.",
+   "en": "The “EQ Windows” curve works on everything that plays on the device, with no cables and no delay. For that Arcmix adds its module to Windows sound: Windows will ask for administrator permission, and sound drops for a moment. The module can be removed any time on the Sound tab.",
+   "es": "La curva «EQ Windows» actúa sobre todo lo que suena en el dispositivo, sin cables ni retardo. Para ello Arcmix añade su módulo al sonido de Windows: Windows pedirá permiso de administrador y el sonido se cortará un momento. El módulo se puede quitar en cualquier momento en la pestaña Sonido.",
+   "fr": "La courbe « EQ Windows » agit sur tout ce qui joue sur l'appareil, sans câbles ni latence. Pour cela, Arcmix ajoute son module au son de Windows : Windows demandera l'autorisation d'administrateur et le son se coupera un instant. Le module peut être retiré à tout moment dans l'onglet Son.",
+   "it": "La curva «EQ Windows» agisce su tutto ciò che suona sul dispositivo, senza cavi né ritardo. Per farlo Arcmix aggiunge il suo modulo all'audio di Windows: Windows chiederà il permesso di amministratore e l'audio si interromperà un attimo. Il modulo si può rimuovere in qualsiasi momento nella scheda Audio.",
+   "pl": "Krzywa „EQ Windows” działa na wszystko, co gra na urządzeniu — bez kabli i bez opóźnienia. W tym celu Arcmix dodaje swój moduł do dźwięku Windows: Windows poprosi o uprawnienia administratora, a dźwięk na chwilę zniknie. Moduł można usunąć w każdej chwili na karcie Dźwięk.",
+   "pt": "A curva “EQ Windows” age em tudo o que toca no dispositivo, sem cabos e sem atraso. Para isso o Arcmix adiciona seu módulo ao som do Windows: o Windows vai pedir permissão de administrador e o som some por um instante. O módulo pode ser removido a qualquer momento na aba Som.",
+   "tr": "“EQ Windows” eğrisi aygıtta çalan her şeye etki eder; kablosuz ve gecikmesiz. Bunun için Arcmix kendi modülünü Windows sesine ekler: Windows yönetici izni isteyecek ve ses bir an kesilecek. Modül, Ses sekmesinden istediğiniz zaman kaldırılabilir."
   },
   "Крива змінена": {
    "de": "Kurve geändert",
@@ -1878,6 +1928,16 @@
    "pt": "Leve",
    "tr": "Hafif"
   },
+  "Луна": {
+   "de": "Hall",
+   "en": "Echo",
+   "es": "Eco",
+   "fr": "Écho",
+   "it": "Eco",
+   "pl": "Pogłos",
+   "pt": "Eco",
+   "tr": "Yankı"
+  },
   "Лінійний вихід": {
    "de": "Line-Ausgang",
    "en": "Line out",
@@ -1917,16 +1977,6 @@
    "pl": "Maksimum",
    "pt": "Máximo",
    "tr": "Maksimum"
-  },
-  "Маршрутизація": {
-   "de": "Routing",
-   "en": "Routing",
-   "es": "Enrutamiento",
-   "fr": "Routage",
-   "it": "Instradamento",
-   "pl": "Routing",
-   "pt": "Roteamento",
-   "tr": "Yönlendirme"
   },
   "Маршрутизація звуку": {
    "de": "Audio-Routing",
@@ -2117,16 +2167,6 @@
    "pl": "Księżyc",
    "pt": "Lua",
    "tr": "Ay"
-  },
-  "М’яко": {
-   "de": "Sanft",
-   "en": "Soft",
-   "es": "Suave",
-   "fr": "Doux",
-   "it": "Morbido",
-   "pl": "Delikatnie",
-   "pt": "Suave",
-   "tr": "Yumuşak"
   },
   "На «%s» уже працює Equalizer APO — модуль не потрібен.": {
    "de": "Auf „%s“ arbeitet bereits Equalizer APO – das Modul wird nicht gebraucht.",
@@ -2468,6 +2508,16 @@
    "pt": "Nenhum novo aplicativo com janela encontrado.",
    "tr": "Pencereli yeni uygulama bulunamadı."
   },
+  "Ні": {
+   "de": "Nein",
+   "en": "No",
+   "es": "No",
+   "fr": "Non",
+   "it": "No",
+   "pl": "Nie",
+   "pt": "Não",
+   "tr": "Hayır"
+  },
   "Ніколи": {
    "de": "Nie",
    "en": "Never",
@@ -2738,6 +2788,16 @@
    "pt": "Alternar o som automaticamente",
    "tr": "Sesi otomatik değiştir"
   },
+  "Перетягнути": {
+   "de": "Ziehen",
+   "en": "Drag",
+   "es": "Arrastrar",
+   "fr": "Faire glisser",
+   "it": "Trascina",
+   "pl": "Przeciągnij",
+   "pt": "Arrastar",
+   "tr": "Sürükle"
+  },
   "Перетягніть програму в іншу групу.": {
    "de": "Ziehe eine App in eine andere Gruppe.",
    "en": "Drag an app to another group.",
@@ -2768,16 +2828,6 @@
    "pt": "Arraste para mudar a prioridade",
    "tr": "Önceliği değiştirmek için sürükleyin"
   },
-  "Перші напрацювання — проєкт OpenChatMix. Arcmix виріс із нього.": {
-   "de": "Die ersten Grundlagen stammen aus dem Projekt OpenChatMix. Arcmix ist daraus entstanden.",
-   "en": "The first groundwork is the OpenChatMix project. Arcmix grew out of it.",
-   "es": "El primer trabajo es el proyecto OpenChatMix. Arcmix nació de él.",
-   "fr": "Les premières bases viennent du projet OpenChatMix. Arcmix en est issu.",
-   "it": "Il primo lavoro è il progetto OpenChatMix. Arcmix è nato da lì.",
-   "pl": "Pierwsze prace to projekt OpenChatMix. Arcmix z niego wyrósł.",
-   "pt": "O primeiro trabalho é o projeto OpenChatMix. O Arcmix nasceu dele.",
-   "tr": "İlk çalışmalar OpenChatMix projesi. Arcmix ondan doğdu."
-  },
   "Плагін не запустився": {
    "de": "Plugin konnte nicht gestartet werden",
    "en": "The plugin failed to start",
@@ -2798,15 +2848,15 @@
    "pt": "O plugin não suporta o formato de áudio necessário",
    "tr": "Eklenti gereken ses biçimini desteklemiyor"
   },
-  "Плагіни обробляють звук до шумового порогу. Підтримуються 64-бітні VST2 (.dll) і VST3 (.vst3).": {
-   "de": "Plugins bearbeiten den Ton vor dem Noise Gate. Unterstützt werden 64-Bit-VST2 (.dll) und VST3 (.vst3).",
-   "en": "Plugins process the sound before the noise gate. 64-bit VST2 (.dll) and VST3 (.vst3) are supported.",
-   "es": "Los plugins procesan el sonido antes de la puerta de ruido. Compatible con VST2 de 64 bits (.dll) y VST3 (.vst3).",
-   "fr": "Les plugins traitent le son avant le noise gate. VST2 64 bits (.dll) et VST3 (.vst3) pris en charge.",
-   "it": "I plugin elaborano il suono prima del noise gate. Supportati VST2 a 64 bit (.dll) e VST3 (.vst3).",
-   "pl": "Wtyczki przetwarzają dźwięk przed bramką szumów. Obsługiwane są 64-bitowe VST2 (.dll) i VST3 (.vst3).",
-   "pt": "Os plugins processam o som antes do noise gate. Suporta VST2 64 bits (.dll) e VST3 (.vst3).",
-   "tr": "Eklentiler sesi gürültü kapısından önce işler. 64 bit VST2 (.dll) ve VST3 (.vst3) desteklenir."
+  "Показує": {
+   "de": "Zeigt",
+   "en": "Shows",
+   "es": "Muestra",
+   "fr": "Affiche",
+   "it": "Mostra",
+   "pl": "Pokazuje",
+   "pt": "Mostra",
+   "tr": "Gösterir"
   },
   "Поки ви не обрали значення, програма не змінює налаштувань гарнітури.": {
    "de": "Solange du keinen Wert wählst, ändert die App die Headset-Einstellungen nicht.",
@@ -2848,6 +2898,16 @@
    "pt": "Dispositivo de saída anterior",
    "tr": "Önceki çıkış aygıtı"
   },
+  "Порядок обробки": {
+   "de": "Verarbeitungsreihenfolge",
+   "en": "Processing order",
+   "es": "Orden de procesamiento",
+   "fr": "Ordre de traitement",
+   "it": "Ordine di elaborazione",
+   "pl": "Kolejność przetwarzania",
+   "pt": "Ordem de processamento",
+   "tr": "İşleme sırası"
+  },
   "Порівну": {
    "de": "Ausgeglichen",
    "en": "Balanced",
@@ -2867,6 +2927,16 @@
    "pl": "Próg",
    "pt": "Limiar",
    "tr": "Eşik"
+  },
+  "Поріг компресора": {
+   "de": "Kompressor-Schwelle",
+   "en": "Compressor threshold",
+   "es": "Umbral del compresor",
+   "fr": "Seuil du compresseur",
+   "it": "Soglia del compressore",
+   "pl": "Próg kompresora",
+   "pt": "Limiar do compressor",
+   "tr": "Kompresör eşiği"
   },
   "Поріг шумодаву": {
    "de": "Schwelle des Noise-Gates",
@@ -3218,25 +3288,35 @@
    "pt": "Transparência (som ambiente)",
    "tr": "Şeffaflık (ortam sesi)"
   },
-  "Прокрутка над значком у треї змінює баланс гра / чат, як повзунок у вікні.": {
-   "de": "Scrollen über dem Tray-Symbol ändert die Balance Spiel / Chat wie der Regler im Fenster.",
-   "en": "Scrolling over the tray icon changes the game / chat balance, like the slider in the window.",
-   "es": "Desplazar sobre el icono cambia el balance juego / chat, como el control de la ventana.",
+  "Прокрутка над іконкою змінює баланс гра / чат, як повзунок у вікні.": {
+   "de": "Scrollen über dem Symbol ändert die Balance Spiel / Chat wie der Regler im Fenster.",
+   "en": "Scrolling over the icon changes the game / chat balance, like the slider in the window.",
+   "es": "Desplazarse sobre el icono cambia el balance juego / chat, como el control deslizante de la ventana.",
    "fr": "Faire défiler sur l'icône change l'équilibre jeu / chat, comme le curseur de la fenêtre.",
-   "it": "Scorrendo sull'icona cambia il bilanciamento gioco / chat, come il cursore nella finestra.",
+   "it": "Scorrere sull'icona cambia il bilanciamento gioco / chat, come il cursore nella finestra.",
    "pl": "Przewijanie nad ikoną zmienia balans gra / czat, jak suwak w oknie.",
-   "pt": "Rolar sobre o ícone altera o equilíbrio jogo / chat, como o controle da janela.",
-   "tr": "Tepsi simgesi üzerinde kaydırmak, penceredeki kaydırıcı gibi oyun / sohbet dengesini değiştirir."
+   "pt": "Rolar sobre o ícone muda o equilíbrio jogo / chat, como o controle deslizante da janela.",
+   "tr": "Simge üzerinde kaydırmak, penceredeki kaydırıcı gibi oyun / sohbet dengesini değiştirir."
   },
-  "Прокрутка над значком у треї показує заряд замість балансу.": {
-   "de": "Scrollen über dem Tray-Symbol zeigt den Akku statt der Balance.",
-   "en": "Scrolling over the tray icon shows the battery instead of the balance.",
-   "es": "Desplazar sobre el icono de la bandeja muestra la batería en lugar del balance.",
-   "fr": "Faire défiler sur l'icône de la barre affiche la batterie au lieu de l'équilibre.",
-   "it": "Scorrere sull'icona nella barra mostra la batteria invece del bilanciamento.",
-   "pl": "Przewijanie nad ikoną w zasobniku pokazuje baterię zamiast balansu.",
-   "pt": "Rolar sobre o ícone da bandeja mostra a bateria em vez do equilíbrio.",
-   "tr": "Tepsi simgesi üzerinde kaydırmak denge yerine pili gösterir."
+  "Прокрутка над іконкою ненадовго показує заряд.": {
+   "de": "Scrollen über dem Symbol zeigt kurz den Akku.",
+   "en": "Scrolling over the icon shows the battery for a moment.",
+   "es": "Desplazarse sobre el icono muestra un momento la batería.",
+   "fr": "Faire défiler sur l'icône affiche un instant la batterie.",
+   "it": "Scorrere sull'icona mostra per un attimo la batteria.",
+   "pl": "Przewijanie nad ikoną na chwilę pokazuje baterię.",
+   "pt": "Rolar sobre o ícone mostra a bateria por um momento.",
+   "tr": "Simge üzerinde kaydırmak pili kısa süre gösterir."
+  },
+  "Прокрутка над іконкою ненадовго показує іконку замість заряду.": {
+   "de": "Scrollen über dem Symbol zeigt kurz das Symbol statt des Akkus.",
+   "en": "Scrolling over the icon shows the icon instead of the battery for a moment.",
+   "es": "Desplazarse sobre el icono muestra un momento el icono en lugar de la batería.",
+   "fr": "Faire défiler sur l'icône affiche un instant l'icône au lieu de la batterie.",
+   "it": "Scorrere sull'icona mostra per un attimo l'icona invece della batteria.",
+   "pl": "Przewijanie nad ikoną na chwilę pokazuje ikonę zamiast baterii.",
+   "pt": "Rolar sobre o ícone mostra por um momento o ícone em vez da bateria.",
+   "tr": "Simge üzerinde kaydırmak pil yerine kısa süre simgeyi gösterir."
   },
   "Прослухати": {
    "de": "Abspielen",
@@ -3387,6 +3467,36 @@
    "pl": "Wzmocnienie mikrofonu (w słuchawkach)",
    "pt": "Ganho do microfone (no headset)",
    "tr": "Mikrofon kazancı (kulaklıkta)"
+  },
+  "Підтримувані пристрої": {
+   "de": "Unterstützte Geräte",
+   "en": "Supported devices",
+   "es": "Dispositivos compatibles",
+   "fr": "Appareils pris en charge",
+   "it": "Dispositivi supportati",
+   "pl": "Obsługiwane urządzenia",
+   "pt": "Dispositivos compatíveis",
+   "tr": "Desteklenen aygıtlar"
+  },
+  "Підтримуються 64-бітні VST2 (.dll) і VST3 (.vst3).": {
+   "de": "Unterstützt werden 64-Bit-VST2 (.dll) und VST3 (.vst3).",
+   "en": "64-bit VST2 (.dll) and VST3 (.vst3) are supported.",
+   "es": "Se admiten VST2 (.dll) y VST3 (.vst3) de 64 bits.",
+   "fr": "Les VST2 (.dll) et VST3 (.vst3) 64 bits sont pris en charge.",
+   "it": "Sono supportati VST2 (.dll) e VST3 (.vst3) a 64 bit.",
+   "pl": "Obsługiwane są 64-bitowe VST2 (.dll) i VST3 (.vst3).",
+   "pt": "Suporta VST2 (.dll) e VST3 (.vst3) de 64 bits.",
+   "tr": "64 bit VST2 (.dll) ve VST3 (.vst3) desteklenir."
+  },
+  "Під’єднали пристрій": {
+   "de": "Gerät verbunden",
+   "en": "A device connected",
+   "es": "Dispositivo conectado",
+   "fr": "Appareil connecté",
+   "it": "Dispositivo collegato",
+   "pl": "Podłączono urządzenie",
+   "pt": "Dispositivo conectado",
+   "tr": "Aygıt bağlandı"
   },
   "Режим": {
    "de": "Modus",
@@ -3548,16 +3658,6 @@
    "pt": "Claro",
    "tr": "Açık"
   },
-  "Світіння балансу": {
-   "de": "Balance-Leuchten",
-   "en": "Balance glow",
-   "es": "Brillo del balance",
-   "fr": "Lueur de la balance",
-   "it": "Bagliore del bilanciamento",
-   "pl": "Poświata balansu",
-   "pt": "Brilho do balanço",
-   "tr": "Denge parıltısı"
-  },
   "Середня": {
    "de": "Mittel",
    "en": "Medium",
@@ -3587,6 +3687,16 @@
    "pl": "Średni",
    "pt": "Médio",
    "tr": "Orta"
+  },
+  "Сила": {
+   "de": "Stärke",
+   "en": "Strength",
+   "es": "Intensidad",
+   "fr": "Intensité",
+   "it": "Intensità",
+   "pl": "Siła",
+   "pt": "Intensidade",
+   "tr": "Güç"
   },
   "Скасувати": {
    "de": "Abbrechen",
@@ -3707,6 +3817,16 @@
    "pl": "Stream",
    "pt": "Stream",
    "tr": "Yayın"
+  },
+  "Ступінь": {
+   "de": "Ratio",
+   "en": "Ratio",
+   "es": "Ratio",
+   "fr": "Ratio",
+   "it": "Rapporto",
+   "pl": "Stosunek",
+   "pt": "Razão",
+   "tr": "Oran"
   },
   "Тема": {
    "de": "Design",
@@ -3938,6 +4058,16 @@
    "pt": "Ativar",
    "tr": "Etkinleştir"
   },
+  "Увімкнути віртуальні кабелі": {
+   "de": "Virtuelle Kabel einschalten",
+   "en": "Turn on the virtual cables",
+   "es": "Activar los cables virtuales",
+   "fr": "Activer les câbles virtuels",
+   "it": "Attiva i cavi virtuali",
+   "pl": "Włącz kable wirtualne",
+   "pt": "Ativar os cabos virtuais",
+   "tr": "Sanal kabloları aç"
+  },
   "Увімкнути обробку мікрофона": {
    "de": "Mikrofonverarbeitung einschalten",
    "en": "Turn on microphone processing",
@@ -4128,6 +4258,16 @@
    "pt": "Preto (OLED)",
    "tr": "Siyah (OLED)"
   },
+  "Чорна діра": {
+   "de": "Schwarzes Loch",
+   "en": "Black hole",
+   "es": "Agujero negro",
+   "fr": "Trou noir",
+   "it": "Buco nero",
+   "pl": "Czarna dziura",
+   "pt": "Buraco negro",
+   "tr": "Kara delik"
+  },
   "Чорне тло (OLED)": {
    "de": "Schwarzer Hintergrund (OLED)",
    "en": "Black background (OLED)",
@@ -4238,6 +4378,26 @@
    "pt": "Procurando…",
    "tr": "Aranıyor…"
   },
+  "Шум": {
+   "de": "Rauschen",
+   "en": "Noise",
+   "es": "Ruido",
+   "fr": "Bruit",
+   "it": "Rumore",
+   "pl": "Szum",
+   "pt": "Ruído",
+   "tr": "Gürültü"
+  },
+  "Шум і луна": {
+   "de": "Rauschen und Hall",
+   "en": "Noise and echo",
+   "es": "Ruido y eco",
+   "fr": "Bruit et écho",
+   "it": "Rumore ed eco",
+   "pl": "Szum i pogłos",
+   "pt": "Ruído e eco",
+   "tr": "Gürültü ve yankı"
+  },
   "Шумовий поріг мікрофона": {
    "de": "Mikrofon-Noise-Gate",
    "en": "Mic noise gate",
@@ -4318,15 +4478,15 @@
    "pt": "O VB-CABLE A+B, do autor do VB-CABLE, adiciona mais dois cabos. Não dá para incluí-lo no Arcmix: a VB-Audio o oferece só na própria loja, e você escolhe o preço. Execute o VBCable_AB_PackSetup.exe como administrador e reinicie o computador — os cabos aparecerão aqui sozinhos.",
    "tr": "VB-CABLE’ın yazarından VB-CABLE A+B iki kablo daha ekler. Arcmix’e gömülemez: VB-Audio onu yalnızca kendi mağazasında sunar, fiyatı siz seçersiniz. VBCable_AB_PackSetup.exe’yi yönetici olarak çalıştırın ve bilgisayarı yeniden başlatın — kablolar burada kendiliğinden görünür."
   },
-  "Щільність": {
-   "de": "Dichte",
-   "en": "Density",
-   "es": "Densidad",
-   "fr": "Densité",
-   "it": "Densità",
-   "pl": "Gęstość",
-   "pt": "Densidade",
-   "tr": "Yoğunluk"
+  "Як за замовчуванням": {
+   "de": "Standardreihenfolge",
+   "en": "Default order",
+   "es": "Orden predeterminado",
+   "fr": "Ordre par défaut",
+   "it": "Ordine predefinito",
+   "pl": "Domyślna kolejność",
+   "pt": "Ordem padrão",
+   "tr": "Varsayılan sıra"
   },
   "Як налаштувати": {
    "de": "So richtest du es ein",
@@ -4348,15 +4508,15 @@
    "pt": "Igual ao Windows",
    "tr": "Windows'taki gibi"
   },
-  "Яскраво": {
-   "de": "Hell",
-   "en": "Bright",
-   "es": "Intenso",
-   "fr": "Vif",
-   "it": "Intenso",
-   "pl": "Jasno",
-   "pt": "Intenso",
-   "tr": "Parlak"
+  "Якщо вищий у списку": {
+   "de": "Wenn höher in der Liste",
+   "en": "If higher in the list",
+   "es": "Si está más arriba en la lista",
+   "fr": "S'il est plus haut dans la liste",
+   "it": "Se è più in alto nell'elenco",
+   "pl": "Jeśli wyżej na liście",
+   "pt": "Se estiver mais acima na lista",
+   "tr": "Listede daha üstteyse"
   },
   "Яскравість": {
    "de": "Helligkeit",
@@ -4388,6 +4548,26 @@
    "pt": "Brilho do indicador de microfone mudo",
    "tr": "Mikrofon kapalı ışığı parlaklığı"
   },
+  "автоперемикання, пріоритет, віртуальні кабелі": {
+   "de": "automatisches Umschalten, Priorität, virtuelle Kabel",
+   "en": "auto switching, priority, virtual cables",
+   "es": "cambio automático, prioridad, cables virtuales",
+   "fr": "basculement auto, priorité, câbles virtuels",
+   "it": "cambio automatico, priorità, cavi virtuali",
+   "pl": "automatyczne przełączanie, priorytet, kable wirtualne",
+   "pt": "troca automática, prioridade, cabos virtuais",
+   "tr": "otomatik geçiş, öncelik, sanal kablolar"
+  },
+  "автор · Arcmix на GitHub": {
+   "de": "Autor · Arcmix auf GitHub",
+   "en": "author · Arcmix on GitHub",
+   "es": "autor · Arcmix en GitHub",
+   "fr": "auteur · Arcmix sur GitHub",
+   "it": "autore · Arcmix su GitHub",
+   "pl": "autor · Arcmix na GitHubie",
+   "pt": "autor · Arcmix no GitHub",
+   "tr": "yazar · GitHub'da Arcmix"
+  },
   "архів із журналом і налаштуваннями — щоб розібратися з проблемою": {
    "de": "ein Archiv mit Protokoll und Einstellungen zur Fehlersuche",
    "en": "an archive with the log and settings, to troubleshoot a problem",
@@ -4417,6 +4597,16 @@
    "pl": "balans tu nie działa",
    "pt": "o equilíbrio não se aplica",
    "tr": "denge uygulanmaz"
+  },
+  "баланс, вивід, мікрофон, підказка на екрані": {
+   "de": "Balance, Ausgabe, Mikrofon, Bildschirmhinweis",
+   "en": "balance, output, microphone, on-screen hint",
+   "es": "balance, salida, micrófono, aviso en pantalla",
+   "fr": "balance, sortie, micro, indication à l'écran",
+   "it": "bilanciamento, uscita, microfono, indicazione a schermo",
+   "pl": "balans, wyjście, mikrofon, podpowiedź na ekranie",
+   "pt": "balanço, saída, microfone, aviso na tela",
+   "tr": "denge, çıkış, mikrofon, ekran ipucu"
   },
   "баланс, пристрій чи мікрофон — коли змінюєте їх гарячими клавішами або коліщатком гарнітури": {
    "de": "Balance, Gerät oder Mikrofon – wenn du sie per Tastenkürzel oder Headset-Rad änderst",
@@ -4487,6 +4677,16 @@
    "pl": "wyłączone: działa tylko korektor słuchawek",
    "pt": "desligado: só o equalizador do headset funciona",
    "tr": "kapalı: yalnızca kulaklığın ekolayzeri çalışır"
+  },
+  "вирівнює гучність голосу: тихе ближче до гучного": {
+   "de": "gleicht die Stimme aus: Leises näher an Lautes",
+   "en": "evens out the voice: quiet parts closer to loud ones",
+   "es": "iguala la voz: lo bajo más cerca de lo alto",
+   "fr": "égalise la voix : les passages calmes plus proches des forts",
+   "it": "uniforma la voce: le parti piano più vicine a quelle forti",
+   "pl": "wyrównuje głos: ciche bliżej głośnych",
+   "pt": "equaliza a voz: o baixo mais perto do alto",
+   "tr": "sesi dengeler: sessiz kısımları yükseğe yaklaştırır"
   },
   "власний еквалайзер для «%s» без кабелів і без Equalizer APO. Потрібен дозвіл адміністратора; звук на мить зникне.": {
    "de": "eigener Equalizer für „%s“, ohne Kabel und ohne Equalizer APO. Benötigt Administratorrechte; der Ton setzt kurz aus.",
@@ -4638,6 +4838,36 @@
    "pt": "pela categoria Jogo / Chat / Mídia",
    "tr": "Oyun / Sohbet / Medya kategorisine göre"
   },
+  "завжди остання — не дає голосу перевищити межу": {
+   "de": "immer zuletzt — hält die Stimme unter der Grenze",
+   "en": "always last — keeps the voice under the limit",
+   "es": "siempre la última — mantiene la voz bajo el límite",
+   "fr": "toujours en dernier — garde la voix sous la limite",
+   "it": "sempre per ultimo — tiene la voce sotto il limite",
+   "pl": "zawsze ostatni — trzyma głos poniżej limitu",
+   "pt": "sempre por último — mantém a voz abaixo do limite",
+   "tr": "her zaman son — sesi sınırın altında tutar"
+  },
+  "завжди остання: не дає голосу перевищити межу": {
+   "de": "immer zuletzt: hält die Stimme unter der Grenze",
+   "en": "always last: keeps the voice under the limit",
+   "es": "siempre la última: mantiene la voz bajo el límite",
+   "fr": "toujours en dernier : garde la voix sous la limite",
+   "it": "sempre per ultimo: tiene la voce sotto il limite",
+   "pl": "zawsze ostatni: trzyma głos poniżej limitu",
+   "pt": "sempre por último: mantém a voz abaixo do limite",
+   "tr": "her zaman son: sesi sınırın altında tutar"
+  },
+  "завжди перший — прибирає гул нижче 80 Гц": {
+   "de": "immer zuerst — entfernt Brummen unter 80 Hz",
+   "en": "always first — removes rumble below 80 Hz",
+   "es": "siempre el primero — elimina el zumbido por debajo de 80 Hz",
+   "fr": "toujours en premier — supprime le grondement sous 80 Hz",
+   "it": "sempre per primo — rimuove il rombo sotto gli 80 Hz",
+   "pl": "zawsze pierwszy — usuwa buczenie poniżej 80 Hz",
+   "pt": "sempre primeiro — remove o ronco abaixo de 80 Hz",
+   "tr": "her zaman ilk — 80 Hz altındaki uğultuyu giderir"
+  },
   "запис і прослуховування свого мікрофона": {
    "de": "eigenes Mikrofon aufnehmen und anhören",
    "en": "record and play back your own mic",
@@ -4647,6 +4877,16 @@
    "pl": "nagrywanie i odsłuch własnego mikrofonu",
    "pt": "gravar e ouvir o próprio microfone",
    "tr": "kendi mikrofonunu kaydet ve dinle"
+  },
+  "заряд і сповіщення, sidetone, вимкнення": {
+   "de": "Akku und Hinweise, Sidetone, Abschaltung",
+   "en": "battery and alerts, sidetone, auto off",
+   "es": "batería y avisos, sidetone, apagado",
+   "fr": "batterie et alertes, sidetone, extinction",
+   "it": "batteria e avvisi, sidetone, spegnimento",
+   "pl": "bateria i powiadomienia, sidetone, wyłączanie",
+   "pt": "bateria e alertas, sidetone, desligamento",
+   "tr": "pil ve uyarılar, sidetone, kapanma"
   },
   "заряджається": {
    "de": "lädt",
@@ -4698,6 +4938,16 @@
    "pt": "o som vai para o dispositivo conectado mais alto da lista; ali também se ativam e desativam no Windows",
    "tr": "ses listedeki en üstteki bağlı aygıta gider; Windows'ta açıp kapatma da oradadır"
   },
+  "звук — на наступний у списку; вимкнено — куди вирішить Windows": {
+   "de": "Ton auf das nächste in der Liste; aus — wohin Windows ihn legt",
+   "en": "sound goes to the next in the list; off — wherever Windows puts it",
+   "es": "el sonido va al siguiente de la lista; desactivado — donde lo ponga Windows",
+   "fr": "le son passe au suivant de la liste ; désactivé — là où Windows le met",
+   "it": "il suono va al successivo nell'elenco; disattivato — dove lo mette Windows",
+   "pl": "dźwięk na następne z listy; wyłączone — tam, gdzie wybierze Windows",
+   "pt": "o som vai para o próximo da lista; desativado — para onde o Windows mandar",
+   "tr": "ses listedeki sonrakine geçer; kapalı — Windows nereye koyarsa"
+  },
   "коли говорять у чаті": {
    "de": "wenn im Chat gesprochen wird",
    "en": "while someone talks in chat",
@@ -4727,6 +4977,26 @@
    "pl": "przy wyciszaniu i włączaniu mikrofonu",
    "pt": "ao silenciar ou ativar o microfone",
    "tr": "mikrofon kapatılıp açıldığında"
+  },
+  "маршрутизація й оброблений мікрофон; вимкнено — звук і мікрофон напряму, налаштування лишаються": {
+   "de": "Routing und bearbeitetes Mikrofon; aus — Ton und Mikrofon direkt, die Einstellungen bleiben",
+   "en": "routing and the processed microphone; off — sound and microphone go direct, the settings stay",
+   "es": "enrutamiento y micrófono procesado; desactivado — sonido y micrófono directos, los ajustes se mantienen",
+   "fr": "routage et micro traité ; désactivé — son et micro en direct, les réglages restent",
+   "it": "instradamento e microfono elaborato; disattivato — suono e microfono diretti, le impostazioni restano",
+   "pl": "routing i przetworzony mikrofon; wyłączone — dźwięk i mikrofon bezpośrednio, ustawienia zostają",
+   "pt": "roteamento e microfone processado; desativado — som e microfone diretos, as configurações ficam",
+   "tr": "yönlendirme ve işlenmiş mikrofon; kapalı — ses ve mikrofon doğrudan, ayarlar kalır"
+  },
+  "мова, запуск з Windows, панель завдань, функції": {
+   "de": "Sprache, Start mit Windows, Taskleiste, Funktionen",
+   "en": "language, start with Windows, taskbar, features",
+   "es": "idioma, inicio con Windows, barra de tareas, funciones",
+   "fr": "langue, démarrage avec Windows, barre des tâches, fonctions",
+   "it": "lingua, avvio con Windows, barra delle applicazioni, funzioni",
+   "pl": "język, uruchamianie z Windows, pasek zadań, funkcje",
+   "pt": "idioma, iniciar com o Windows, barra de tarefas, recursos",
+   "tr": "dil, Windows ile başlat, görev çubuğu, özellikler"
   },
   "мс": {
    "de": "ms",
@@ -4858,6 +5128,16 @@
    "pt": "saturação",
    "tr": "aşırı yük"
   },
+  "перемкнути звук на нього": {
+   "de": "Ton darauf umschalten",
+   "en": "switch the sound to it",
+   "es": "cambiar el sonido a él",
+   "fr": "y basculer le son",
+   "it": "passare il suono su di esso",
+   "pl": "przełącz na nie dźwięk",
+   "pt": "mudar o som para ele",
+   "tr": "sesi ona geçir"
+  },
   "повертає гучність програм і мікрофона, якщо її змінить Windows чи інша програма": {
    "de": "stellt App- und Mikrofonlautstärke wieder her, wenn Windows oder eine andere App sie ändert",
    "en": "restores app and mic volume if Windows or another app changes it",
@@ -4878,15 +5158,15 @@
    "pt": "os atuais ficam salvos como config.json.bak",
    "tr": "mevcut ayarlar config.json.bak olarak saklanır"
   },
-  "працює на «%s»: еквалайзер «Весь звук» без кабелів": {
-   "de": "arbeitet auf „%s“: der Equalizer „Gesamter Klang“ ohne Kabel",
-   "en": "works on “%s”: the All sound equalizer, no cables",
-   "es": "funciona en «%s»: el ecualizador «Todo el sonido», sin cables",
-   "fr": "fonctionne sur « %s » : l'égaliseur « Tout le son », sans câbles",
-   "it": "funziona su «%s»: l'equalizzatore «Tutto l'audio», senza cavi",
-   "pl": "działa na „%s”: korektor „Cały dźwięk” bez kabli",
-   "pt": "funciona em “%s”: o equalizador “Todo o som”, sem cabos",
-   "tr": "“%s” üzerinde çalışıyor: kablosuz “Tüm ses” ekolayzeri"
+  "працює на «%s»: EQ Windows без кабелів": {
+   "de": "arbeitet auf „%s“: EQ Windows ohne Kabel",
+   "en": "works on “%s”: EQ Windows, no cables",
+   "es": "funciona en «%s»: EQ Windows, sin cables",
+   "fr": "fonctionne sur « %s » : EQ Windows, sans câbles",
+   "it": "funziona su «%s»: EQ Windows, senza cavi",
+   "pl": "działa na „%s”: EQ Windows bez kabli",
+   "pt": "funciona em “%s”: EQ Windows, sem cabos",
+   "tr": "“%s” üzerinde çalışıyor: kablosuz “EQ Windows” ekolayzeri"
   },
   "прибираю з «%s» — звук на кілька секунд зникне": {
    "de": "wird von „%s“ entfernt – der Ton setzt einige Sekunden aus",
@@ -4958,6 +5238,16 @@
    "pt": "acende no headset quando o microfone está mudo",
    "tr": "mikrofon kapalıyken kulaklıkta yanar"
   },
+  "тема, іконка в треї, кути": {
+   "de": "Design, Tray-Symbol, Ecken",
+   "en": "theme, tray icon, corners",
+   "es": "tema, icono de la bandeja, esquinas",
+   "fr": "thème, icône de la zone de notification, coins",
+   "it": "tema, icona nell'area di notifica, angoli",
+   "pl": "motyw, ikona w zasobniku, narożniki",
+   "pt": "tema, ícone da bandeja, cantos",
+   "tr": "tema, tepsi simgesi, köşeler"
+  },
   "тихий звук": {
    "de": "leise",
    "en": "quiet",
@@ -4987,6 +5277,16 @@
    "pl": "cisza",
    "pt": "silêncio",
    "tr": "sessizlik"
+  },
+  "у файл і з файлу, звіт, скинути, вийти": {
+   "de": "in und aus Datei, Bericht, Zurücksetzen, Beenden",
+   "en": "to and from a file, report, reset, quit",
+   "es": "a y desde un archivo, informe, restablecer, salir",
+   "fr": "vers et depuis un fichier, rapport, réinitialiser, quitter",
+   "it": "da e verso un file, rapporto, ripristina, esci",
+   "pl": "do i z pliku, raport, resetuj, zakończ",
+   "pt": "para e de arquivo, relatório, redefinir, sair",
+   "tr": "dosyaya ve dosyadan, rapor, sıfırla, çık"
   },
   "увімкнули гарнітуру — працює її мікрофон; вимкнули — попередній": {
    "de": "Headset an – sein Mikrofon arbeitet; aus – das vorherige",
@@ -5037,6 +5337,16 @@
    "pl": "aby przenieść na inny komputer lub po ponownej instalacji",
    "pt": "para levar a outro PC ou após reinstalar",
    "tr": "başka bir bilgisayara taşımak ya da yeniden kurduktan sonra kullanmak için"
+  },
+  "ідея · OpenChatMix, з якого виріс Arcmix": {
+   "de": "Idee · OpenChatMix, aus dem Arcmix entstand",
+   "en": "idea · OpenChatMix, which Arcmix grew from",
+   "es": "idea · OpenChatMix, del que nació Arcmix",
+   "fr": "idée · OpenChatMix, dont Arcmix est issu",
+   "it": "idea · OpenChatMix, da cui è nato Arcmix",
+   "pl": "pomysł · OpenChatMix, z którego wyrósł Arcmix",
+   "pt": "ideia · OpenChatMix, do qual o Arcmix nasceu",
+   "tr": "fikir · Arcmix'in doğduğu OpenChatMix"
   },
   "інші чують": {
    "de": "andere hören",

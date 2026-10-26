@@ -348,6 +348,34 @@ fn cable_is_default_mic(en: &windows::Win32::Media::Audio::IMMDeviceEnumerator) 
     com::list_flow(en, eCapture).iter().any(|d| d.default && d.is_virtual)
 }
 
+/// The cables were switched off (on = false) or on again (config cables): apps that listened to the
+/// processed microphone on a cable get the microphone itself as Windows' default recording device,
+/// and the cable back afterwards (kept in config cablesMic).
+pub fn set_cables(on: bool) {
+    run(move |e| {
+        let Some(en) = e.en.get().cloned() else { return };
+        let caps = com::list_flow(&en, eCapture);
+        if !on {
+            let Some(cable) = caps.iter().find(|d| d.default && d.is_virtual) else { return };
+            let c = config::get();
+            let mic = caps.iter().find(|d| !d.is_virtual && d.id == c.mic_dev).or_else(|| caps.iter().find(|d| !d.is_virtual));
+            if let Some(m) = mic.filter(|m| com::set_default_endpoint(&m.id)) {
+                logf!("cables off: recording default → {}", m.name);
+                let id = cable.id.clone();
+                config::set(|c| c.cables_mic = id);
+            }
+        } else {
+            let id = config::get().cables_mic.clone();
+            if !id.is_empty() && caps.iter().any(|d| d.id == id) && com::set_default_endpoint(&id) {
+                logf!("cables on: recording default → the cable again");
+            }
+            config::set(|c| c.cables_mic.clear());
+        }
+        e.refresh_mic();
+        server::notify_subs();
+    });
+}
+
 /// (from the window) up | down | order (ids — the new order) | on | off | forget
 pub fn out_dev_op(op: &str, id: &str, ids: Vec<String>) {
     let (op, id) = (op.to_string(), id.to_string());

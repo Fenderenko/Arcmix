@@ -11,7 +11,7 @@ use std::{
     ffi::c_void,
     sync::{
         Arc, Mutex,
-        atomic::{AtomicBool, AtomicI32, AtomicI64, AtomicPtr, AtomicU64, Ordering},
+        atomic::{AtomicBool, AtomicI32, AtomicI64, AtomicPtr, AtomicU32, AtomicU64, Ordering},
     },
     time::{Duration, Instant},
 };
@@ -380,8 +380,8 @@ impl EqChain {
 
 // ---------- microphone processing ----------
 
-/// External processing (VST plugins) between the low cut and the gate; processes interleaved
-/// frames in place. Called on the audio thread only.
+/// External processing (VST plugins), one of the movable stages; processes interleaved frames in
+/// place. Called on the audio thread only.
 pub type ExtFn = dyn Fn(&mut [f32], usize) + Send + Sync;
 
 /// Controls of the microphone processing shared with other threads: thresholds change from the
@@ -391,6 +391,12 @@ pub struct MicCtl {
     gate_db: AtomicU64,
     /// f64 bits; ≥ 0 — the limiter is off
     ceil_db: AtomicU64,
+    /// compressor threshold, ratio (≤ 1 — off) and make-up gain, dB (f64 bits)
+    comp_db: AtomicU64,
+    comp_ratio: AtomicU64,
+    comp_gain: AtomicU64,
+    /// the movable stages in their order (order_code)
+    order: AtomicU32,
     denoise: AtomicBool,
     /// the NVIDIA denoiser instead of RNNoise (nvafx.rs); RNNoise runs while it loads
     quality: AtomicBool,
@@ -421,6 +427,18 @@ impl MicCtl {
 
     pub fn set_quality(&self, on: bool) {
         self.quality.store(on, Ordering::Relaxed);
+    }
+
+    /// Compressor: threshold and make-up gain in dB; a ratio ≤ 1 switches it off.
+    pub fn set_comp(&self, db: f64, ratio: f64, gain: f64) {
+        self.comp_db.store(db.to_bits(), Ordering::Relaxed);
+        self.comp_ratio.store(ratio.to_bits(), Ordering::Relaxed);
+        self.comp_gain.store(gain.to_bits(), Ordering::Relaxed);
+    }
+
+    /// The order of the movable stages (order_code; 0 — the default one).
+    pub fn set_order(&self, code: u32) {
+        self.order.store(if code == 0 { order_code(&[]) } else { code }, Ordering::Relaxed);
     }
 
     /// Peak level at the input and output (dBFS) since the last call, and the gate state.
@@ -475,8 +493,29 @@ pub fn to_db(v: f64) -> f64 {
     if v < 1e-6 { -120.0 } else { 20.0 * v.log10() }
 }
 
-/// Microphone processing state (audio thread): low cut (80 Hz), denoiser (RNNoise), plugins,
-/// noise gate and limiter.
+/// Movable stages of the microphone processing (config micFx.order), between the low cut (always
+/// first) and the limiter (always last).
+pub const MIC_STAGES: [&str; 4] = ["denoise", "plugins", "gate", "comp"];
+/// The order without the user's own: the compressor right after the denoiser.
+pub const MIC_DEFAULT: [&str; 4] = ["denoise", "comp", "plugins", "gate"];
+
+/// The stage order as nibbles, the first stage lowest (1 + index in MIC_STAGES); stages left out
+/// follow in the default order (MIC_DEFAULT), unknown names are skipped.
+pub fn order_code(names: &[String]) -> u32 {
+    let mut seq: Vec<u32> = Vec::new();
+    for n in names.iter().map(String::as_str).chain(MIC_DEFAULT) {
+        if let Some(i) = MIC_STAGES.iter().position(|s| *s == n) {
+            let id = i as u32 + 1;
+            if !seq.contains(&id) {
+                seq.push(id);
+            }
+        }
+    }
+    seq.iter().enumerate().fold(0, |acc, (i, id)| acc | id << (4 * i))
+}
+
+/// Microphone processing state (audio thread): low cut (80 Hz), then denoiser, plugins, noise gate
+/// and compressor in the user's order, then the limiter.
 pub struct MicProc {
     pub ctl: Arc<MicCtl>,
     fs: f64,
@@ -489,6 +528,7 @@ pub struct MicProc {
     gate: f64,
     hold: i64,
     lim_env: f64,
+    comp_env: f64,
     dn: Option<Box<Denoiser>>,
     nv: Option<Box<crate::nvafx::NvDenoiser>>,
 }
@@ -498,6 +538,10 @@ impl MicProc {
         let ctl = Arc::new(MicCtl {
             gate_db: AtomicU64::new((-100f64).to_bits()),
             ceil_db: AtomicU64::new(0f64.to_bits()),
+            comp_db: AtomicU64::new(0f64.to_bits()),
+            comp_ratio: AtomicU64::new(1f64.to_bits()),
+            comp_gain: AtomicU64::new(0f64.to_bits()),
+            order: AtomicU32::new(order_code(&[])),
             denoise: AtomicBool::new(false),
             quality: AtomicBool::new(false),
             peak: AtomicU64::new(0),
@@ -507,29 +551,12 @@ impl MicProc {
             busy: AtomicBool::new(false),
             rate: fs as u32,
         });
-        MicProc { ctl, fs, ch, hp: highpass(fs, 80.0, 0.707), hp_st: vec![BqState::default(); ch], env: 0.0, gate: 1.0, hold: 0, lim_env: 0.0, dn: None, nv: None }
+        MicProc { ctl, fs, ch, hp: highpass(fs, 80.0, 0.707), hp_st: vec![BqState::default(); ch], env: 0.0, gate: 1.0, hold: 0, lim_env: 0.0, comp_env: 0.0, dn: None, nv: None }
     }
 
     pub fn process(&mut self, buf: &mut [f32]) {
         let ch = self.ch;
         let frames = buf.len() / ch;
-        let ctl = &*self.ctl;
-        let gate_db = f64::from_bits(ctl.gate_db.load(Ordering::Relaxed));
-        let ceil_db = f64::from_bits(ctl.ceil_db.load(Ordering::Relaxed));
-        let gate_on = gate_db > -100.0;
-        let ceil = 10f64.powf(ceil_db.min(0.0) / 20.0);
-        let lim_on = ceil_db < 0.0;
-        let gate_lin = 10f64.powf(gate_db / 20.0);
-        let close_lin = 10f64.powf((gate_db - 6.0) / 20.0); // 6 dB hysteresis
-        let fs = self.fs;
-        let env_att = 1.0 - (-1.0 / (0.001 * fs)).exp();
-        let env_rel = 1.0 - (-1.0 / (0.120 * fs)).exp();
-        let open_rate = 1.0 - (-1.0 / (0.002 * fs)).exp();
-        let close_rate = 1.0 - (-1.0 / (0.090 * fs)).exp();
-        let lim_rel = 1.0 - (-1.0 / (0.080 * fs)).exp();
-        let hold_len = (0.25 * fs) as i64;
-        let (mut peak_in, mut peak_out) = (0f64, 0f64);
-        let mut target = if gate_on && !ctl.open.load(Ordering::Relaxed) { 0.0 } else { 1.0 };
         // 1) low cut
         let hp = self.hp;
         for k in 0..frames {
@@ -541,34 +568,79 @@ impl MicProc {
                 buf[k * ch + c] = y as f32;
             }
         }
-        // 2) denoiser: created on first use, its state is dropped once switched off; the NVIDIA one
-        //    takes over from RNNoise once it has loaded in the background
-        if ctl.denoise.load(Ordering::Relaxed) {
-            if !ctl.quality.load(Ordering::Relaxed) {
-                self.nv = None;
-            } else if self.nv.is_none() {
-                if let Some(m) = crate::nvafx::take() {
-                    self.nv = Some(Box::new(crate::nvafx::NvDenoiser::new(m, fs as u32)));
-                    self.dn = None;
-                }
+        // 2) the movable stages in the user's order
+        let order = self.ctl.order.load(Ordering::Relaxed);
+        for i in 0..MIC_STAGES.len() {
+            match (order >> (4 * i)) & 0xF {
+                1 => self.st_denoise(buf),
+                2 => self.st_plugins(buf),
+                3 => self.st_gate(buf),
+                4 => self.st_comp(buf),
+                _ => {}
             }
-            match &mut self.nv {
-                Some(d) => d.process(buf, ch),
-                None => self.dn.get_or_insert_with(|| Box::new(Denoiser::new(fs as u32))).process(buf, ch),
+        }
+        // 3) limiter, always last
+        self.st_limit(buf);
+        for s in self.hp_st.iter_mut() {
+            if s.y1.abs() < 1e-20 {
+                (s.y1, s.y2) = (0.0, 0.0);
             }
-        } else {
+        }
+    }
+
+    /// Denoiser: created on first use, its state is dropped once switched off; the NVIDIA one takes
+    /// over from RNNoise once it has loaded in the background (another NVIDIA mode: RNNoise until then).
+    fn st_denoise(&mut self, buf: &mut [f32]) {
+        let (ctl, ch, fs) = (&*self.ctl, self.ch, self.fs);
+        if !ctl.denoise.load(Ordering::Relaxed) {
             self.dn = None;
             self.nv = None;
+            return;
         }
-        // 3) plugins (if any)
+        let quality = ctl.quality.load(Ordering::Relaxed);
+        if !quality || self.nv.as_ref().is_some_and(|d| d.stale()) {
+            self.nv = None;
+        }
+        if quality && self.nv.is_none() {
+            if let Some(m) = crate::nvafx::take() {
+                self.nv = Some(Box::new(crate::nvafx::NvDenoiser::new(m, fs as u32)));
+                self.dn = None;
+            }
+        }
+        match &mut self.nv {
+            Some(d) => d.process(buf, ch),
+            None => self.dn.get_or_insert_with(|| Box::new(Denoiser::new(fs as u32))).process(buf, ch),
+        }
+    }
+
+    /// Plugins (if any).
+    fn st_plugins(&mut self, buf: &mut [f32]) {
+        let ctl = &*self.ctl;
         ctl.busy.store(true, Ordering::SeqCst);
         let e = ctl.ext.load(Ordering::SeqCst);
         if !e.is_null() {
             let f = unsafe { &*(e as *const Box<ExtFn>) };
-            f(buf, ch);
+            f(buf, self.ch);
         }
         ctl.busy.store(false, Ordering::SeqCst);
-        // 4) level detector, gate and limiter
+    }
+
+    /// Level detector and noise gate: the level it sees is the meter's input; opens above the
+    /// threshold, closes below (threshold − 6 dB) after the hold.
+    fn st_gate(&mut self, buf: &mut [f32]) {
+        let (ctl, ch, fs) = (&*self.ctl, self.ch, self.fs);
+        let frames = buf.len() / ch;
+        let gate_db = f64::from_bits(ctl.gate_db.load(Ordering::Relaxed));
+        let gate_on = gate_db > -100.0;
+        let gate_lin = 10f64.powf(gate_db / 20.0);
+        let close_lin = 10f64.powf((gate_db - 6.0) / 20.0); // 6 dB hysteresis
+        let env_att = 1.0 - (-1.0 / (0.001 * fs)).exp();
+        let env_rel = 1.0 - (-1.0 / (0.120 * fs)).exp();
+        let open_rate = 1.0 - (-1.0 / (0.002 * fs)).exp();
+        let close_rate = 1.0 - (-1.0 / (0.090 * fs)).exp();
+        let hold_len = (0.25 * fs) as i64;
+        let mut peak_in = 0f64;
+        let mut target = if gate_on && !ctl.open.load(Ordering::Relaxed) { 0.0 } else { 1.0 };
         for k in 0..frames {
             let mut x = 0f64;
             for c in 0..ch {
@@ -580,7 +652,6 @@ impl MicProc {
             } else {
                 self.env += (x - self.env) * env_rel;
             }
-            // noise gate: opens above the threshold, closes below (threshold − 6 dB) after the hold
             if gate_on {
                 if self.env >= gate_lin {
                     target = 1.0;
@@ -601,17 +672,70 @@ impl MicProc {
             } else {
                 self.gate += (target - self.gate) * close_rate;
             }
-            let mut g = self.gate;
-            // limiter: instant attack, smooth release; a hard ceiling at the end
+            for c in 0..ch {
+                buf[k * ch + c] = (buf[k * ch + c] as f64 * self.gate) as f32;
+            }
+        }
+        store_max(&ctl.peak, peak_in);
+    }
+
+    /// Compressor (feed-forward, soft knee of 6 dB): above the threshold the level grows by 1/ratio,
+    /// then the make-up gain; attack 5 ms, release 150 ms.
+    fn st_comp(&mut self, buf: &mut [f32]) {
+        let (ctl, ch, fs) = (&*self.ctl, self.ch, self.fs);
+        let ratio = f64::from_bits(ctl.comp_ratio.load(Ordering::Relaxed));
+        if ratio <= 1.0 {
+            self.comp_env = 0.0;
+            return;
+        }
+        let thr = f64::from_bits(ctl.comp_db.load(Ordering::Relaxed));
+        let makeup = f64::from_bits(ctl.comp_gain.load(Ordering::Relaxed));
+        let att = 1.0 - (-1.0 / (0.005 * fs)).exp();
+        let rel = 1.0 - (-1.0 / (0.150 * fs)).exp();
+        let (knee, slope) = (6.0, 1.0 / ratio - 1.0);
+        for k in 0..buf.len() / ch {
+            let mut x = 0f64;
+            for c in 0..ch {
+                x = x.max((buf[k * ch + c] as f64).abs());
+            }
+            self.comp_env += (x - self.comp_env) * if x > self.comp_env { att } else { rel };
+            let over = to_db(self.comp_env) - thr;
+            let gr = if over <= -knee / 2.0 {
+                0.0
+            } else if over < knee / 2.0 {
+                slope * (over + knee / 2.0).powi(2) / (2.0 * knee)
+            } else {
+                slope * over
+            };
+            let g = 10f64.powf((gr + makeup) / 20.0);
+            for c in 0..ch {
+                buf[k * ch + c] = (buf[k * ch + c] as f64 * g) as f32;
+            }
+        }
+    }
+
+    /// Limiter, always last: instant attack, smooth release; a hard ceiling at the end.
+    fn st_limit(&mut self, buf: &mut [f32]) {
+        let (ctl, ch, fs) = (&*self.ctl, self.ch, self.fs);
+        let ceil_db = f64::from_bits(ctl.ceil_db.load(Ordering::Relaxed));
+        let lim_on = ceil_db < 0.0;
+        let ceil = 10f64.powf(ceil_db.min(0.0) / 20.0);
+        let lim_rel = 1.0 - (-1.0 / (0.080 * fs)).exp();
+        let mut peak_out = 0f64;
+        for k in 0..buf.len() / ch {
+            let mut g = 1.0;
             if lim_on {
-                let pk = x * g;
-                if pk > self.lim_env {
-                    self.lim_env = pk;
+                let mut x = 0f64;
+                for c in 0..ch {
+                    x = x.max((buf[k * ch + c] as f64).abs());
+                }
+                if x > self.lim_env {
+                    self.lim_env = x;
                 } else {
-                    self.lim_env += (pk - self.lim_env) * lim_rel;
+                    self.lim_env += (x - self.lim_env) * lim_rel;
                 }
                 if self.lim_env > ceil {
-                    g *= ceil / self.lim_env;
+                    g = ceil / self.lim_env;
                 }
             }
             for c in 0..ch {
@@ -623,12 +747,6 @@ impl MicProc {
                 peak_out = peak_out.max(v.abs());
             }
         }
-        for s in self.hp_st.iter_mut() {
-            if s.y1.abs() < 1e-20 {
-                (s.y1, s.y2) = (0.0, 0.0);
-            }
-        }
-        store_max(&ctl.peak, peak_in);
         store_max(&ctl.out_peak, peak_out);
     }
 }
@@ -833,5 +951,28 @@ mod tests {
         let p = peak_of(&s[24000..]);
         assert!((p - 0.4).abs() <= 0.01 && calls.load(Ordering::Relaxed) == 1, "plugin not applied: peak {p:.3}, calls {}", calls.load(Ordering::Relaxed));
         m.ctl.set_ext(None, Duration::from_millis(10));
+    }
+
+    #[test]
+    fn mic_stage_order() {
+        assert_eq!(order_code(&[]), 0x3241);
+        let o = |v: &[&str]| order_code(&v.iter().map(|s| s.to_string()).collect::<Vec<_>>());
+        // left-out stages follow in their default order, unknown and repeated names are skipped
+        assert_eq!(o(&["comp", "denoise"]), 0x3214);
+        assert_eq!(o(&["gate", "x", "gate"]), 0x2413);
+    }
+
+    #[test]
+    fn compressor_evens_out() {
+        let level = |amp: f32, on: bool| {
+            let mut m = MicProc::new(48000.0, 1);
+            m.ctl.set_comp(-30.0, if on { 4.0 } else { 1.0 }, 0.0);
+            let mut s: Vec<f32> = (0..48000).map(|i| amp * (i as f32 * 0.0577).sin()).collect();
+            m.process(&mut s);
+            s[40000..].iter().fold(0f32, |a, v| a.max(v.abs()))
+        };
+        // a loud tone comes out quieter, a quiet one (below the threshold) unchanged
+        assert!(level(0.5, true) < level(0.5, false) * 0.5);
+        assert!((level(0.01, true) - level(0.01, false)).abs() < 0.001);
     }
 }

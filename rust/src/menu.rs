@@ -324,21 +324,10 @@ fn render(m: &Menu) -> Vec<u8> {
             out[i + 3] = (clampf(a, 0.0, 1.0) * 255.0 + 0.5) as u8;
         }
     }
-    // the app logo at the start of the title line, as in the tray (straight alpha over the card)
+    // the app mark at the start of the title line, in the text colour (straight alpha over the card)
     if let Some(t) = m.entries.iter().position(|e| matches!(e, Entry::Title(..))) {
         let n = (18.0 * sc).round() as usize;
-        let logo = crate::icon::render(&crate::icon::IconParams {
-            size: n,
-            pos: 0.0,
-            b: 1.0,
-            bat: 0.0,
-            level: 0,
-            nova: false,
-            light: false,
-            mic: 0,
-            cg: crate::icon::GAME,
-            cc: crate::icon::CHAT,
-        });
+        let logo = crate::icon::mark(n, fg);
         let x0 = ((SHADOW + PAD + 10.0) * sc) as usize;
         let y0 = (m.tops[t] + (height(&m.entries[t]) * sc - n as f64) / 2.0) as usize;
         for y in 0..n {

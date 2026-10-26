@@ -33,6 +33,8 @@
 
   // ---------- теми: два кольори (гра, чат) + тон поверхні ----------
   var THEMES = [
+    // «Чорна діра»: neutral near-black, text-coloured controls; the game and chat colours are only marks
+    { k: 'hole', n: 'Чорна діра', a: '#E9EAEE', b: '#8FB2E3', s: '#0F1011', s1: '#17181A', s2: '#222326', sd: '#1C1D1F', tr: '#2C2E31', sw: 'a' },
     // «Як у Windows»: кольори, режим і прозорість — з налаштувань Windows (див. themeOf)
     { k: 'win', n: 'Як у Windows', a: '#4CC2FF', b: '#E8A87C', s: '#202020', s1: '#2B2B2B' },
     // OLED: the Windows accent on pure black (see oledTheme); a and b here only until the Windows colours are known
@@ -44,11 +46,11 @@
     { k: 'gray', n: 'Місяць', a: '#D3D6DD', b: '#8FB2E3', s: '#151618' },
     // теми програм: кольори зняті з самих програм; fill — колір натиснутих кнопок, ink — текст на них
     { k: 'spotify', n: 'Spotify', a: '#1ED760', b: '#B3B3B3', bl: '#191414', s: '#000000', s1: '#121212', s2: '#282828', sd: '#1F1F1F', fill: '#1ED760', ink: '#000000', sw: 'a' },
-    { k: 'discord', n: 'Discord', a: '#5865F2', b: '#45A366', s: '#121214', s1: '#1A1A1E', s2: '#28282D', sd: '#2E2E33', fill: '#5865F2', ink: '#FFFFFF' },
+    { k: 'discord', n: 'Discord', a: '#5865F2', b: '#23A55A', s: '#121214', s1: '#1A1A1E', s2: '#28282D', sd: '#2E2E33', fill: '#5865F2', ink: '#FFFFFF' },
     { k: 'steam', n: 'Steam', a: '#66C0F4', b: '#A4D007', s: '#171A21', s1: '#1B2838', s2: '#2A475E', sd: '#16202D', fill: '#1A9FFF', ink: '#FFFFFF' },
     { k: 'twitch', n: 'Twitch', a: '#BF94FF', b: '#FF75E6', s: '#0E0E10', s1: '#18181B', s2: '#26262C', sd: '#26262C', fill: '#9147FF', ink: '#FFFFFF' },
     // YouTube in its dark mode: the red of the progress bar, blue switches, white chosen chips
-    { k: 'youtube', n: 'YouTube', a: '#FF0033', b: '#3EA6FF', s: '#0F0F0F', s1: '#141414', s2: '#272727', sd: '#272727', fill: '#F1F1F1', ink: '#0F0F0F', fillL: '#0F0F0F', inkL: '#FFFFFF' },
+    { k: 'youtube', n: 'YouTube', a: '#FF0033', b: '#F1F1F1', bl: '#0F0F0F', s: '#0F0F0F', s1: '#141414', s2: '#272727', sd: '#272727', fill: '#F1F1F1', ink: '#0F0F0F', fillL: '#0F0F0F', inkL: '#FFFFFF' },
     { k: 'telegram', n: 'Telegram', a: '#2AABEE', b: '#7BC862', s: '#0E1621', s1: '#17212B', s2: '#242F3D', sd: '#202B36', fill: '#2B5278', ink: '#FFFFFF', sw: 'a' },
     { k: 'custom', n: 'Власна' }
   ];
@@ -85,7 +87,8 @@
     // a chosen background (the custom theme): its hue and saturation, at the lightness the mode needs
     var hBg = t.bg ? r2hsl(h2r(t.bg)) : null;
     if (dark) {
-      o.s = t.s ? h2r(t.s) : hBg ? hsl2r(hBg[0], hBg[1], Math.min(hBg[2], .16)) : hsl2r(hA[0], Math.min(hA[1], .35) * .12, .075);
+      // a chosen background: darker or lighter as chosen, within the dark range (white text stays readable)
+      o.s = t.s ? h2r(t.s) : hBg ? hsl2r(hBg[0], hBg[1], .04 + .14 * hBg[2]) : hsl2r(hA[0], Math.min(hA[1], .35) * .12, .075);
       o.s1 = t.s1 ? h2r(t.s1) : L(o.s, r2hsl(o.s)[2] + .055);
       o.s2 = t.s2 ? h2r(t.s2) : L(o.s, r2hsl(o.s)[2] + .11);
       var l1 = r2hsl(o.s1)[2];
@@ -103,6 +106,16 @@
       o.s2 = hsl2r(lh, ls * .32, .97);
       o.sd = hsl2r(lh, ls * .4, .9);
       o.tr = hsl2r(lh, ls * .32, .84);
+      if (hBg) {
+        // the custom theme's own background: its hue clearly, darker or lighter as chosen, within the light
+        // range (dark text stays readable) — the light mode never turns the window dark
+        var bl = .8 + .17 * hBg[2], bs = Math.min(hBg[1], .6);
+        o.s = hsl2r(lh, bs * .8, bl);
+        o.s1 = hsl2r(lh, bs * .45, Math.min(.985, bl + .07));
+        o.s2 = hsl2r(lh, bs * .5, Math.min(.96, bl + .04));
+        o.sd = hsl2r(lh, bs * .8, bl - .03);
+        o.tr = hsl2r(lh, bs * .7, bl - .08);
+      }
       o.on = tone(o.s, .2, .09);
     }
     o.ov = fit(tone(o.s, .1, dark ? .8 : .3), o.s1, 7);
@@ -215,7 +228,7 @@
   document.querySelectorAll('.ttl[data-ic]').forEach(function (t) { t.insertAdjacentHTML('afterbegin', icon(t.dataset.ic, 13)); });
   // every setting row: an icon tile that says what it is about
   var ROWIC = { swAuto: 'power', langSel: 'globe', swWinCtl: 'monitor', swTaskbar: 'pin', swOsd: 'msg', osdCorner: 'corner', swSounds: 'bell', swMicHk: 'keyboard',
-    swPtt: 'mic', swLow: 'battery', swFull: 'batfull', swSwitch: 'refresh', swSwitchMic: 'mic', outOrder: 'list', swMfx: 'wand', swDenoise: 'sparkles',
+    swPtt: 'mic', swLow: 'battery', swFull: 'batfull', swSwitch: 'refresh', swCables: 'route', swOnLost: 'refresh', swSwitchMic: 'mic', outOrder: 'list', swMfx: 'wand', swDenoise: 'sparkles', swComp: 'sliders',
     swMonLive: 'headphones', swRt: 'route', swOled: 'moon', swDuckMedia: 'duck', wheelSeg: 'mouse' };
   Object.keys(ROWIC).forEach(function (id) {
     var el = $(id), row = el && el.closest('.row');
@@ -233,7 +246,7 @@
     ['route', 'Маршрутизація звуку', 'окремий еквалайзер гри, чату й медіа через віртуальні кабелі']
   ];
   var FEATIC = { eq: 'sliders', profiles: 'user', volmem: 'refresh', vst: 'wand', denoise: 'sparkles', duck: 'duck', monitor: 'ear', route: 'route' };
-  var FEAT_BASIC = { eq: 1, profiles: 1, volmem: 1, vst: 1 };
+  var FEAT_BASIC = { eq: 1, profiles: 1, volmem: 1, denoise: 1, duck: 1 };
   function feat(k) { var f = S && S.cfg && S.cfg.features; return !f || f[k] !== false; }
   function featInit() {
     var h = '';
@@ -272,7 +285,7 @@
     off('vstBox', !feat('vst'));
     off('mfxCard', !mfx);
     off('monCard', !feat('monitor'));
-    off('rtCard', !feat('route'));
+    off('rtCard', !feat('route')); off('rtEntry', !feat('route'));
     var snd = feat('eq') || feat('profiles') || feat('duck') || feat('route');
     document.querySelector('#nav [data-tab=sound]').classList.toggle('foff', !snd);
     if (!snd && tab === 'sound') show('mix');
@@ -297,7 +310,6 @@
     // card, text, muted text, frame, hover, accent
     var ui = [TK.s1, TK.on, TK.ov, TK.tr, TK.s2, TK.g];
     if (ui.join() !== uiSent) { uiSent = ui.join(); patch({ uiColors: ui }); }
-    markDraw();
   }
   if (darkMQ && darkMQ.addEventListener) darkMQ.addEventListener('change', function () { if (S) applyTheme(S.cfg); });
 
@@ -340,80 +352,14 @@
   }
   function throttle(f, ms) { var t = 0, last = 0, arg; return function (a, final) { arg = a; var now = Date.now(); clearTimeout(t); if (final || now - last > ms) { last = now; f(arg); } else t = setTimeout(function () { last = Date.now(); f(arg); }, ms); }; }
 
-  // ---------- позначка в шапці: лого програми в балансі, дві капсули поза ним (як значок у треї) ----------
-  var mk = $('mark'), mctx = mk.getContext('2d'), mPos = 0, mB = 1, mAnim = 0;
-  // drawn in device pixels: sharp at any display scale
-  function markSize() { var W = Math.max(36, Math.round(36 * (devicePixelRatio || 1))); if (mk.width !== W) { mk.width = W; mk.height = W; } return W; }
-  // the seven layers of the app logo (tools/mkicon.py)
-  var LOGO_BIG = { l: .16, a0: .13, w0: .5, step: .036, sag: .08, layers: ['#3B2A9A', '#5631C4', '#7638DD', '#9D44E6', '#C855E2', '#EE74D8', '#FFCDEB'] };
-  // approximate signed distance (units of the side) to logo layer i: outside both corner superellipses, above the bowed bottom
-  function sdLayer(L, x, y, i) {
-    var apex = L.a0 + i * L.step, wing = L.w0 + i * L.step, a = .5 - L.l, b = wing - apex, d = -1e9;
-    [L.l, 1 - L.l].forEach(function (cx) {
-      var dx = Math.abs(x - cx) / a, dy = Math.abs(y - apex) / b, e = Math.pow(dx, 1.5) + Math.pow(dy, 1.5);
-      var g = Math.max(1e-9, Math.hypot(1.5 * Math.sqrt(dx) / a, 1.5 * Math.sqrt(dy) / b));
-      d = Math.max(d, -(e - 1) / g);
-    });
-    var t = (x - .5) / (.5 - L.l), bottom = wing - L.sag * (1 - t * t), slope = 2 * L.sag * t / (.5 - L.l);
-    return Math.max(d, (y - bottom) / Math.hypot(1, slope), L.l - x, x - (1 - L.l), apex - y);
-  }
-  function sdBox(px, py, cx, cy, hw, hh, r) {
-    var qx = Math.abs(px - cx) - hw + r, qy = Math.abs(py - cy) - hh + r;
-    return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r;
-  }
-  function smin(a, b, k) { var h = Math.max(k - Math.abs(a - b), 0) / k; return Math.min(a, b) - h * h * k * .25; }
-  function lerp(a, b, t) { return a + (b - a) * t; }
-  function markDraw() {
-    if (!TK) return;
-    var W = markSize(), k = W / 32, img = mctx.createImageData(W, W), d = img.data;
-    var cov = function (sd) { return Math.max(0, Math.min(1, .5 - sd * k)); };
-    // one colour, the text colour of the theme (the tray icon keeps the app colours, icon.rs); in the header
-    // only the layers of the logo, larger, without its tile, stars and planet; the back layers are fainter
-    var ON = h2r(TK.on), G = ON, C = ON, g = 100 - Math.max(0, mPos), c = 100 - Math.max(0, -mPos);
-    var hhG = (10 + 20 * g / 100) / 2, hhC = (10 + 20 * c / 100) / 2, dG = .4 + .6 * g / 100, dC = .4 + .6 * c / 100;
-    // two phases (as in the tray, icon.rs): the capsules merge into one drop (mB 0…0.5), then the drop
-    // turns into the front layer of the logo while the other layers come in (0.5…1)
-    var bb = Math.min(1, mB * 2), q = Math.max(0, Math.min(1, (mB - .5) * 2));
-    var hw = lerp(6, 7.4, bb), xl = lerp(8.5, 9.6, bb), xr = lerp(23.5, 22.4, bb), kk = lerp(.01, 6.5, bb);
-    // four of the seven layers, twice the step apart: at 36…72 px seven wing tips run into a jagged staircase
-    var L = { l: LOGO_BIG.l, a0: LOGO_BIG.a0, w0: LOGO_BIG.w0, step: LOGO_BIG.step * 2, sag: LOGO_BIG.sag, layers: [0, 2, 4, 6].map(function (j) { return LOGO_BIG.layers[j]; }) };
-    var e = q * q * q * (q * (q * 6 - 15) + 10), n = L.layers.length, lay = L.layers.map(function () { return ON; });
-    // the layers fill the mark: 1.3 times larger, centred on their own middle (apex .13 … wings .716)
-    var Z = 1.3, CY = .423;
-    // the thin wing tips: near an edge the coverage is counted on a 4×4 grid inside the pixel (the distance
-    // estimate is rough there and a tip would fall apart into dots), and the layers are a third of a pixel
-    // fuller, so each tip is one continuous sliver
-    var RR = .35 / k;
-    var layerSd = function (px, py, i) { return sdLayer(L, .5 + (px / 32 - .5) / Z, CY + (py / 32 - .5) / Z, i) * 32 * Z - RR; };
-    var covSS = function (f, px, py) {
-      var d = f(px, py) * k;
-      if (d > 1.6) return 0;
-      if (d < -1.6) return 1;
-      var c = 0;
-      for (var sy = 0; sy < 4; sy++) for (var sx = 0; sx < 4; sx++) if (f(px + (sx - 1.5) / 4 / k, py + (sy - 1.5) / 4 / k) < 0) c++;
-      return c / 16;
-    };
-    for (var y = 0; y < W; y++) for (var x = 0; x < W; x++) {
-      var px = (x + .5) / k, py = (y + .5) / k;
-      var R = 0, Gc = 0, B = 0, A = 0; // premultiplied
-      var over = function (col, a) { if (a <= 0) return; R = col[0] * a + R * (1 - a); Gc = col[1] * a + Gc * (1 - a); B = col[2] * a + B * (1 - a); A = a + A * (1 - a); };
-      if (e > .001) for (var i = 0; i < n - 1; i++) over(lay[i], covSS(function (X, Y) { return layerSd(X, Y, i); }, px, py) * (.22 + .4 * i / (n - 1)) * e);
-      var pl = sdBox(px, py, xl, 16, hw, hhG, 6), prr = sdBox(px, py, xr, 16, hw, hhC, 6);
-      var a = covSS(function (X, Y) { return lerp(smin(sdBox(X, Y, xl, 16, hw, hhG, 6), sdBox(X, Y, xr, 16, hw, hhC, 6), kk), layerSd(X, Y, n - 1), e); }, px, py);
-      if (a > 0) {
-        var h = Math.max(0, Math.min(1, .5 + (pl - prr) / (2 * Math.max(kk, 2)))), gx = Math.max(0, Math.min(1, (px - 2.2) / 27.6));
-        var t = lerp(h, gx, bb), cap = [lerp(G[0], C[0], t), lerp(G[1], C[1], t), lerp(G[2], C[2], t)];
-        over([lerp(cap[0], lay[n - 1][0], e), lerp(cap[1], lay[n - 1][1], e), lerp(cap[2], lay[n - 1][2], e)], a * lerp(lerp(dG, dC, h), 1, e));
-      }
-      if (A <= 0) continue;
-      var o = (y * W + x) * 4;
-      d[o] = 255 * R / A; d[o + 1] = 255 * Gc / A; d[o + 2] = 255 * B / A; d[o + 3] = 255 * A;
-    }
-    mctx.putImageData(img, 0, 0);
-  }
   // ---------- навігація ----------
   var VIEWS = ['mix', 'sound', 'micTab', 'settings'];
   function show(v, anchor) {
+    var prev = navState();
+    inShow = true;
+    // the tab's button again, or a jump to a block of its first page: back to that first page
+    if (PG[v] && (v === tab || anchor)) setPage(v, '');
+    if (palOpen()) palClose();
     tab = v;
     VIEWS.forEach(function (id) { $(id).classList.toggle('off', id !== v); });
     $('nav').querySelectorAll('button').forEach(function (b) { if (b.dataset.tab === v) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
@@ -421,20 +367,69 @@
     if (v !== 'mix') loadDevs();
     if (anchor && $(anchor)) setTimeout(function () { $(anchor).scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
     pollers();
+    inShow = false;
+    navPush(prev);
   }
   $('nav').querySelectorAll('button').forEach(function (b) { b.onclick = function () { show(b.dataset.tab); }; });
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape' || capKind) return;
-    if (palOpen()) palClose(); else if (anyPop()) closePops(); else if (tab !== 'mix') show('mix'); else api('/api/hide', {});
+    if (palOpen()) palBackStep(); else if (anyPop()) closePops(); else if (PG[tab]) setPage(tab, ''); else if (tab !== 'mix') show('mix'); else api('/api/hide', {});
   });
-  var SUBP = ['gen', 'dev', 'look', 'about'], subp = 'gen';
-  function showSub(p) {
-    subp = p;
-    SUBP.forEach(function (x) { document.querySelector('.sp-' + x).classList.toggle('hide', x !== p); });
-    $('setTabs').querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.p === p); });
+  // ---------- pages inside a tab (Sound, Settings): a "‹" header and only that page's blocks (data-pg);
+  //            "" is the tab's own first page ----------
+  var PG = {}, PGT = { order: 'Порядок обробки', cables: 'Кабелі', dev: 'Пристрої', hs: 'Гарнітура', keys: 'Гарячі клавіші', look: 'Вигляд', gen: 'Загальне', about: 'Про програму', help: 'Налаштування й допомога' };
+  function setPage(view, pg) {
+    var v = $(view), h = v.querySelector('.phead'), prev = navState();
+    PG[view] = pg || '';
+    v.querySelectorAll('[data-pg]').forEach(function (el) { el.classList.toggle('pgoff', el.dataset.pg !== PG[view]); });
+    // a wrapper of blocks (the settings groups) with none of this page's: out too, or its gap stays
+    [].forEach.call(v.children, function (w) { if (w.dataset.pg === undefined && !w.classList.contains('phead') && w.querySelector('[data-pg]')) w.classList.toggle('pgoff', !w.querySelector('[data-pg="' + PG[view] + '"]')); });
+    h.classList.toggle('hide', !pg);
+    if (pg) h.querySelector('.pt').textContent = pg === 'hs' && S && S.device && S.device.name ? S.device.name : tx(PGT[pg]);
+    v.scrollTop = 0;
+    if (!inShow && view === tab) navPush(prev);
   }
-  $('setTabs').querySelectorAll('button').forEach(function (b) { b.onclick = function () { showSub(b.dataset.p); }; });
-  showSub('gen');
+  // ---------- back / forward (mouse buttons 4 and 5): the tabs and pages visited, as in a browser ----------
+  var HIST = [], FWD = [], inShow = false, navMute = false;
+  function navState() { return { tab: tab, pg: PG[tab] || '' }; }
+  function navPush(prev) {
+    var cur = navState();
+    if (navMute || (prev.tab === cur.tab && prev.pg === cur.pg)) return;
+    HIST.push(prev); if (HIST.length > 40) HIST.shift();
+    FWD = [];
+  }
+  function navGo(st) {
+    navMute = true;
+    if (st.tab !== tab) show(st.tab);
+    if ((PG[st.tab] || '') !== st.pg) setPage(st.tab, st.pg);
+    navMute = false;
+  }
+  function navBack() {
+    if (palOpen()) { palBackStep(); return; }
+    if (anyPop()) { closePops(); return; }
+    var p = HIST.pop();
+    if (p) { FWD.push(navState()); navGo(p); }
+    else if (PG[tab]) setPage(tab, '');
+    else if (tab !== 'mix') show('mix');
+  }
+  function navFwd() { var f = FWD.pop(); if (f) { HIST.push(navState()); navGo(f); } }
+  // the default of these buttons in a web view would be page history: here they move through the window
+  ['mousedown', 'mouseup'].forEach(function (t) {
+    window.addEventListener(t, function (e) {
+      if (e.button !== 3 && e.button !== 4) return;
+      e.preventDefault();
+      if (t === 'mouseup') { if (e.button === 3) navBack(); else navFwd(); }
+    });
+  });
+  document.querySelectorAll('.phead .pback').forEach(function (b) { b.onclick = function () { setPage(b.closest('.view').id, ''); }; });
+  document.querySelectorAll('[data-page]').forEach(function (b) { b.onclick = function () { setPage(b.closest('.view').id, b.dataset.page); }; });
+  // the page rows: an icon tile each, as the setting rows have (About — the app mark)
+  var PGIC = { order: 'list', cables: 'route', dev: 'speaker', hs: 'headphones', keys: 'keyboard', look: 'palette', gen: 'toggle', help: 'help' };
+  document.querySelectorAll('[data-page]').forEach(function (b) {
+    var ic = b.dataset.page === 'about' ? '<svg class="tic" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 21 20Q12 14 3 20Z" fill="currentColor"/></svg>' : icon(PGIC[b.dataset.page], 15);
+    b.insertAdjacentHTML('afterbegin', '<span class="ri">' + ic + '</span>');
+  });
+  setPage('sound', ''); setPage('settings', ''); setPage('micTab', '');
   $('pinBtn').onclick = function () { if (S) patch({ keepOpen: !S.cfg.keepOpen }); };
   document.querySelectorAll('[data-url]').forEach(function (b) { b.onclick = function () { api('/api/open', { url: b.dataset.url }); }; });
 
@@ -694,7 +689,12 @@
   function palClose() { $('pal').classList.add('off'); }
   function palMode() { return $('pal').dataset.mode || 'out'; }
   // mode: 'out' — output devices, 'in' — microphones, 'prio' — the priority of the outputs
+  // the priority list opened from the device list goes back there; opened from elsewhere (Settings,
+  // Tab before the list was shown) "back" closes it — "Done" always closes it
+  var palFromList = false;
+  function palBackStep() { if (palMode() === 'prio' && palFromList) palShow('out'); else palClose(); }
   function palShow(mode) {
+    if (mode === 'prio') palFromList = palOpen() && palMode() !== 'prio';
     closePops();
     $('palQ').value = '';
     $('pal').dataset.mode = mode;
@@ -705,6 +705,7 @@
     $('palL').classList.toggle('prio', prio);
     $('palOrder').classList.toggle('hide', mode === 'in');
     $('palOrder').textContent = tx(prio ? 'Готово' : 'Пріоритет');
+    $('palOrder').classList.toggle('acc', prio);
     $('palL').scrollTop = 0;
     if (prio) { outPopRender(true); return; }
     palRender(true);
@@ -781,8 +782,9 @@
     else if (e.key === 'Tab' && palMode() === 'out') { e.preventDefault(); palShow('prio'); }
   };
   $('pal').onclick = function (e) { if (e.target === $('pal')) palClose(); };
-  $('palOrder').onclick = function (e) { e.stopPropagation(); palShow(palMode() === 'prio' ? 'out' : 'prio'); };
+  $('palOrder').onclick = function (e) { e.stopPropagation(); if (palMode() === 'prio') palClose(); else palShow('prio'); };
   $('palWin').onclick = function () { api('/api/winsound', {}); palClose(); };
+  $('palBack').onclick = function () { palBackStep(); };
 
   // рівень мікрофона: червоний, коли б'ється об межу
   var pkHold = -120, pkAt = 0, clipAt = 0;
@@ -798,7 +800,7 @@
 
   // ---------- швидкі перемикачі ----------
   document.querySelectorAll('[data-goto]').forEach(function (b) {
-    b.onclick = function (e) { e.stopPropagation(); var id = b.dataset.goto; show(id === 'mfxCard' ? 'micTab' : 'sound', id); };
+    b.onclick = function (e) { e.stopPropagation(); var id = b.dataset.goto; if (id === 'rtCard') { show('sound'); setPage('sound', 'cables'); } else show(id === 'mfxCard' ? 'micTab' : 'sound', id); };
   });
   // вимикаємо лише шумодав: обробка (і кабель, який обрано мікрофоном у Discord) лишається
   function quickNs() {
@@ -830,10 +832,10 @@
     return '<span class="aico">' + esc((name || exe || '?').charAt(0).toUpperCase()) + '<img alt="" draggable="false" style="visibility:hidden" src="/icon?k=' + TOK + '&exe=' + encodeURIComponent(exe) + '" onload="this.style.visibility=\'visible\';this.parentNode.classList.add(\'img\')" onerror="retryIcon(this)"></span>';
   }
   var GROUPS = [
-    // the same game and chat icons as on the balance card
-    { k: 'game', n: 'Гра', i: '<path d="M7 8h10a4 4 0 0 1 3.9 3.1l.9 4A2.5 2.5 0 0 1 19.4 18c-.9 0-1.7-.5-2.2-1.2L16 15H8l-1.2 1.8C6.3 17.5 5.5 18 4.6 18a2.5 2.5 0 0 1-2.4-2.9l.9-4A4 4 0 0 1 7 8z"/><path d="M7.5 10.5v3M6 12h3"/>' },
-    { k: 'chat', n: 'Чат', i: '<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.7-1.3 3-3 3h-2.5"/>' },
-    { k: 'media', n: 'Медіа', i: '<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>' }
+    // Lucide icons, as on the balance card and the tiles
+    { k: 'game', n: 'Гра', i: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>' },
+    { k: 'chat', n: 'Чат', i: '<path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5Zm0 0a9 9 0 1 1 18 0m0 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z"/><path d="M21 16v2a4 4 0 0 1-4 4h-5"/>' },
+    { k: 'media', n: 'Медіа', i: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>' }
   ];
   var appSig = '', tabSig = '', appSl = {}, APPS = [], appCat = 'game';
   try { appCat = localStorage.getItem('appCat') || 'game'; } catch (x) { }
@@ -849,7 +851,7 @@
     })]);
     if (ts !== tabSig) { tabSig = ts; $('appTabs').innerHTML = GROUPS.map(function (g) {
       var items = list.filter(function (a) { return a.cat === g.k; }), playing = items.some(function (a) { return a.live && a.sound; });
-      return '<button role="tab" data-cat="' + g.k + '" aria-selected="' + (g.k === appCat) + '">' + (g.k !== 'media' ? '<i class="bdot" style="background:var(--' + (g.k === 'game' ? 'g' : 'c') + ')"></i>' : '') +
+      return '<button role="tab" data-cat="' + g.k + '" aria-selected="' + (g.k === appCat) + '"><svg class="ti" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"' + (g.k !== 'media' ? ' style="color:var(--' + (g.k === 'game' ? 'g' : 'c') + ')"' : '') + '>' + g.i + '</svg>' +
         '<span>' + tx(g.n) + '</span>' + (playing ? '<em class="pl" title="' + tx('грає') + '">' + items.length + ' ▸</em>' : '<em>' + items.length + '</em>') + '</button>';
     }).join('');
     $('appTabs').querySelectorAll('[data-cat]').forEach(function (b) { b.onclick = function () { if (b.dataset.cat !== appCat) setAppCat(b.dataset.cat); }; }); }
@@ -981,13 +983,13 @@
     } else if (!a.dev && (md.inst || md.free)) {
       // the Arcmix module: on any device without Equalizer APO
       h = md.inst
-        ? mrow(tx('Модуль Arcmix'), (md.live ? tx('працює на «%s»: еквалайзер «Весь звук» без кабелів') : tx('встановлено — запрацює, щойно зазвучить звук')).replace('%s', esc(dn)), '<button class="chip sm" data-apo="modRemove">' + tx('Прибрати') + '</button>')
+        ? mrow(tx('Модуль Arcmix'), (md.live ? tx('працює на «%s»: EQ Windows без кабелів') : tx('встановлено — запрацює, щойно зазвучить звук')).replace('%s', esc(dn)), '<button class="chip sm" data-apo="modRemove">' + tx('Прибрати') + '</button>')
         : mrow(tx('Модуль Arcmix (тест)'), tx('власний еквалайзер для «%s» без кабелів і без Equalizer APO. Потрібен дозвіл адміністратора; звук на мить зникне.').replace('%s', esc(dn)), '<button class="chip sm acc" data-apo="modInstall">' + tx('Встановити') + '</button>');
       // a headset with its own equalizer: the curve of everything is added to it only if asked (apoHs)
       if (md.inst && md.hs) {
         var hsOn2 = !!S.cfg.apoHs;
-        h += mrow(tx('Весь звук на гарнітурі'), tx(hsOn2 ? 'діють обидва еквалайзери — їхні криві додаються' : 'вимкнено: працює лише еквалайзер гарнітури'),
-          '<button class="sw" role="switch" id="apoHsSw" aria-checked="' + hsOn2 + '" aria-label="' + tx('Весь звук на гарнітурі') + '"><i></i></button>');
+        h += mrow(tx('EQ Windows на гарнітурі'), tx(hsOn2 ? 'діють обидва еквалайзери — їхні криві додаються' : 'вимкнено: працює лише еквалайзер гарнітури'),
+          '<button class="sw" role="switch" id="apoHsSw" aria-checked="' + hsOn2 + '" aria-label="' + tx('EQ Windows на гарнітурі') + '"><i></i></button>');
       }
       h = '<div style="margin-bottom:8px">' + h + '</div>';
       // with the device's enhancements off Windows runs no effect there, the module included
@@ -1195,13 +1197,6 @@
     return '<button class="ichip" ' + attr + ' title="' + esc(label) + '"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + PICON[icon] + '</svg><span>' + esc(label) + '</span></button>';
   }
   $('eqReset').onclick = function () { eqB = zeros(); eqP = 'flat'; eqDraw(); eqSend(true); };
-  // Пресети тепер завжди показують назву — без розгортання й анімацій (функції лишились порожніми).
-  function ichipShow() { }
-  function ichipRest() { }
-  function ichipLayout() { }
-  function ichipAll() { ['hwPresets'].forEach(function (id) { ichipLayout($(id)); }); }
-  window.addEventListener('resize', ichipAll);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(ichipAll);
   // вбудовані пресети гарнітури (Nova Pro, GameDAC)
   var hwSig = '', hwOn = false;
   function renderHW(dev) {
@@ -1212,8 +1207,7 @@
       hwSig = sig;
       box.innerHTML = list.map(function (o) { return pchip('data-v="' + o.v + '"', HWICON[o.label] || 'game', tx(o.label)); }).join('');
       box.querySelectorAll('button').forEach(function (b) { b.onclick = function () { api('/api/eqpreset', { value: Number(b.dataset.v) }); }; });
-      ichipLayout(box);
-    } else if (list.length && !box.querySelector('.irow')) ichipLayout(box); // картку щойно показали
+    }
     var cur = dev.hwPreset;
     hwOn = list.length > 0 && cur !== null && cur !== undefined && cur !== e.customSlot;
     box.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', hwOn && Number(b.dataset.v) === cur); });
@@ -1484,11 +1478,124 @@
   }
   function dbLabel(v, off) { return off ? tx('Вимк.') : v + ' ' + tx('дБ'); }
   var fxSend = throttle(function (o) { api('/api/micfx', o); }, 120);
+  // NVIDIA: what it takes out (noise, room echo or both) and how strongly
+  var nvSl = Slider($('nvStr'), { min: 0, max: 100, step: 5, value: 100, onInput: function (v) { $('nvStrV').textContent = v + '%'; fxSend({ nvStrength: v }); }, onChange: function (v) { fxSend({ nvStrength: v }, true); } });
   var gateSl = Slider($('mfxGate'), { min: -80, max: -20, step: 1, value: -50, onInput: function (v) { $('mfxGateV').textContent = dbLabel(v, v <= -80); fxSend({ gate: v <= -80 ? -100 : v }); }, onChange: function (v) { fxSend({ gate: v <= -80 ? -100 : v }, true); } });
+  // compressor: threshold, ratio (tenths here) and make-up gain
+  var compDbSl = Slider($('compDb'), { min: -60, max: 0, step: 1, value: -24, onInput: function (v) { $('compDbV').textContent = dbLabel(v); fxSend({ compDb: v }); }, onChange: function (v) { fxSend({ compDb: v }, true); } });
+  var compRatioSl = Slider($('compRatio'), { min: 15, max: 100, step: 5, value: 30, onInput: function (v) { $('compRatioV').textContent = v / 10 + ':1'; fxSend({ compRatio: v / 10 }); }, onChange: function (v) { fxSend({ compRatio: v / 10 }, true); } });
+  var compGainSl = Slider($('compGain'), { min: 0, max: 18, step: 1, value: 6, onInput: function (v) { $('compGainV').textContent = '+' + dbLabel(v); fxSend({ compGain: v }); }, onChange: function (v) { fxSend({ compGain: v }, true); } });
+  $('swComp').onclick = function () { api('/api/micfx', { comp: !(S.cfg.micFx || {}).comp }); };
+  // the movable stages between the low cut and the limiter (dsp::MIC_STAGES): the chain shows their
+  // settings in a fixed layout; the processing order is a setting of its own (micTab page "order")
+  var STAGES = ['denoise', 'comp', 'plugins', 'gate'], STAGE_N = { denoise: 'Шумодав', plugins: 'VST-плагіни', gate: 'Поріг шумодаву', comp: 'Компресор' };
+  var ordSig = '', ordDrag = false;
+  function renderOrder(o) {
+    var l = [];
+    (o || []).concat(STAGES).forEach(function (k) { if (STAGES.indexOf(k) >= 0 && l.indexOf(k) < 0) l.push(k); });
+    $('ordSum').textContent = l.map(function (k) { return tx(STAGE_N[k]); }).join(' → ');
+    var sig = l.join() + I18.lang;
+    if (ordDrag || sig === ordSig) return;
+    ordSig = sig;
+    $('ordList').innerHTML = l.map(function (k, i) {
+      return '<div class="od" data-id="' + k + '"><button class="dh" data-act="grip" aria-label="' + esc(tx('Перетягнути')) + ' ' + esc(tx(STAGE_N[k])) + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg></button><span class="pn">' + (i + 2) + '</span><div class="dn"><span class="t">' + tx(STAGE_N[k]) + '</span></div></div>';
+    }).join('');
+    $('ordList').querySelectorAll('.dh').forEach(function (h) {
+      listDrag(h, $('micTab'), function (busy) { ordDrag = busy; }, function (ids) {
+        [].forEach.call($('ordList').children, function (r, i) { r.querySelector('.pn').textContent = i + 2; });
+        ordSig = ''; api('/api/micfx', { order: ids });
+      });
+    });
+  }
+  // auto-off of the headset: a list of the times the supported headsets take (0 — never; below 0 — not set
+  // by the app yet, the headset keeps its own)
+  var OFFS = [0, 1, 5, 10, 15, 30, 60, 90];
+  function offLabel(v) { return v === 0 ? tx('Ніколи') : v > 0 ? v + ' ' + tx('хв') : '—'; }
+  $('offDrop').onclick = function (e) {
+    e.stopPropagation();
+    var p = $('offPop'), b = $('offDrop'), cur = S ? S.cfg.autoOff : -1;
+    if (!p.classList.contains('off')) { closePops(); return; }
+    closePops();
+    p.innerHTML = OFFS.map(function (v) {
+      var on = v === cur;
+      return '<button class="it' + (on ? ' acc' : '') + '" data-v="' + v + '" role="option" aria-selected="' + on + '"><span class="nm">' + offLabel(v) + '</span>' +
+        (on ? '<span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span>' : '') + '</button>';
+    }).join('');
+    p.querySelectorAll('[data-v]').forEach(function (it) { it.onclick = function () { patch({ autoOff: Number(it.dataset.v) }); closePops(); }; });
+    p.style.top = (b.offsetTop + b.offsetHeight + 4) + 'px';
+    p.classList.remove('off');
+  };
+  $('ordReset').onclick = function () { ordSig = ''; api('/api/micfx', { order: [] }); };
+  // a short list reordered by a row's handle: the neighbours move around the held row (the held one
+  // stays in the DOM, so its pointer capture lasts); ↑ / ↓ on the handle move it one place
+  function listDrag(h, scroller, busy, done) {
+    var row = h.closest('[data-id]'), list = row.parentNode, st = null;
+    var ids = function () { return [].map.call(list.children, function (r) { return r.dataset.id; }); };
+    h.addEventListener('keydown', function (e) {
+      var d = { ArrowUp: -1, ArrowDown: 1 }[e.key];
+      if (!d) return;
+      e.preventDefault();
+      var l = ids(), i = l.indexOf(row.dataset.id), j = i + d;
+      if (j < 0 || j >= l.length) return;
+      l[i] = l[j]; l[j] = row.dataset.id;
+      done(l);
+    });
+    h.addEventListener('pointerdown', function (e) {
+      if (e.button) return;
+      e.preventDefault();
+      h.setPointerCapture(e.pointerId);
+      st = { before: ids().join(), grab: e.clientY - row.getBoundingClientRect().top };
+      busy(true);
+      row.classList.add('lift');
+    });
+    h.addEventListener('pointermove', function (e) {
+      if (!st) return;
+      row.style.transform = '';
+      var base = row.getBoundingClientRect(), yc = e.clientY - st.grab + base.height / 2;
+      var rows = [].slice.call(list.children), target = null;
+      for (var k = 0; k < rows.length; k++) {
+        var r = rows[k].getBoundingClientRect();
+        if (rows[k] !== row && yc < r.top + r.height / 2) { target = rows[k]; break; }
+      }
+      if ((target === null && list.lastElementChild !== row) || (target && row.nextElementSibling !== target)) {
+        var pos = rows.map(function (r) { return r.getBoundingClientRect().top; });
+        var down = target === null || rows.indexOf(target) > rows.indexOf(row);
+        while (row.nextElementSibling !== target) {
+          if (down) list.insertBefore(row.nextElementSibling, row);
+          else list.insertBefore(row.previousElementSibling, row.nextElementSibling);
+        }
+        rows.forEach(function (r, i) {
+          if (r === row) return;
+          var d = pos[i] - r.getBoundingClientRect().top;
+          if (!d) return;
+          r.style.transition = 'none'; r.style.transform = 'translateY(' + d + 'px)';
+          requestAnimationFrame(function () { r.style.transition = 'transform .16s var(--ease)'; r.style.transform = ''; });
+        });
+        base = row.getBoundingClientRect();
+      }
+      var lb = list.getBoundingClientRect();
+      var t = Math.max(lb.top - base.top, Math.min(lb.bottom - base.bottom, e.clientY - st.grab - base.top));
+      row.style.transition = 'none'; row.style.transform = 'translateY(' + t + 'px)';
+      var sr = scroller.getBoundingClientRect();
+      if (e.clientY < sr.top + 28) scroller.scrollTop -= 8; else if (e.clientY > sr.bottom - 28) scroller.scrollTop += 8;
+    });
+    function end() {
+      if (!st) return;
+      var changed = ids().join() !== st.before;
+      st = null;
+      row.classList.remove('lift');
+      row.style.transition = 'transform .16s var(--ease)'; row.style.transform = '';
+      busy(false);
+      if (changed) setTimeout(function () { done(ids()); }, 170);
+    }
+    h.addEventListener('pointerup', end);
+    h.addEventListener('lostpointercapture', end);
+  }
   var ceilSl = Slider($('mfxCeil'), { min: -30, max: 0, step: 1, value: -6, onInput: function (v) { $('mfxCeilV').textContent = dbLabel(v, v >= 0); fxSend({ ceil: v }); }, onChange: function (v) { fxSend({ ceil: v }, true); } });
   function renderAudioFx(s) {
     var c = s.cfg, mf = c.micFx || {}, rc = c.route || {}, vs = virt(), have = DEVS !== null, noCable = have && !vs.length;
-    var t = pipeText(s.micFx, !!mf.out);
+    // the cables off (Settings → Devices) stop the processing whatever its own switch says
+    var t = mf.on && c.cables === false ? [tx('Вимкнено разом з віртуальними кабелями'), ''] : pipeText(s.micFx, !!mf.out);
     $('mfxStatus').textContent = t[0]; $('mfxStatus').className = 'sub ' + t[1];
     setSw('swMfx', !!mf.on); setSw('swDenoise', !!mf.denoise);
     // the kind of denoiser: RNNoise or NVIDIA (its SDK installed by the user, an RTX graphics card)
@@ -1502,12 +1609,21 @@
     $('dnModel').classList.toggle('hide', !nvNote);
     $('dnModelT').textContent = nvNote;
     $('dnGet').classList.toggle('hide', nv.state !== 'missing');
+    var nvOn = kind === 'nv' && nv.state !== 'missing', nvm = nv.modes || [];
+    $('nvOpts').classList.toggle('hide', !nvOn);
+    if (nvOn) {
+      pressed('nvMode', mf.nvMode || 'denoise');
+      $('nvMode').querySelectorAll('button').forEach(function (b) { b.disabled = nvm.length > 0 && nvm.indexOf(b.dataset.v) < 0; });
+      var nst = mf.nvStrength == null ? 100 : mf.nvStrength;
+      nvSl.set(nst); if (!nvSl.busy()) $('nvStrV').textContent = nst + '%';
+    }
     $('qNs').classList.toggle('on', !!(mf.on && mf.denoise)); $('qNs').setAttribute('aria-checked', !!(mf.on && mf.denoise));
     $('qNsV').textContent = !(mf.on && mf.denoise) ? tx('Вимкнено') : (s.micFx && s.micFx.running ? (kind === 'nv' && nv.state === 'ready' ? 'NVIDIA RTX' : 'RNNoise') : (s.micFx && s.micFx.err ? tx('Помилка') : tx('Запуск…')));
     // routing: on, and which categories play through a cable
     var rcq = c.route || {}, rcats = ['game', 'chat', 'media'].filter(function (k) { return rcq[k] && !(mf.on && rcq[k] === mf.out); });
     $('qRt').classList.toggle('on', !!rcq.on); $('qRt').setAttribute('aria-checked', !!rcq.on);
     $('qRtV').textContent = !rcq.on ? tx('Вимкнено') : (s.route && s.route.running ? rcats.map(function (k) { return tx({ game: 'Гра', chat: 'Чат', media: 'Медіа' }[k]); }).join(', ') : (s.route && s.route.err ? tx('Помилка') : tx('Запуск…')));
+    $('rtSum').textContent = $('qRtV').textContent;
     $('mfxNoCable').classList.toggle('hide', !noCable);
     $('vstSafe').classList.toggle('hide', !s.cfg.vstSafe);
     $('mfxBody').classList.toggle('hide', !mf.on || noCable);
@@ -1521,8 +1637,14 @@
     $('mfxHint').textContent = mf.out ? (pair ? tx('У Discord, грі чи OBS оберіть мікрофоном:') + ' «' + pair + '».' : tx('У Discord, грі чи OBS оберіть мікрофоном інший кінець цього кабелю.')) : '';
     gateSl.set(Math.max(-80, mf.gate)); if (!gateSl.busy()) $('mfxGateV').textContent = dbLabel(Math.max(-80, mf.gate), mf.gate <= -80);
     ceilSl.set(Math.min(0, mf.ceil)); if (!ceilSl.busy()) $('mfxCeilV').textContent = dbLabel(Math.min(0, mf.ceil), mf.ceil >= 0);
+    setSw('swComp', !!mf.comp); $('compBox').classList.toggle('hide', !mf.comp);
+    var cd = mf.compDb == null ? -24 : mf.compDb, cr = Math.round((mf.compRatio || 3) * 10), cg = mf.compGain == null ? 6 : mf.compGain;
+    compDbSl.set(cd); if (!compDbSl.busy()) $('compDbV').textContent = dbLabel(cd);
+    compRatioSl.set(cr); if (!compRatioSl.busy()) $('compRatioV').textContent = cr / 10 + ':1';
+    compGainSl.set(cg); if (!compGainSl.busy()) $('compGainV').textContent = '+' + dbLabel(cg);
+    renderOrder(mf.order);
     renderVst(s);
-    t = pipeText(s.route, ['game', 'chat', 'media'].some(function (k) { return rc[k] && !(mf.on && rc[k] === mf.out); }));
+    t = rc.on && c.cables === false ? [tx('Вимкнено разом з віртуальними кабелями'), ''] : pipeText(s.route, ['game', 'chat', 'media'].some(function (k) { return rc[k] && !(mf.on && rc[k] === mf.out); }));
     $('rtStatus').textContent = t[0]; $('rtStatus').className = 'sub ' + t[1];
     setSw('swRt', !!rc.on); setSw('swRtAuto', !!rc.auto);
     $('rtNoCable').classList.toggle('hide', !noCable);
@@ -1556,6 +1678,7 @@
   $('mfxOut').onchange = function () { api('/api/micfx', { out: this.value }); };
   $('swDenoise').onclick = function () { api('/api/micfx', { denoise: !(S.cfg.micFx || {}).denoise }); };
   $('dnKind').querySelectorAll('button').forEach(function (b) { b.onclick = function () { api('/api/micfx', { denoiseKind: b.dataset.v }); }; });
+  $('nvMode').querySelectorAll('button').forEach(function (b) { b.onclick = function () { api('/api/micfx', { nvMode: b.dataset.v }); }; });
   // перший кабель, не зайнятий маршрутизацією
   function freeMicCable() { var rc = S.cfg.route || {}; return virt().filter(function (d) { return !(rc.on && (d.id === rc.game || d.id === rc.chat || d.id === rc.media)); })[0]; }
   function toggleMfx(o) {
@@ -1571,11 +1694,15 @@
   // an app records from a virtual cable that gets no microphone while processing is off
   function renderCableWarn(s) {
     var cl = s.cable || {}, c = s.cfg, mf = c.micFx || {}, f = c.features || {};
-    var show = !!cl.who && (!mf.on || !mf.out) && (f.denoise !== false || f.vst !== false);
+    var defCab = ((DEVS && DEVS.capture) || []).some(function (d) { return d.default && d.virtual; });
+    var cabOff = c.cables === false && !!mf.on && (!!cl.who || defCab);
+    var show = cabOff || (!!cl.who && (!mf.on || !mf.out) && (f.denoise !== false || f.vst !== false));
     $('cableWarn').classList.toggle('hide', !show);
-    if (show) $('cableWarnT').textContent = tx('%s бере мікрофон з «%s», але туди зараз нічого не йде: обробку мікрофона вимкнено.').replace('%s', cl.who).replace('%s', cl.name);
+    $('cableWarnGo').textContent = tx(cabOff ? 'Увімкнути віртуальні кабелі' : 'Увімкнути обробку мікрофона');
+    if (cabOff) $('cableWarnT').textContent = tx('Віртуальні кабелі вимкнено: у кабель не йде оброблений мікрофон, і програми, що слухають кабель, вас не почують.');
+    else if (show) $('cableWarnT').textContent = tx('%s бере мікрофон з «%s», але туди зараз нічого не йде: обробку мікрофона вимкнено.').replace('%s', cl.who).replace('%s', cl.name);
   }
-  $('cableWarnGo').onclick = function () { var cl = (S && S.cable) || {}; if (cl.out) api('/api/micfx', { on: true, out: cl.out }); };
+  $('cableWarnGo').onclick = function () { if (S && S.cfg.cables === false) { patch({ cables: true }); return; } var cl = (S && S.cable) || {}; if (cl.out) api('/api/micfx', { on: true, out: cl.out }); };
   $('swRt').onclick = function () {
     var rc = S.cfg.route || {}, o = { on: !rc.on };
     if (o.on && !rc.game && !rc.chat && !rc.media) { // самі обираємо вільні кабелі: перший — грі, другий — чату, третій — медіа
@@ -1758,7 +1885,11 @@
   $('swOled').onclick = function () { patch({ customOled: !S.cfg.customOled }); };
   $('swSwitch').onclick = function () { patch({ autoSwitch: !S.cfg.autoSwitch }); };
   $('swTaskbar').onclick = function () { patch({ taskbar: !S.cfg.taskbar }); };
+  $('trayShow').querySelectorAll('button').forEach(function (b) { b.onclick = function () { patch({ trayBattery: b.dataset.v === 'battery' }); }; });
   $('swSwitchMic').onclick = function () { patch({ switchMic: !S.cfg.switchMic }); };
+  $('swCables').onclick = function () { patch({ cables: S.cfg.cables === false }); };
+  $('swOnLost').onclick = function () { patch({ outOnLost: S.cfg.outOnLost === false }); };
+  $('outOnNew').querySelectorAll('button').forEach(function (b) { b.onclick = function () { patch({ outOnNew: b.dataset.v }); }; });
   $('swOsd').onclick = function () { patch({ osd: !S.cfg.osd }); };
   $('osdCorner').querySelectorAll('button').forEach(function (b) { b.onclick = function () { patch({ osdCorner: b.dataset.v }); }; });
   $('swMicHk').onclick = function () { patch({ micHotkey: !S.cfg.micHotkey }); };
@@ -1774,7 +1905,7 @@
     b.dataset.armed = '1'; b.textContent = tx('Точно скинути?'); b.style.background = 'var(--red)'; b.style.color = '#fff';
     setTimeout(function () { delete b.dataset.armed; b.textContent = tx('Скинути'); b.style.background = ''; b.style.color = ''; }, 3000);
   };
-  [['modeSeg', 'mode', String], ['wheelSeg', 'wheelMode', String], ['sideSeg', 'sidetone', Number], ['offChips', 'autoOff', Number], ['gainSeg', 'micGain', Number], ['lowSeg', 'lowLevel', Number]].forEach(function (d) {
+  [['modeSeg', 'mode', String], ['wheelSeg', 'wheelMode', String], ['sideSeg', 'sidetone', Number], ['gainSeg', 'micGain', Number], ['lowSeg', 'lowLevel', Number]].forEach(function (d) {
     $(d[0]).querySelectorAll('button').forEach(function (b) { b.onclick = function () { var o = {}; o[d[1]] = d[2](b.dataset.v); patch(o); }; });
   });
   // теми
@@ -1845,7 +1976,7 @@
     $(SLOTE[slot]).style.background = v;
   });
   $('hexIn').addEventListener('blur', function () { this.value = slotHex().toUpperCase(); });
-  [['glowSeg', 'glow'], ['densSeg', 'density'], ['cornSeg', 'corners']].forEach(function (x) {
+  [['cornSeg', 'corners']].forEach(function (x) {
     $(x[0]).querySelectorAll('button').forEach(function (b) { b.onclick = function () { var o = {}; o[x[1]] = b.dataset.v; patch(o); }; });
   });
   $('creditLink').onclick = function () { api('/api/open', { url: 'https://github.com/Swiftlyx/OpenChatMix' }); };
@@ -1959,10 +2090,10 @@
       var st;
       if (md.busy) st = '<div class="sub">' + esc(tx(md.busy === 'install' ? 'встановлюю на «%s» — звук на кілька секунд зникне' : 'прибираю з «%s» — звук на кілька секунд зникне').replace('%s', md.busyName || dn)) + '</div>';
       else if (ap.dev) st = '<div class="sub">' + esc(tx('На «%s» уже працює Equalizer APO — модуль не потрібен.').replace('%s', dn)) + '</div>';
-      else if (md.inst) st = '<div class="sub">' + esc(tx(md.live ? 'працює на «%s»: еквалайзер «Весь звук» без кабелів' : 'встановлено — запрацює, щойно зазвучить звук').replace('%s', dn)) + '</div>';
+      else if (md.inst) st = '<div class="sub">' + esc(tx(md.live ? 'працює на «%s»: EQ Windows без кабелів' : 'встановлено — запрацює, щойно зазвучить звук').replace('%s', dn)) + '</div>';
       else if (md.free) st = '<button class="chip acc" id="obMod">' + tx('Встановити') + '</button>';
       else st = '<div class="sub">' + tx('Шукаю пристрої…') + '</div>';
-      b.innerHTML = '<h1>' + tx('Еквалайзер для всього звуку') + '</h1><div class="sub" style="font-size:13px;line-height:1.45">' + tx('Крива «Весь звук» діє на все, що грає на пристрої, — без кабелів і без затримки. Для цього Arcmix додає свій модуль у звук Windows: Windows попросить дозволу адміністратора, а звук на мить зникне. Прибрати модуль можна будь-коли на вкладці «Звук».') + '</div>' +
+      b.innerHTML = '<h1>' + tx('Еквалайзер для всього звуку') + '</h1><div class="sub" style="font-size:13px;line-height:1.45">' + tx('Крива «EQ Windows» діє на все, що грає на пристрої, — без кабелів і без затримки. Для цього Arcmix додає свій модуль у звук Windows: Windows попросить дозволу адміністратора, а звук на мить зникне. Прибрати модуль можна будь-коли на вкладці «Звук».') + '</div>' +
         '<div class="obr">' + icon('layers', 16) + '<div class="grow">' + esc(dn || tx('Пристрій виводу Windows')) + '</div>' + st + '</div>';
       var mb = $('obMod'); if (mb) mb.onclick = function () { mb.disabled = true; api('/api/apo', { op: 'modInstall' }); };
     } else if (obStep === 3) {
@@ -2038,18 +2169,21 @@
     $('modeLbl').classList.toggle('hide', fixedMode); $('modeSeg').classList.toggle('hide', fixedMode);
     $('oledRow').classList.toggle('hide', modeOf(c) !== 'dark'); setSw('swOled', !!c.customOled);
     $('slotA').style.background = c.customA || '#FF6A3D'; $('slotB').style.background = c.customB || '#3DC8FF'; $('slotS').style.background = c.customS || '#151618';
-    // the look: glow of the balance lines, density, corners
-    var de = document.documentElement;
-    de.dataset.glow = c.glow || 'soft'; de.dataset.dens = c.density || 'normal'; de.dataset.corn = c.corners || 'round';
-    pressed('glowSeg', c.glow || 'soft'); pressed('densSeg', c.density || 'normal'); pressed('cornSeg', c.corners || 'round');
+    // the look: corners
+    document.documentElement.dataset.corn = c.corners || 'round';
+    pressed('cornSeg', c.corners || 'round');
     if (c.theme === 'custom' && !(hH.busy() || hS.busy() || hL.busy())) syncHSL();
+    // the tray icon: what it shows, and the wheel over it flips that for a while (or moves the balance)
+    pressed('trayShow', c.trayBattery ? 'battery' : 'icon');
     pressed('wheelSeg', c.wheelMode || 'battery');
-    $('wheelHint').textContent = { battery: tx('Прокрутка над значком у треї показує заряд замість балансу.'), balance: tx('Прокрутка над значком у треї змінює баланс гра / чат, як повзунок у вікні.'), off: '' }[c.wheelMode || 'battery'];
-    pressed('modeSeg', c.mode === 'light' || c.mode === 'auto' ? c.mode : 'dark'); pressed('sideSeg', c.sidetone); pressed('offChips', c.autoOff); pressed('gainSeg', c.micGain); setSw('swLed', c.muteLed !== 0);
+    $('wheelSeg').querySelector('[data-v=battery]').textContent = tx(c.trayBattery ? 'Іконка' : 'Заряд');
+    $('wheelHint').textContent = { battery: tx(c.trayBattery ? 'Прокрутка над іконкою ненадовго показує іконку замість заряду.' : 'Прокрутка над іконкою ненадовго показує заряд.'), balance: tx('Прокрутка над іконкою змінює баланс гра / чат, як повзунок у вікні.'), off: '' }[c.wheelMode || 'battery'];
+    pressed('modeSeg', c.mode === 'light' || c.mode === 'auto' ? c.mode : 'dark'); pressed('sideSeg', c.sidetone); $('offDropT').textContent = offLabel(c.autoOff); pressed('gainSeg', c.micGain); setSw('swLed', c.muteLed !== 0);
     setSw('swLow', c.lowBattery); setSw('swAuto', c.autostart); setSw('swFull', c.fullNotify);
     pressed('lowSeg', c.lowLevel || 20); $('lowSeg').classList.toggle('hide', !c.lowBattery);
     $('battEst').textContent = s.battHours > 0 && !s.charging ? tx('Прогноз роботи від батареї:') + ' ≈ ' + s.battHours + ' ' + tx('год') : tx('Прогноз роботи з’явиться, коли заряд почне знижуватися.');
     setSw('swSwitch', c.autoSwitch); setSw('swSwitchMic', c.switchMic); $('switchMicRow').classList.toggle('hide', !c.autoSwitch);
+    $('switchOpts').classList.toggle('hide', !c.autoSwitch); setSw('swCables', c.cables !== false); pressed('outOnNew', c.outOnNew || 'order'); setSw('swOnLost', c.outOnLost !== false);
     setSw('swTaskbar', c.taskbar);
     OUTS = s.outs || []; outPopRender();
     setSw('swOsd', c.osd); pressed('osdCorner', c.osdCorner || 'br'); $('osdCornerRow').classList.toggle('hide', !c.osd); setSw('swMicHk', c.micHotkey); setSw('swPtt', c.ptt); setSw('swSounds', c.sounds); setSw('swWinCtl', c.winCtl);
@@ -2061,6 +2195,7 @@
     renderFeatures(c);
     renderMon(s.monitor);
     $('ver').textContent = tx('Версія') + ' ' + s.version;
+    $('grpAbout').querySelector('.sub').textContent = tx('Версія') + ' ' + s.version;
     var dev = s.device || {};
     renderOut(s);
     setTtl('devTitle', dev.name || tx('Гарнітура'));
@@ -2084,6 +2219,7 @@
     $('eqTarget').classList.toggle('hide', !canSW);
     if (canSW) {
       $('eqTarget').querySelector('[data-t=hw]').classList.toggle('hide', !hwEq);
+      $('eqTarget').querySelector('[data-t=hw]').textContent = 'EQ' + (dev.name ? ' ' + dev.name : '');
       ['game', 'chat', 'media'].forEach(function (k) { $('eqTarget').querySelector('[data-t=' + k + ']').classList.toggle('hide', !rcfg[k]); });
     }
     if (eqT !== 'hw' && (!canSW || !rcfg[eqT])) setTarget('hw');
@@ -2105,6 +2241,10 @@
     $('nativeBox').classList.toggle('hide', dev.native === false);
     // users of other headsets do not see settings of a headset Arcmix cannot talk to
     $('devCard').classList.toggle('hide', !s.connected);
+    // the headset's settings page: named after it, only while it is connected
+    $('grpHs').classList.toggle('hide', !s.connected);
+    $('grpHs').querySelector('.grow div').textContent = (s.device || {}).name || tx('Гарнітура');
+    if (!s.connected && PG.settings === 'hs') setPage('settings', '');
     $('battCard').classList.toggle('hide', !(s.connected && s.haveBattery));
     $('devNone').classList.toggle('hide', !!s.connected);
     renderGen(dev.native === false ? (dev.settings || []) : []);

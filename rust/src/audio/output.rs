@@ -41,6 +41,8 @@ pub(super) struct DevWatch {
     top: String,
     /// the default device last time
     def: String,
+    /// devices available last time (to tell a newly connected one)
+    on: Vec<String>,
     started: Option<Instant>,
     /// the user put sound on the headset while its receiver says it is off: it counts as on until the
     /// receiver state (connected, powered — as it was then) changes or the user picks another device
@@ -304,6 +306,10 @@ impl Engine {
         let on = |id: &str| list.iter().find(|d| d.id == id).is_some_and(|d| d.state == "on");
         let lost = !self.devs.def.is_empty() && self.devs.def != def && !on(&self.devs.def);
         self.devs.def = def.clone();
+        // a physical device that has just become available (not on the first look)
+        let now_on: Vec<String> = list.iter().filter(|d| d.state == "on").map(|d| d.id.clone()).collect();
+        let fresh = (!self.devs.on.is_empty()).then(|| list.iter().find(|d| d.state == "on" && !d.is_virtual && !self.devs.on.contains(&d.id)).map(|d| d.id.clone())).flatten();
+        self.devs.on = now_on;
         // switching: while the app just started, the headset state is unknown yet — wait
         if !c.auto_switch || started.elapsed().as_secs_f64() < 4.0 {
             return;
@@ -314,9 +320,23 @@ impl Engine {
             self.devs.top = top;
             return;
         }
-        if !top.is_empty() && top != def && (force || top != self.devs.top || !on(&def) || lost) {
-            let name = list.iter().find(|d| d.id == top).map(|d| d.name.clone()).unwrap_or_default();
-            if com::set_default_endpoint(&top) {
+        // the playing device gone: the next by the order, or where Windows put it (outOnLost); a new one:
+        // by the order — when it is above the others, always, or never (outOnNew)
+        let gone = !on(&def) || lost;
+        let pick = if force {
+            top.clone()
+        } else if gone {
+            if c.out_on_lost { top.clone() } else { String::new() }
+        } else if let Some(f) = fresh.filter(|_| c.out_on_new == "always") {
+            f
+        } else if c.out_on_new == "order" && top != self.devs.top {
+            top.clone()
+        } else {
+            String::new()
+        };
+        if !pick.is_empty() && pick != def {
+            let name = list.iter().find(|d| d.id == pick).map(|d| d.name.clone()).unwrap_or_default();
+            if com::set_default_endpoint(&pick) {
                 logf!("output priority: sound → {name}");
             }
         }

@@ -1,5 +1,6 @@
-//! Tray icon frames: the game and chat bars (merged in balance), the battery number morph and the
-//! microphone badge. Signed distance fields on a 32x32 grid, rendered at the system icon size.
+//! Tray icon frames: the app mark in balance, two capsules off it, the battery number morph and the
+//! microphone badge, in one colour. Signed distance fields on a 32x32 grid, rendered at the system icon
+//! size. Also the mark alone (the tray menu).
 
 use std::sync::LazyLock;
 
@@ -8,23 +9,27 @@ use windows::Win32::{
     UI::WindowsAndMessaging::{CreateIconIndirect, HICON, ICONINFO},
 };
 
-/// Game and chat colours: those of the app icon (tools/mkicon.py), the same with every theme.
-pub const GAME: [u8; 3] = [0x9D, 0x44, 0xE6];
-pub const CHAT: [u8; 3] = [0xEE, 0x74, 0xD8];
-
-// The small app logo (tools/mkicon.py, sizes under 40 px): a sky tile and three layers of a concave
-// triangle. Geometry in units of the icon side: wing tip inset, back apex, back wing, layer step, bow.
-const LOGO_SKY: [[u8; 3]; 2] = [[0x0C, 0x0E, 0x2C], [0x1E, 0x24, 0x60]];
-const LOGO_LAYERS: [[u8; 3]; 3] = [[0x6A, 0x36, 0xD8], [0xC2, 0x4F, 0xE0], [0xFF, 0xCD, 0xEB]];
-const LOGO_GEO: (f64, f64, f64, f64, f64) = (0.13, 0.15, 0.62, 0.075, 0.08);
+// The app mark (as tools/mkicon.py and the window header): a concave triangle, the "A" of Arcmix —
+// straight sides from the apex and a bottom edge bowed up (a quadratic curve). On a 24-unit box: apex
+// (12, 3), wing tips (3, 20) and (21, 20), control point of the bottom (12, 14). Kept in units of the
+// side: wing inset, apex, wing tips, control point.
+const MARK: (f64, f64, f64, f64) = (3.0 / 24.0, 3.0 / 24.0, 20.0 / 24.0, 14.0 / 24.0);
+/// Scale of the mark in the tray icon and the menu: it fills the small icon as the system ones do.
+const MARK_Z: f64 = 1.15;
+/// One colour, as the system tray icons: white on a dark taskbar, near black on a light one.
+const INK_DARK: [f64; 3] = [1.0, 1.0, 1.0];
+const INK_LIGHT: [f64; 3] = [0.09, 0.09, 0.09];
+/// Relative luminance of the taskbar (Windows 11: #1C1C1C dark, #EEEEEE light).
+const BAR_DARK: f64 = 0.011;
+const BAR_LIGHT: f64 = 0.855;
 
 pub struct IconParams {
     pub size: usize,
     /// -100..100 (plus = quieter game, louder chat)
     pub pos: f64,
-    /// 0..1: bars merged (balance) versus two separate bars
+    /// 0..1: the mark (balance) versus two capsules
     pub b: f64,
-    /// 0..1: progress of the bars → battery number morph (linear in time)
+    /// 0..1: progress of the mark → battery number morph (linear in time)
     pub bat: f64,
     /// battery, percent
     pub level: i32,
@@ -34,6 +39,7 @@ pub struct IconParams {
     pub light: bool,
     /// microphone badge: 0 none, 1 muted (red), 2 talking (green)
     pub mic: i32,
+    /// the game and chat colours of the theme (the capsules off balance)
     pub cg: [u8; 3],
     pub cc: [u8; 3],
 }
@@ -100,6 +106,27 @@ pub fn rgbf(c: [u8; 3]) -> [f64; 3] {
 
 fn lerp3(a: [f64; 3], b: [f64; 3], t: f64) -> [f64; 3] {
     [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]
+}
+
+/// Relative luminance (WCAG) of an sRGB colour, 0..1.
+fn luminance(c: [f64; 3]) -> f64 {
+    let lin = |v: f64| if v <= 0.03928 { v / 12.92 } else { ((v + 0.055) / 1.055).powf(2.4) };
+    0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2])
+}
+
+/// A theme colour readable on the taskbar: moved towards white (dark taskbar) or black (light one)
+/// until its contrast with the taskbar is at least 3:1.
+fn on_taskbar(c: [f64; 3], light: bool) -> [f64; 3] {
+    let (bar, to) = if light { (BAR_LIGHT, [0.0; 3]) } else { (BAR_DARK, [1.0; 3]) };
+    let mut x = c;
+    for _ in 0..30 {
+        let l = luminance(x);
+        if (l.max(bar) + 0.05) / (l.min(bar) + 0.05) >= 3.0 {
+            break;
+        }
+        x = lerp3(x, to, 0.08);
+    }
+    x
 }
 
 // ---------- digits (stroke glyphs, SDF) ----------
@@ -191,24 +218,34 @@ fn number_sd(gs: &[Placed], px: f64, py: f64, fat: f64, grow: f64) -> f64 {
     best
 }
 
-/// Approximate signed distance (grid units) to logo layer i: outside both corner superellipses
-/// (power 1.5) and above the bowed bottom edge, as in tools/mkicon.py.
-fn sd_layer(px: f64, py: f64, i: usize) -> f64 {
-    let (l, a0, w0, step, sag) = LOGO_GEO;
-    let (x, y) = (px / 32.0, py / 32.0);
-    let (apex, wing) = (a0 + i as f64 * step, w0 + i as f64 * step);
-    let (a, b) = (0.5 - l, wing - apex);
-    let mut d = f64::MIN;
-    for cx in [l, 1.0 - l] {
-        let (dx, dy) = ((x - cx).abs() / a, (y - apex).abs() / b);
-        let e = dx.powf(1.5) + dy.powf(1.5);
-        let g = (1.5 * dx.sqrt() / a).hypot(1.5 * dy.sqrt() / b).max(1e-9);
-        d = d.max(-(e - 1.0) / g);
+/// Approximate signed distance to the mark in a unit box, scaled by z about the centre; the middle of
+/// the mark (between the apex and the wing tips) sits at the centre. Inside both sides and above the
+/// bottom curve; the sharp wing tips come from the plain maximum.
+fn sd_mark(x: f64, y: f64, z: f64) -> f64 {
+    let (l, apex, wing, ctl) = MARK;
+    let (x, y) = (0.5 + (x - 0.5) / z, (apex + wing) / 2.0 + (y - 0.5) / z);
+    let side = ((x - 0.5).abs() * (wing - apex) - (y - apex) * (0.5 - l)) / (wing - apex).hypot(0.5 - l);
+    // the control point is over the middle, so x runs linearly with the curve parameter
+    let t = (x - l) / (1.0 - 2.0 * l);
+    let bottom = wing - 2.0 * t * (1.0 - t) * (wing - ctl);
+    let slope = -2.0 * (wing - ctl) * (1.0 - 2.0 * t) / (1.0 - 2.0 * l);
+    side.max((y - bottom) / 1f64.hypot(slope)) * z
+}
+
+/// The mark alone in one colour (the tray menu title): BGRA, straight alpha, n*n.
+pub fn mark(n: usize, c: [f64; 3]) -> Vec<u8> {
+    let mut out = vec![0u8; n * n * 4];
+    let k = n as f64;
+    for y in 0..n {
+        for x in 0..n {
+            let a = coverage(sd_mark((x as f64 + 0.5) / k, (y as f64 + 0.5) / k, MARK_Z), k);
+            if a > 0.0 {
+                let o = (y * n + x) * 4;
+                out[o..o + 4].copy_from_slice(&[(c[2] * 255.0 + 0.5) as u8, (c[1] * 255.0 + 0.5) as u8, (c[0] * 255.0 + 0.5) as u8, (a * 255.0 + 0.5) as u8]);
+            }
+        }
     }
-    let t = (x - 0.5) / (0.5 - l);
-    let bottom = wing - sag * (1.0 - t * t);
-    let slope = 2.0 * sag * t / (0.5 - l);
-    d.max((y - bottom) / 1f64.hypot(slope)).max(l - x).max(x - (1.0 - l)).max(apex - y) * 32.0
+    out
 }
 
 /// As the headset LED (darker for a light taskbar). Older Arctis (7 / 7+ / 7P…): green from 50 %,
@@ -235,77 +272,49 @@ pub fn render(p: &IconParams) -> Vec<u8> {
     let mut out = vec![0u8; n * n * 4];
     let k = n as f64 / 32.0;
 
-    let (mut cg, mut cc) = (rgbf(p.cg), rgbf(p.cc));
-    if p.light {
-        for i in 0..3 {
-            cg[i] *= 0.62;
-            cc[i] *= 0.62;
-        }
-    }
+    let ink = if p.light { INK_LIGHT } else { INK_DARK };
     // at the end of the animation the battery number takes the level colour
     let stat_c = battery_color(p.level, p.light, p.nova);
     let stat_t = smoother((p.bat - 0.75) / 0.25);
-    let game_pct = 100.0 - p.pos.max(0.0);
-    let chat_pct = 100.0 - (-p.pos).max(0.0);
-    let hh_g = (10.0 + 20.0 * game_pct / 100.0) / 2.0;
-    let hh_c = (10.0 + 20.0 * chat_pct / 100.0) / 2.0;
-    let dim_g = 0.40 + 0.60 * game_pct / 100.0;
-    let dim_c = 0.40 + 0.60 * chat_pct / 100.0;
-
+    let num_col = lerp3(ink, stat_c, stat_t);
     let label = p.level.clamp(0, 100).to_string();
     let glyphs = layout_number(label.as_bytes());
     let morph = p.bat > 0.001;
-
-    // in balance the icon is the app logo, off balance two capsules, in two phases: the capsules merge
-    // into one drop (b 0…0.5), then the drop turns into the front layer of the logo while the tile and
-    // the back layers come in (0.5…1); those also fade while the battery shows
+    // off balance two capsules in the theme's game and chat colours, the quieter one shorter; towards
+    // balance they merge into one drop (b 0…0.5), then the drop turns into the mark (0.5…1)
+    let game_pct = 100.0 - p.pos.max(0.0);
+    let chat_pct = 100.0 - (-p.pos).max(0.0);
+    let (hh_g, hh_c) = ((10.0 + 20.0 * game_pct / 100.0) / 2.0, (10.0 + 20.0 * chat_pct / 100.0) / 2.0);
+    let (game, chat) = (on_taskbar(rgbf(p.cg), p.light), on_taskbar(rgbf(p.cc), p.light));
     let bb = clampf(p.b * 2.0, 0.0, 1.0);
     let e = smoother((p.b - 0.5) * 2.0);
-    let logo_a = e * (1.0 - smoother(p.bat / 0.4));
-    let (sky0, sky1) = (rgbf(LOGO_SKY[0]), rgbf(LOGO_SKY[1]));
-    let layers = LOGO_LAYERS.map(rgbf);
+    let (hw, xl, xr, kk) = (lerpf(6.0, 7.4, bb), lerpf(8.5, 9.6, bb), lerpf(23.5, 22.4, bb), lerpf(0.01, 6.5, bb));
 
     for y in 0..n {
         for x in 0..n {
             let px = (x as f64 + 0.5) / k;
             let py = (y as f64 + 0.5) / k;
-
-            // two bars; in balance they come together and merge into one, like two drops
-            let hw = lerpf(6.0, 7.4, bb);
-            let pl = sd_box(px, py, lerpf(8.5, 9.6, bb), 16.0, hw, hh_g, 6.0);
-            let pr = sd_box(px, py, lerpf(23.5, 22.4, bb), 16.0, hw, hh_c, 6.0);
-            let kk = lerpf(0.01, 6.5, bb);
-            let hcol = clampf(0.5 + (pl - pr) / (2.0 * kk.max(2.0)), 0.0, 1.0);
-            let grad = lerp3(cg, cc, clampf((px - 2.2) / 27.6, 0.0, 1.0));
-            let mc = lerp3(lerp3(cg, cc, hcol), grad, bb);
-            let dim_mark = lerpf(dim_g, dim_c, hcol);
-            let num_col = lerp3(grad, stat_c, stat_t);
+            let (pl, pr) = (sd_box(px, py, xl, 16.0, hw, hh_g, 6.0), sd_box(px, py, xr, 16.0, hw, hh_c, 6.0));
+            let sd_m = lerpf(smin(pl, pr, kk), sd_mark(px / 32.0, py / 32.0, MARK_Z) * 32.0, e);
+            let side = clampf(0.5 + (pl - pr) / (2.0 * kk.max(2.0)), 0.0, 1.0);
+            let grad = lerp3(game, chat, clampf((px - 2.2) / 27.6, 0.0, 1.0));
+            let col = lerp3(lerp3(lerp3(game, chat, side), grad, bb), ink, e);
 
             let mut d = Pix::default();
-            if logo_a > 0.001 {
-                let ta = coverage(sd_box(px, py, 16.0, 16.0, 15.04, 15.04, 6.88), k) * logo_a;
-                d.over(lerp3(sky0, sky1, py / 32.0), ta);
-                for (i, c) in layers.iter().take(2).enumerate() {
-                    d.over(*c, coverage(sd_layer(px, py, i), k) * ta);
-                }
-            }
-            let sd_mark = lerpf(smin(pl, pr, kk), sd_layer(px, py, 2), e);
-            let mc = lerp3(mc, layers[2], e);
-            let dim_mark = lerpf(dim_mark, 1.0, e);
             if !morph {
-                d.over(mc, coverage(sd_mark, k) * dim_mark);
+                d.over(col, coverage(sd_m, k));
             } else {
-                // bars → a ball → digits that thin down from "drops"
+                // mark → a ball → digits that thin down from "drops"
                 let ball = (px - 16.0).hypot(py - 16.0) - 8.5;
                 let (sd, w) = if p.bat < 0.4 {
                     let ww = smoother(p.bat / 0.4);
-                    (lerpf(sd_mark, ball, ww), ww * 0.4)
+                    (lerpf(sd_m, ball, ww), ww * 0.4)
                 } else {
                     let e = smoother((p.bat - 0.4) / 0.3);
                     let fat = if p.bat >= 1.0 { 0.0 } else { 1.0 - smoother((p.bat - 0.55) / 0.45) };
                     (lerpf(ball, number_sd(&glyphs, px, py, fat, 1.0), e), 0.4 + 0.6 * e)
                 };
-                d.over(lerp3(mc, num_col, w), coverage(sd, k) * lerpf(dim_mark, 1.0, w));
+                d.over(lerp3(col, num_col, w), coverage(sd, k));
             }
 
             if p.mic != 0 {
@@ -367,18 +376,38 @@ pub fn make_hicon(n: usize, bgra: &[u8]) -> HICON {
 mod tests {
     use super::*;
 
-    fn params(size: usize, b: f64, pos: f64, bat: f64, light: bool) -> IconParams {
-        IconParams { size, pos, b, bat, level: 75, nova: false, light, mic: 0, cg: GAME, cc: CHAT }
+    fn params(size: usize, bat: f64, light: bool) -> IconParams {
+        // the colours of the Black hole theme
+        IconParams { size, pos: 0.0, b: 1.0, bat, level: 75, nova: false, light, mic: 0, cg: [0xE9, 0xEA, 0xEE], cc: [0x8F, 0xB2, 0xE3] }
     }
 
     #[test]
-    fn balance_shows_the_logo_tile() {
-        let alpha = |p: &IconParams, x: usize, y: usize| render(p)[(y * p.size + x) * 4 + 3];
-        // the left edge of the tile is opaque in balance and empty with two capsules
-        assert!(alpha(&params(32, 1.0, 0.0, 0.0, false), 1, 16) > 200);
-        assert!(alpha(&params(32, 0.0, 50.0, 0.0, false), 1, 16) < 30);
-        // the battery number shows without the tile
-        assert!(alpha(&params(32, 1.0, 0.0, 1.0, false), 1, 16) < 30);
+    fn the_mark_follows_the_taskbar() {
+        let px = |p: &IconParams, x: usize, y: usize| {
+            let o = (y * p.size + x) * 4;
+            let v = render(p);
+            (v[o + 2], v[o + 3])
+        };
+        // inside the mark (low in the middle of a wing), outside (a top corner, under the bow)
+        let (dark, light) = (params(32, 0.0, false), params(32, 0.0, true));
+        assert!(px(&dark, 9, 22).1 > 200 && px(&dark, 9, 22).0 > 240);
+        assert!(px(&light, 9, 22).1 > 200 && px(&light, 9, 22).0 < 40);
+        assert!(px(&dark, 2, 2).1 == 0 && px(&dark, 16, 26).1 < 30);
+        // the menu mark is the same shape
+        let m = mark(32, [1.0, 1.0, 1.0]);
+        assert!(m[(22 * 32 + 9) * 4 + 3] > 200 && m[(2 * 32 + 2) * 4 + 3] == 0);
+        // off balance: two capsules in the theme colours, the gap between them empty
+        let caps = IconParams { pos: -60.0, b: 0.0, ..params(32, 0.0, false) };
+        assert!(px(&caps, 16, 16).1 < 30 && px(&caps, 8, 16).1 > 200 && px(&caps, 23, 16).1 > 200);
+        assert!(px(&caps, 8, 16).0 > 220 && px(&caps, 23, 16).0 < 170);
+        // on a light taskbar the near-white game colour turns dark enough to be seen
+        let caps_l = IconParams { light: true, ..caps };
+        assert!(px(&caps_l, 8, 16).0 < 140);
+        for (c, light) in [([0xE9, 0xEA, 0xEE], true), ([0x14, 0x14, 0x30], false), ([0xFF, 0x2E, 0x97], true)] {
+            let l = luminance(on_taskbar(rgbf(c), light));
+            let bar = if light { BAR_LIGHT } else { BAR_DARK };
+            assert!((l.max(bar) + 0.05) / (l.min(bar) + 0.05) >= 3.0);
+        }
     }
 
     #[test]
@@ -400,11 +429,23 @@ mod tests {
     fn icon_sheet() {
         let Ok(path) = std::env::var("ARCMIX_ICON_SHEET") else { return };
         let (n, z, cols) = (32usize, 4usize, 8usize);
+        const THEMES: [([u8; 3], [u8; 3]); 4] = [([0xE9, 0xEA, 0xEE], [0x8F, 0xB2, 0xE3]), ([0xFF, 0x2E, 0x97], [0x19, 0xD3, 0xFF]), ([0x1E, 0xD7, 0x60], [0xB3, 0xB3, 0xB3]), ([0xFF, 0x00, 0x33], [0x3E, 0xA6, 0xFF])];
         let rows: Vec<(Vec<IconParams>, [u8; 3])> = vec![
-            ((0..cols).map(|i| params(n, 1.0 - i as f64 / 7.0, 40.0, 0.0, false)).collect(), [0x20, 0x20, 0x20]),
-            ((0..cols).map(|i| params(n, 1.0, 0.0, i as f64 / 7.0, false)).collect(), [0x20, 0x20, 0x20]),
-            ((0..cols).map(|i| params(n, 1.0 - i as f64 / 7.0, 40.0, 0.0, true)).collect(), [0xF3, 0xF3, 0xF3]),
-            ((0..cols).map(|i| params([16, 20, 24, 32, 16, 20, 24, 32][i], (i < 4) as i32 as f64, 40.0, 0.0, false)).collect(), [0x20, 0x20, 0x20]),
+            ((0..cols).map(|i| params(n, i as f64 / 7.0, false)).collect(), [0x20, 0x20, 0x20]),
+            ((0..cols).map(|i| params(n, i as f64 / 7.0, true)).collect(), [0xF3, 0xF3, 0xF3]),
+            ((0..cols).map(|i| params([16, 20, 24, 32, 16, 20, 24, 32][i], 0.0, i >= 4)).collect(), [0x20, 0x20, 0x20]),
+            ((0..cols).map(|i| IconParams { pos: 50.0, b: 1.0 - i as f64 / 7.0, ..params(n, 0.0, false) }).collect(), [0x20, 0x20, 0x20]),
+            ((0..cols).map(|i| IconParams { pos: -50.0, b: 1.0 - i as f64 / 7.0, ..params(n, 0.0, true) }).collect(), [0xF3, 0xF3, 0xF3]),
+            ((0..cols).map(|i| IconParams { pos: [50.0, -50.0, 80.0, -80.0][i % 4], b: 0.0, ..params([16, 20, 24, 32, 16, 20, 24, 32][i], 0.0, false) }).collect(), [0x20, 0x20, 0x20]),
+            // theme colours: Black hole, Nebula, Spotify, YouTube at 32 and 20 px, a dark taskbar, then a light one
+            ((0..cols).map(|i| {
+                let (cg, cc) = THEMES[i % 4];
+                IconParams { pos: 50.0, b: 0.0, cg, cc, ..params([32, 20][i / 4], 0.0, false) }
+            }).collect(), [0x20, 0x20, 0x20]),
+            ((0..cols).map(|i| {
+                let (cg, cc) = THEMES[i % 4];
+                IconParams { pos: 50.0, b: 0.0, cg, cc, ..params([32, 20][i / 4], 0.0, true) }
+            }).collect(), [0xF3, 0xF3, 0xF3]),
         ];
         let (w, h) = (cols * n * z, rows.len() * n * z);
         let mut img = vec![0u8; w * h * 4];

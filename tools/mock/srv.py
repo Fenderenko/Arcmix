@@ -39,11 +39,11 @@ def page(query=''):
     pl = json.dumps({"lang":l,"pick":STATE['cfg'].get('lang',''),"langs":I18['langs'],"t":t}, ensure_ascii=False)
     html = open(os.path.join(WEB, 'index.html'),encoding='utf-8').read()
     html = html.replace('/*I18N*/{"lang":"uk","t":{},"langs":[]}', pl, 1)
-    # screenshots: ?shot=<tab>[&sub=<settings page>][&eqt=<equalizer tab>][&to=<element id>] opens that view after the page is drawn
+    # screenshots: ?shot=<tab>[&sub=<page of that tab>][&eqt=<equalizer tab>][&to=<element id>] opens that view after the page is drawn
     q = dict(x.split('=',1) for x in query.split('&') if '=' in x)
     if q.get('shot'):
         js = ("setTimeout(function(){var q=%s;document.querySelector('#nav [data-tab='+q.shot+']').click();"
-              "if(q.sub)document.querySelector('#setTabs [data-p='+q.sub+']').click();"
+              "if(q.sub)document.querySelector('.view:not(.off) [data-page='+q.sub+']').click();"
               "if(q.eqt)document.querySelector('#eqTarget [data-t='+q.eqt+']').click();"
               "setTimeout(function(){if(q.to){var e=document.getElementById(q.to),v=e.closest('.view');v.scrollTop=e.offsetTop-62;}},300);},700);") % json.dumps(q)
         # headless browsers keep windows at least ~500 px wide: the page is held to the app's 400 px;

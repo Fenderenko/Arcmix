@@ -44,7 +44,7 @@ jobs:
         run: cargo test --release
 
       - name: Translations
-        run: python tools/check_i18n.py
+        run: python tools/check_i18n.py --release
         env:
           PYTHONIOENCODING: utf-8
 

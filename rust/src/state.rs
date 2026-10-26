@@ -54,8 +54,6 @@ pub struct CfgJson {
     pub custom_oled: bool,
     #[serde(rename = "customS")]
     pub custom_s: String,
-    pub glow: String,
-    pub density: String,
     pub corners: String,
     pub route: RouteCfg,
     #[serde(rename = "micFx")]
@@ -105,6 +103,13 @@ pub struct CfgJson {
     #[serde(rename = "keepOpen")]
     pub keep_open: bool,
     pub taskbar: bool,
+    #[serde(rename = "trayBattery")]
+    pub tray_battery: bool,
+    #[serde(rename = "outOnNew")]
+    pub out_on_new: String,
+    #[serde(rename = "outOnLost")]
+    pub out_on_lost: bool,
+    pub cables: bool,
     pub features: BTreeMap<String, bool>,
 }
 
@@ -259,8 +264,6 @@ pub fn build() -> StateJson {
             custom_a: c.custom_a.clone(),
             custom_oled: c.custom_oled,
             custom_s: c.custom_s.clone(),
-            glow: c.glow.clone(),
-            density: c.density.clone(),
             corners: c.corners.clone(),
             custom_b: c.custom_b.clone(),
             route: c.route.clone(),
@@ -290,6 +293,10 @@ pub fn build() -> StateJson {
             onboarded: c.onboarded,
             keep_open: c.keep_open,
             taskbar: c.taskbar,
+            tray_battery: c.tray_battery,
+            out_on_new: c.out_on_new.clone(),
+            out_on_lost: c.out_on_lost,
+            cables: c.cables,
             features,
         },
         apps: build_apps(),
