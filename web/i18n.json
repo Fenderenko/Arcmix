@@ -2828,6 +2828,16 @@
    "pt": "Enquanto você não escolher um valor, o aplicativo não altera as configurações do headset.",
    "tr": "Bir değer seçene kadar uygulama kulaklık ayarlarını değiştirmez."
   },
+  "Поки обробка ввімкнена, мікрофоном Windows стоїть «%s»: Discord, гра й OBS з мікрофоном за замовчуванням чують оброблений голос.": {
+   "de": "Solange die Verarbeitung läuft, ist «%s» das Windows-Mikrofon: Discord, Spiele und OBS mit dem Standardmikrofon hören die bearbeitete Stimme.",
+   "en": "While processing is on, Windows' microphone is «%s»: Discord, games and OBS with the default microphone hear the processed voice.",
+   "es": "Mientras el procesamiento está activo, el micrófono de Windows es «%s»: Discord, los juegos y OBS con el micrófono predeterminado oyen la voz procesada.",
+   "fr": "Tant que le traitement est actif, le micro de Windows est «%s» : Discord, les jeux et OBS avec le micro par défaut entendent la voix traitée.",
+   "it": "Finché l'elaborazione è attiva, il microfono di Windows è «%s»: Discord, i giochi e OBS con il microfono predefinito sentono la voce elaborata.",
+   "pl": "Gdy przetwarzanie jest włączone, mikrofonem Windows jest «%s»: Discord, gry i OBS z domyślnym mikrofonem słyszą przetworzony głos.",
+   "pt": "Enquanto o processamento está ativo, o microfone do Windows é «%s»: Discord, jogos e OBS com o microfone padrão ouvem a voz processada.",
+   "tr": "İşleme açıkken Windows mikrofonu «%s» olur: varsayılan mikrofonu kullanan Discord, oyunlar ve OBS işlenmiş sesi duyar."
+  },
   "Помилка": {
    "de": "Fehler",
    "en": "Error",
@@ -3927,16 +3937,6 @@
    "pl": "W Discordzie, grze lub OBS wybierz jako mikrofon drugi koniec tego kabla.",
    "pt": "No Discord, no jogo ou no OBS, escolha a outra ponta deste cabo como microfone.",
    "tr": "Discord'da, oyunda veya OBS'te mikrofon olarak bu kablonun diğer ucunu seçin."
-  },
-  "У Discord, грі чи OBS оберіть мікрофоном:": {
-   "de": "Wähle in Discord, im Spiel oder in OBS als Mikrofon:",
-   "en": "In Discord, your game or OBS, choose this microphone:",
-   "es": "En Discord, el juego u OBS, elige como micrófono:",
-   "fr": "Dans Discord, le jeu ou OBS, choisissez comme micro :",
-   "it": "In Discord, nel gioco o in OBS scegli come microfono:",
-   "pl": "W Discordzie, grze lub OBS wybierz jako mikrofon:",
-   "pt": "No Discord, no jogo ou no OBS, escolha como microfone:",
-   "tr": "Discord'da, oyunda veya OBS'te mikrofon olarak seçin:"
   },
   "У стандартних теках VST плагінів не знайдено.": {
    "de": "In den Standard-VST-Ordnern wurden keine Plugins gefunden.",

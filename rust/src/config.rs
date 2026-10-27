@@ -110,9 +110,6 @@ pub struct Config {
     /// everything through virtual cables (routing, the processed microphone); off — sound and microphone
     /// go direct, the settings stay
     pub cables: bool,
-    /// the cable that was Windows' default recording device when the cables were switched off
-    #[serde(rename = "cablesMic", skip_serializing_if = "String::is_empty")]
-    pub cables_mic: String,
     /// the one-time return of the cables is done (1.1.2 switched them off with every click)
     #[serde(rename = "cablesChecked")]
     pub cables_checked: bool,
@@ -376,7 +373,6 @@ impl Default for Config {
             out_on_new: "order".into(),
             out_on_lost: true,
             cables: true,
-            cables_mic: String::new(),
             cables_checked: false,
             prev_mic: String::new(),
             prev_out: String::new(),
@@ -577,6 +573,9 @@ pub fn migrate(c: &mut Config) {
     // early builds: the tray icon had its own colour and three battery morphs — both are gone
     c.extra.remove("iconTheme");
     c.extra.remove("morph");
+    // the cable kept aside by the cables switch: Windows' default microphone now follows microphone
+    // processing itself (audio::sync_fx_mic)
+    c.extra.remove("cablesMic");
     // early builds: a helper is handled as its app (Steam Client WebHelper as Steam); the app's own category
     // wins, the helper's pin and saved volume pass to the app
     let is = |x: &String, n: &str| x.eq_ignore_ascii_case(n);

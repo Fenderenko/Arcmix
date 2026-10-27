@@ -158,10 +158,6 @@ fn main() {
         let _ = CoInitializeEx(None, COINIT_APARTMENTTHREADED); // STA — needed for WebView2
     }
     audio::start();
-    // the cables are on but Windows' recording device was moved off the cable when they went off: back
-    if config::with(|c| c.cables && !c.cables_mic.is_empty()) {
-        audio::set_cables(true);
-    }
     tray::init();
     TASKBAR_CREATED.store(unsafe { RegisterWindowMessageW(w!("TaskbarCreated")) }, Ordering::Relaxed);
 

@@ -655,6 +655,8 @@ pub fn sync(c: &Config) {
     // microphone processing runs while either the denoiser or VST plugins are on (in "Features");
     // a category whose cable is this one is not routed (Config::route_cable)
     let want_mic = c.mic_fx_live() && !mc.out.is_empty() && (c.on("denoise") || c.on("vst"));
+    // while it runs, the cable is Windows' default microphone (unless the app keeps off Windows' sound)
+    crate::audio::sync_fx_mic(want_mic && c.win_ctl, &mc.out);
     let denoise = mc.denoise && c.on("denoise");
     let quality = want_mic && denoise && mc.denoise_kind == "nv" && crate::nvafx::available();
     crate::nvafx::set(&mc.nv_mode, mc.nv_strength);

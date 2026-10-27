@@ -192,9 +192,6 @@ pub fn apply(p: CfgPatch) {
     if p.features.is_some() && !config::get().on("monitor") && crate::router::monitor_wanted() {
         crate::router::monitor_set("stop"); // "listen to yourself" was switched off while running
     }
-    if let Some(on) = p.cables {
-        crate::audio::set_cables(on);
-    }
     if p.auto_switch == Some(true) {
         crate::audio::auto_switch_now();
     }

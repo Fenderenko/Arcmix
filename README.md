@@ -68,8 +68,10 @@ equalizer; *EQ Windows* is one curve for everything on the output device: click 
 **Microphone processing** (noise suppression, gate, VST):
 1. Install [VB-CABLE](https://vb-audio.com/Cable/) and restart the PC.
 2. **Microphone → Microphone processing**: turn on *Process microphone*, pick your real microphone and *Send to: CABLE Input*.
-3. In Discord, your game or OBS choose **CABLE Output** as the microphone. Others now hear the processed voice;
-   **Hear yourself** lets you check it. The cable adds about 45 ms of latency, noise suppression about 10 ms more.
+3. While processing is on, Arcmix makes **CABLE Output** Windows' default microphone: Discord, games and OBS that
+   use the default microphone hear the processed voice (an app set to a particular microphone needs **CABLE Output**
+   picked there). Picking a microphone in Arcmix then changes only what is processed; with processing off, Windows
+   gets that microphone back. **Hear yourself** lets you check the voice. The cable adds about 45 ms of latency, noise suppression about 10 ms more.
    *Processing order* at the end of the chain changes the order of the steps.
 
 **Audio routing** *(experimental)*: sends Game, Chat and Media into their own virtual cables, e.g. to capture

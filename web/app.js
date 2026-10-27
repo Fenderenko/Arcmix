@@ -1634,7 +1634,8 @@
       fillSel('mfxOut', [opt('', tx('— оберіть кабель —'), mf.out)].concat(vs.map(function (d) { return opt(d.id, d.name, mf.out, used.indexOf(d.id) >= 0); })), mf.out);
     }
     var pair = (vs.filter(function (d) { return d.id === mf.out; })[0] || {}).pair;
-    $('mfxHint').textContent = mf.out ? (pair ? tx('У Discord, грі чи OBS оберіть мікрофоном:') + ' «' + pair + '».' : tx('У Discord, грі чи OBS оберіть мікрофоном інший кінець цього кабелю.')) : '';
+    // with a known pair the app makes it Windows' default microphone while processing runs (audio::sync_fx_mic)
+    $('mfxHint').textContent = mf.out ? (pair ? tx('Поки обробка ввімкнена, мікрофоном Windows стоїть «%s»: Discord, гра й OBS з мікрофоном за замовчуванням чують оброблений голос.').replace('%s', pair) : tx('У Discord, грі чи OBS оберіть мікрофоном інший кінець цього кабелю.')) : '';
     gateSl.set(Math.max(-80, mf.gate)); if (!gateSl.busy()) $('mfxGateV').textContent = dbLabel(Math.max(-80, mf.gate), mf.gate <= -80);
     ceilSl.set(Math.min(0, mf.ceil)); if (!ceilSl.busy()) $('mfxCeilV').textContent = dbLabel(Math.min(0, mf.ceil), mf.ceil >= 0);
     setSw('swComp', !!mf.comp); $('compBox').classList.toggle('hide', !mf.comp);
@@ -2075,7 +2076,7 @@
       }
       var obHint = function (on) {
         var m = S.cfg.micFx || {}, c = on && (m.out ? virt().filter(function (d) { return d.id === m.out; })[0] : freeMicCable());
-        $('obMfxHint').textContent = c && c.pair ? tx('У Discord, грі чи OBS оберіть мікрофоном:') + ' «' + c.pair + '»' : '';
+        $('obMfxHint').textContent = c && c.pair ? tx('Поки обробка ввімкнена, мікрофоном Windows стоїть «%s»: Discord, гра й OBS з мікрофоном за замовчуванням чують оброблений голос.').replace('%s', c.pair) : '';
       };
       obHint(!!mf.on);
       $('obMfx').onclick = function () {

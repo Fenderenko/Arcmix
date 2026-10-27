@@ -282,14 +282,14 @@ pub fn set_out_volume(vol: Option<i32>, mute: Option<bool>) {
 
 /// (from the window) The chosen microphone becomes Windows' default too (all roles), so apps that
 /// use the default get it as well; the app then follows Windows (""). A virtual cable stays chosen
-/// by its id: "" never stands for a cable (com::auto_mic). While Windows' default recording device is
-/// a virtual cable (apps listen to the processed microphone there), it is kept: a real microphone is
-/// then chosen for the app only.
+/// by its id: "" never stands for a cable (com::auto_mic). While microphone processing runs or Windows'
+/// default recording device is a virtual cable (apps listen to the processed microphone there), Windows'
+/// default is kept: a real microphone is then the source of the processing only.
 pub fn set_input(id: &str) {
     let id = id.to_string();
     run(move |e| {
         let virt = e.en.get().cloned().and_then(|en| com::get_device(&en, &id)).is_some_and(|d| outprio::is_virtual_name(&com::friendly_name(&d)));
-        let keep = !virt && e.en.get().is_some_and(|en| cable_is_default_mic(en));
+        let keep = !virt && (fx_mic_on() || e.en.get().is_some_and(|en| cable_is_default_mic(en)));
         let ok = !keep && com::set_default_endpoint(&id);
         if ok {
             logf!("input: switched by user");
@@ -348,32 +348,28 @@ fn cable_is_default_mic(en: &windows::Win32::Media::Audio::IMMDeviceEnumerator) 
     com::list_flow(en, eCapture).iter().any(|d| d.default && d.is_virtual)
 }
 
-/// The cables were switched off (on = false) or on again (config cables): apps that listened to the
-/// processed microphone on a cable get the microphone itself as Windows' default recording device,
-/// and the cable back afterwards (kept in config cablesMic).
-pub fn set_cables(on: bool) {
-    run(move |e| {
-        let Some(en) = e.en.get().cloned() else { return };
-        let caps = com::list_flow(&en, eCapture);
-        if !on {
-            let Some(cable) = caps.iter().find(|d| d.default && d.is_virtual) else { return };
-            let c = config::get();
-            let mic = caps.iter().find(|d| !d.is_virtual && d.id == c.mic_dev).or_else(|| caps.iter().find(|d| !d.is_virtual));
-            if let Some(m) = mic.filter(|m| com::set_default_endpoint(&m.id)) {
-                logf!("cables off: recording default → {}", m.name);
-                let id = cable.id.clone();
-                config::set(|c| c.cables_mic = id);
-            }
-        } else {
-            let id = config::get().cables_mic.clone();
-            if !id.is_empty() && caps.iter().any(|d| d.id == id) && com::set_default_endpoint(&id) {
-                logf!("cables on: recording default → the cable again");
-            }
-            config::set(|c| c.cables_mic.clear());
+/// The last microphone processing state passed to sync_fx_mic: (on, its cable).
+static FX_MIC: Mutex<Option<(bool, String)>> = Mutex::new(None);
+
+/// Microphone processing is running (router::sync) — as last passed to sync_fx_mic.
+fn fx_mic_on() -> bool {
+    FX_MIC.lock().unwrap().as_ref().is_some_and(|v| v.0)
+}
+
+/// (router::sync) Microphone processing on: Windows' default recording device becomes the cable the
+/// processed microphone goes to, so apps with the default microphone hear it; the app's microphone
+/// (mic_dev, pinned first) stays the source. Off (the cables off too): the source becomes Windows'
+/// default again. Only when the state changes: a device picked in Windows by hand meanwhile stays.
+pub fn sync_fx_mic(on: bool, out: &str) {
+    let v = (on, if on { out.to_string() } else { String::new() });
+    {
+        let mut l = FX_MIC.lock().unwrap();
+        if l.as_ref() == Some(&v) {
+            return;
         }
-        e.refresh_mic();
-        server::notify_subs();
-    });
+        *l = Some(v.clone());
+    }
+    run(move |e| e.sync_fx_mic(&v.1));
 }
 
 /// (from the window) up | down | order (ids — the new order) | on | off | forget
@@ -466,6 +462,11 @@ pub struct Engine {
     out_vol: Option<(String, windows::Win32::Media::Audio::Endpoints::IAudioEndpointVolume, windows::Win32::Media::Audio::Endpoints::IAudioEndpointVolumeCallback)>,
     vol_restore_log: HashMap<String, Instant>,
     endpoints_log: String,
+    /// the recording side of the cable of microphone processing, made Windows' default ("" — processing
+    /// off; None — not known yet this run)
+    fx_mic: Option<String>,
+    /// Windows' default recording device before the cable took its place
+    fx_prev: String,
 }
 
 pub(crate) static SELF_PID: LazyLock<u32> = LazyLock::new(std::process::id);
@@ -501,6 +502,8 @@ fn engine_loop(rx: Receiver<Msg>) {
         out_vol: None,
         vol_restore_log: HashMap::new(),
         endpoints_log: String::new(),
+        fx_mic: None,
+        fx_prev: String::new(),
     };
     util::safely("audio start", || {
         e.refresh_mic();
@@ -539,6 +542,12 @@ fn engine_loop(rx: Receiver<Msg>) {
                 util::safely("audio restore", || {
                     (e.game, e.chat) = (100, 100);
                     e.apply(true);
+                    // nothing feeds the cable once the app is gone: apps get the microphone itself
+                    if let Some(had) = e.fx_mic.clone().filter(|h| !h.is_empty()) {
+                        if e.fx_mic_back(&had) {
+                            logf!("exit: Windows' recording default back from the cable to the microphone");
+                        }
+                    }
                 });
                 e.pm.sync(false);
                 let _ = done.send(());
@@ -975,6 +984,70 @@ impl Engine {
             });
         }
         self.refresh_mic();
+    }
+
+    /// Processing turned on (`out` — its cable) or off (""); see sync_fx_mic.
+    fn sync_fx_mic(&mut self, out: &str) {
+        let Some(en) = self.en.get().cloned() else { return };
+        let (render, capture) = com::list_audio_devices(&en);
+        // "CABLE Input (…)" plays into "CABLE Output (…)" — the one apps record from
+        let want = render
+            .iter()
+            .find(|r| !out.is_empty() && r.id == out && !r.pair.is_empty())
+            .and_then(|r| capture.iter().find(|c| c.is_virtual && c.name == r.pair))
+            .map(|c| c.id.clone())
+            .unwrap_or_default();
+        let had = self.fx_mic.replace(want.clone()).unwrap_or_default();
+        if had == want {
+            return;
+        }
+        if want.is_empty() {
+            if self.fx_mic_back(&had) {
+                logf!("mic processing off: Windows' recording default back from the cable to the microphone");
+                config::set(|c| c.mic_dev.clear()); // the app follows Windows again
+            }
+        } else {
+            let cur = com::default_id(&en, eCapture);
+            if capture.iter().any(|d| d.id == cur && !d.is_virtual) {
+                self.fx_prev = cur.clone();
+            }
+            // the source stays the microphone it was ("" would stand for another one once the cable is
+            // Windows' default: com::auto_mic)
+            let c = config::get();
+            let src = if c.mic_dev.is_empty() { com::auto_mic(&capture).unwrap_or_default() } else { c.mic_dev.clone() };
+            if src.is_empty() || src == want {
+                return; // no microphone to process
+            }
+            if c.mic_dev != src {
+                config::set(|c| c.mic_dev = src);
+            }
+            if cur != want && com::set_default_endpoint(&want) {
+                logf!("mic processing on: Windows' recording default → its cable");
+            }
+        }
+        self.refresh_mic();
+        std::thread::spawn(|| crate::router::sync(&config::get())); // the source pinned: the same microphone
+        server::notify_subs();
+    }
+
+    /// Windows' default recording device back from the cable `had` (if it is still the default) to the
+    /// microphone itself: the one chosen in the app, else the one before the cable, else com::auto_mic.
+    fn fx_mic_back(&mut self, had: &str) -> bool {
+        let Some(en) = self.en.get().cloned() else { return false };
+        if had.is_empty() || com::default_id(&en, eCapture) != had {
+            return false;
+        }
+        let capture = com::list_flow(&en, eCapture);
+        let real = |id: &str| capture.iter().any(|d| d.id == id && !d.is_virtual);
+        let c = config::get();
+        let to = if real(&c.mic_dev) {
+            c.mic_dev.clone()
+        } else if real(&self.fx_prev) {
+            self.fx_prev.clone()
+        } else {
+            com::auto_mic(&capture).unwrap_or_default()
+        };
+        !to.is_empty() && to != had && com::set_default_endpoint(&to)
     }
 
     /// Unmutes the app's microphone right away (on exit with push-to-talk on).
