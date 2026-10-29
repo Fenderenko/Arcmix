@@ -1,8 +1,8 @@
 //! Update check on request (About → "Check for updates"): the tag of the latest release in the
 //! GitHub repository, through WinHTTP (TLS and the proxy settings come from Windows). Nothing is
-//! checked on its own.
+//! checked on its own. "Update" puts the release's exe in place of the running one and restarts.
 
-use std::ffi::c_void;
+use std::{ffi::c_void, fs, path::PathBuf};
 
 use windows::{
     Win32::Networking::WinHttp::{
@@ -12,13 +12,23 @@ use windows::{
     core::{HSTRING, PCWSTR, w},
 };
 
-use crate::{APP_VER, logf};
+use crate::{APP_NAME, APP_VER, logf};
 
 /// The page of the latest release ("Download" opens it; listed in server::OPEN_URLS).
 pub const RELEASES_PAGE: &str = "https://github.com/Fenderenko/Arcmix/releases/latest";
 const API_PATH: PCWSTR = w!("/repos/Fenderenko/Arcmix/releases/latest");
 /// A release description is a few KB; anything far larger is not that answer.
 const MAX_BODY: usize = 1 << 20;
+/// Where the release files lie on github.com (the exe is taken only from there).
+const DOWNLOADS: &str = "/Fenderenko/Arcmix/releases/download/";
+
+/// The latest release: its version and the path of its exe on github.com (CI puts Arcmix-<version>.exe
+/// next to the zip; older releases have none).
+#[derive(Clone, Debug)]
+pub struct Latest {
+    pub ver: String,
+    pub exe: Option<String>,
+}
 
 /// A WinHTTP handle, closed when dropped.
 struct Handle(*mut c_void);
@@ -31,13 +41,86 @@ impl Drop for Handle {
     }
 }
 
-/// (any thread; blocks for up to ~20 s) The version of the latest release ("1.0.1"), or None when
-/// GitHub cannot be reached or there is no release yet.
-pub fn latest() -> Option<String> {
+/// (any thread; blocks for up to ~20 s) The latest release ("1.0.1"), or None when GitHub cannot be
+/// reached or there is no release yet.
+pub fn latest() -> Option<Latest> {
     let body = fetch(API_PATH)?;
     let v: serde_json::Value = serde_json::from_slice(&body).ok()?;
+    parse_latest(&v)
+}
+
+fn parse_latest(v: &serde_json::Value) -> Option<Latest> {
     let tag = v.get("tag_name")?.as_str()?.trim().trim_start_matches('v');
-    (!tag.is_empty()).then(|| tag.to_string())
+    if tag.is_empty() {
+        return None;
+    }
+    let name = format!("{APP_NAME}-{tag}.exe");
+    let exe = v.get("assets").and_then(|a| a.as_array()).and_then(|a| {
+        a.iter()
+            .find(|x| x.get("name").and_then(|n| n.as_str()) == Some(name.as_str()))
+            .and_then(|x| x.get("browser_download_url")?.as_str()?.strip_prefix("https://github.com"))
+            .filter(|p| p.starts_with(DOWNLOADS))
+            .map(str::to_string)
+    });
+    Some(Latest { ver: tag.to_string(), exe })
+}
+
+/// (any thread; blocks while downloading) Puts the release's exe in place of the running one (the
+/// running exe can be renamed, not overwritten) and starts it; the new copy waits for this one to
+/// quit (main: --after-update). The caller quits then. Err — nothing changed.
+pub fn install(l: &Latest) -> Result<(), String> {
+    let path = l.exe.as_deref().ok_or("the release has no exe")?;
+    let cur = std::env::current_exe().map_err(|e| e.to_string())?;
+    let (new, old) = (PathBuf::from(format!("{}.new", cur.display())), PathBuf::from(format!("{}.old", cur.display())));
+    let body = get_bytes("github.com", path, 64 << 20)?;
+    if body.len() < 1 << 20 || !body.starts_with(b"MZ") {
+        return Err("the download is not the program".into());
+    }
+    fs::write(&new, &body).map_err(|e| format!("{}: {e}", new.display()))?;
+    // the version inside the file, not just its name
+    let n = new.to_string_lossy();
+    if crate::appinfo::file_string_info(&n, "ProductName") != APP_NAME || crate::appinfo::file_string_info(&n, "ProductVersion") != l.ver {
+        let _ = fs::remove_file(&new);
+        return Err("the download is not the expected version".into());
+    }
+    let _ = fs::remove_file(&old);
+    if let Err(e) = fs::rename(&cur, &old) {
+        let _ = fs::remove_file(&new);
+        return Err(format!("{}: {e}", cur.display()));
+    }
+    let back = |e: String| {
+        let _ = fs::rename(&cur, &new);
+        let _ = fs::rename(&old, &cur);
+        Err(e)
+    };
+    if let Err(e) = fs::rename(&new, &cur) {
+        let _ = fs::rename(&old, &cur);
+        let _ = fs::remove_file(&new);
+        return Err(format!("{}: {e}", cur.display()));
+    }
+    if let Err(e) = std::process::Command::new(&cur).arg("--after-update").arg(std::process::id().to_string()).spawn() {
+        return back(e.to_string());
+    }
+    logf!("update: {APP_VER} → {} in place, restarting", l.ver);
+    Ok(())
+}
+
+/// (the new copy, before anything else) The previous copy is still quitting: waited for (it holds the
+/// single-copy mutex), its renamed exe removed after.
+pub fn after_update(pid: u32) {
+    use windows::Win32::{
+        Foundation::CloseHandle,
+        System::Threading::{OpenProcess, PROCESS_SYNCHRONIZE, WaitForSingleObject},
+    };
+    unsafe {
+        if let Ok(h) = OpenProcess(PROCESS_SYNCHRONIZE, false, pid) {
+            WaitForSingleObject(h, 20_000);
+            let _ = CloseHandle(h);
+        }
+    }
+    if let Ok(cur) = std::env::current_exe() {
+        let _ = fs::remove_file(format!("{}.old", cur.display()));
+    }
 }
 
 /// An open HTTPS GET with the answer received (status 200); the session and the connection live as
@@ -133,6 +216,20 @@ fn fetch(path: PCWSTR) -> Option<Vec<u8>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The exe of a release only from this repository's downloads.
+    #[test]
+    fn latest_exe() {
+        let v = serde_json::json!({ "tag_name": "v1.2.3", "assets": [
+            { "name": "Arcmix-1.2.3.zip", "browser_download_url": "https://github.com/Fenderenko/Arcmix/releases/download/v1.2.3/Arcmix-1.2.3.zip" },
+            { "name": "Arcmix-1.2.3.exe", "browser_download_url": "https://github.com/Fenderenko/Arcmix/releases/download/v1.2.3/Arcmix-1.2.3.exe" } ] });
+        let l = parse_latest(&v).unwrap();
+        assert_eq!(l.ver, "1.2.3");
+        assert_eq!(l.exe.as_deref(), Some("/Fenderenko/Arcmix/releases/download/v1.2.3/Arcmix-1.2.3.exe"));
+        let elsewhere = serde_json::json!({ "tag_name": "v1.2.3", "assets": [{ "name": "Arcmix-1.2.3.exe", "browser_download_url": "https://example.com/Arcmix-1.2.3.exe" }] });
+        assert_eq!(parse_latest(&elsewhere).unwrap().exe, None);
+        assert_eq!(parse_latest(&serde_json::json!({ "tag_name": "v1.2.0" })).unwrap().exe, None, "an older release without the exe");
+    }
 
     /// A real request over the network: cargo test --release -- --ignored live_github
     #[test]

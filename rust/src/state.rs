@@ -83,6 +83,8 @@ pub struct CfgJson {
     pub vst_safe: bool,
     #[serde(rename = "winCtl")]
     pub win_ctl: bool,
+    #[serde(rename = "chatToHs")]
+    pub chat_to_hs: bool,
     #[serde(rename = "apoHs")]
     pub apo_hs: bool,
     /// AutoEQ per output device: only whether it is on (the curves stay in the config)
@@ -145,6 +147,9 @@ pub struct StateJson {
     pub version: &'static str,
     /// the settings are kept next to Arcmix.exe
     pub portable: bool,
+    /// the headset mixes game and chat itself by its dial (separate "Chat" device)
+    #[serde(rename = "hwChatmix")]
+    pub hw_chatmix: bool,
     pub route: router::PipeStatus,
     #[serde(rename = "micFx")]
     pub mic_fx: router::PipeStatus,
@@ -284,6 +289,7 @@ pub fn build() -> StateJson {
             sounds: c.sounds,
             vst_safe: c.vst_safe,
             win_ctl: c.win_ctl,
+            chat_to_hs: c.chat_to_hs,
             apo_hs: c.apo_hs,
             auto_eq: c.auto_eq.iter().map(|(k, a)| (k.clone(), AeqOn { on: a.on })).collect(),
             duck_level: c.duck_level,
@@ -310,6 +316,7 @@ pub fn build() -> StateJson {
         device,
         version: APP_VER,
         portable: crate::util::portable(),
+        hw_chatmix: crate::devices::hardware_chatmix(),
         route,
         mic_fx,
         nv: crate::nvafx::status(),

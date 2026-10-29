@@ -88,6 +88,16 @@
    "pt": "O Arcmix controla o volume e o silenciamento do microfone escolhido na tela principal. Discord, jogos ou OBS usam o microfone escolhido nas próprias configurações. Para que ouçam o microfone do Arcmix com o antirruído, escolha neles um cabo virtual e ligue aqui o processamento do microfone: ele envia o microfone para o cabo.",
    "tr": "Arcmix, ana ekranda seçilen mikrofonun ses düzeyini ve sessize alınmasını yönetir. Discord, oyunlar veya OBS kendi ayarlarında seçilen mikrofonu kullanır. Arcmix'teki mikrofonu gürültü önlemeyle duymaları için onlarda sanal bir kablo seçin ve burada mikrofon işlemeyi açın: mikrofonu kabloya gönderir."
   },
+  "Arcmix перезапускається з новою версією…": {
+   "de": "Arcmix startet mit der neuen Version neu…",
+   "en": "Arcmix is restarting with the new version…",
+   "es": "Arcmix se reinicia con la nueva versión…",
+   "fr": "Arcmix redémarre avec la nouvelle version…",
+   "it": "Arcmix si riavvia con la nuova versione…",
+   "pl": "Arcmix uruchamia się ponownie z nową wersją…",
+   "pt": "O Arcmix está reiniciando com a nova versão…",
+   "tr": "Arcmix yeni sürümle yeniden başlatılıyor…"
+  },
   "Bluetooth при ввімкненні": {
    "de": "Bluetooth beim Einschalten",
    "en": "Bluetooth on power-up",
@@ -1338,6 +1348,16 @@
    "pt": "Carregar configurações",
    "tr": "Ayarları yükle"
   },
+  "Завантажую оновлення…": {
+   "de": "Update wird heruntergeladen…",
+   "en": "Downloading the update…",
+   "es": "Descargando la actualización…",
+   "fr": "Téléchargement de la mise à jour…",
+   "it": "Download dell'aggiornamento…",
+   "pl": "Pobieranie aktualizacji…",
+   "pt": "Baixando a atualização…",
+   "tr": "Güncelleme indiriliyor…"
+  },
   "Завантажую…": {
    "de": "Lade herunter…",
    "en": "Downloading…",
@@ -2398,6 +2418,16 @@
    "pt": "Não foi possível salvar as configurações",
    "tr": "Ayarlar kaydedilemedi"
   },
+  "Не вдалося оновити:": {
+   "de": "Aktualisierung fehlgeschlagen:",
+   "en": "Could not update:",
+   "es": "No se pudo actualizar:",
+   "fr": "Impossible de mettre à jour :",
+   "it": "Impossibile aggiornare:",
+   "pl": "Nie udało się zaktualizować:",
+   "pt": "Não foi possível atualizar:",
+   "tr": "Güncellenemedi:"
+  },
   "Не вдалося перевірити оновлення": {
    "de": "Suche nach Updates fehlgeschlagen",
    "en": "Couldn't check for updates",
@@ -2697,6 +2727,16 @@
    "pl": "Przetwarzaj mikrofon",
    "pt": "Processar microfone",
    "tr": "Mikrofonu işle"
+  },
+  "Оновити до %s": {
+   "de": "Auf %s aktualisieren",
+   "en": "Update to %s",
+   "es": "Actualizar a %s",
+   "fr": "Mettre à jour vers %s",
+   "it": "Aggiorna a %s",
+   "pl": "Zaktualizuj do %s",
+   "pt": "Atualizar para %s",
+   "tr": "%s sürümüne güncelle"
   },
   "Основне": {
    "de": "Grundlegend",
@@ -4248,6 +4288,16 @@
    "pt": "Chat",
    "tr": "Sohbet"
   },
+  "Чат — у «Chat» гарнітури": {
+   "de": "Chat auf „Chat“ des Headsets",
+   "en": "Chat to the headset's “Chat”",
+   "es": "Chat al «Chat» de los auriculares",
+   "fr": "Chat vers « Chat » du casque",
+   "it": "Chat su «Chat» delle cuffie",
+   "pl": "Czat do „Chat” słuchawek",
+   "pt": "Chat no «Chat» do headset",
+   "tr": "Sohbet kulaklığın «Chat» aygıtına"
+  },
   "Чат → кабель": {
    "de": "Chat → Kabel",
    "en": "Chat → cable",
@@ -5277,6 +5327,16 @@
    "pl": "przewód",
    "pt": "cabo",
    "tr": "kablolu"
+  },
+  "програми «Чату» грають у «%s»: коліщатко ChatMix на гарнітурі міксує їх із грою": {
+   "de": "„Chat“-Apps spielen auf „%s“: Das ChatMix-Rad am Headset mischt sie mit dem Spiel",
+   "en": "“Chat” apps play to “%s”: the ChatMix dial on the headset mixes them with the game",
+   "es": "las apps de «Chat» suenan en «%s»: la rueda ChatMix de los auriculares las mezcla con el juego",
+   "fr": "les applis « Chat » jouent sur « %s » : la molette ChatMix du casque les mélange avec le jeu",
+   "it": "le app di «Chat» suonano su «%s»: la rotella ChatMix delle cuffie le mescola con il gioco",
+   "pl": "aplikacje „Czatu” grają na „%s”: pokrętło ChatMix na słuchawkach miesza je z grą",
+   "pt": "os apps do «Chat» tocam em «%s»: a roda ChatMix do headset as mistura com o jogo",
+   "tr": "«Sohbet» uygulamaları «%s» üzerinden çalar: kulaklıktaki ChatMix tekerleği onları oyunla karıştırır"
   },
   "рівне звучання для вашої моделі навушників": {
    "de": "neutraler Klang für dein Kopfhörermodell",

@@ -140,8 +140,13 @@ class H(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         n=int(self.headers.get('Content-Length',0)); body=json.loads(self.rfile.read(n) or b'{}'); p=self.path.split('?')[0]
         if p=='/api/update':
+            # ?newer in the page address: a newer release with its exe, for "Update"
+            newer='newer' in (self.headers.get('Referer') or '')
             time.sleep(0.8); self.send_response(200); self.send_header('Content-Type','application/json'); self.end_headers()
-            self.wfile.write(json.dumps({'latest':STATE['version'],'newer':False}).encode()); return
+            self.wfile.write(json.dumps({'latest':'9.9.9' if newer else STATE['version'],'newer':newer,'exe':newer}).encode()); return
+        if p=='/api/update/install':
+            time.sleep(1.5); self.send_response(200); self.send_header('Content-Type','application/json'); self.end_headers()
+            self.wfile.write(json.dumps({'ok':True}).encode()); return
         if p=='/api/autoeq' and 'q' in body:
             # a few models, as the AutoEQ index lists them
             ms=[{'n':'SteelSeries Arctis 7+','s':'Rtings on HMS II.3','p':'x'},{'n':'SteelSeries Arctis 7P','s':'Rtings on HMS II.3','p':'y'},{'n':'Sony LinkBuds S','s':'DHRME','p':'z'},{'n':'Sony WH-1000XM5','s':'oratory1990','p':'w'}]

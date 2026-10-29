@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Packs a release: Arcmix-<version>.zip in the repository root with Arcmix.exe, README.txt,
-LICENSE.txt, THIRD_PARTY.md and OFL-Onest.txt inside an Arcmix-<version> folder.
+LICENSE.txt, THIRD_PARTY.md and OFL-Onest.txt inside an Arcmix-<version> folder, and the bare
+Arcmix-<version>.exe next to it (for the app's "Update").
 Usage: python tools/package.py [path to the exe]   (default: rust/target/release/arcmix.exe)"""
 import hashlib, os, re, sys, zipfile
 
@@ -37,6 +38,10 @@ def main():
             z.writestr(zipfile.ZipInfo(f'Arcmix-{ver}/{name}', date_time=(2026, 1, 1, 12, 0, 0)), data, zipfile.ZIP_DEFLATED)
     data = open(out, 'rb').read()
     print(f'{out}: {len(data)} bytes, sha256 {hashlib.sha256(data).hexdigest()}')
+    # the bare exe next to the zip: "Update" in the app downloads it (update::install)
+    exe_out = os.path.join(ROOT, f'Arcmix-{ver}.exe')
+    open(exe_out, 'wb').write(items[0][1])
+    print(f'{exe_out}: {len(items[0][1])} bytes')
 
 
 main()

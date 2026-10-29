@@ -54,6 +54,8 @@ pub const OPEN_URLS: [&str; 7] = [
     crate::apo::DOWNLOAD_PAGE,
 ];
 
+/// The newer release found by the last update check ("Update" installs it).
+static LATEST: Mutex<Option<crate::update::Latest>> = Mutex::new(None);
 static PORT: AtomicU16 = AtomicU16::new(0);
 static TOKEN: Mutex<String> = Mutex::new(String::new());
 static SUBS: Mutex<Vec<SyncSender<()>>> = Mutex::new(Vec::new());
@@ -631,9 +633,30 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
         "/api/update" => {
             // a request to GitHub only on the button press; the answer waits for it (own connection thread)
             let latest = crate::update::latest();
-            let newer = latest.as_deref().is_some_and(|v| crate::version::newer(v, crate::APP_VER));
-            logf!("update check: latest {}, newer {newer}", latest.as_deref().unwrap_or("-"));
-            http::json(&json!({ "latest": latest, "newer": newer }))
+            let ver = latest.as_ref().map(|l| l.ver.clone());
+            let newer = ver.as_deref().is_some_and(|v| crate::version::newer(v, crate::APP_VER));
+            let exe = newer && latest.as_ref().is_some_and(|l| l.exe.is_some());
+            logf!("update check: latest {}, newer {newer}, exe {exe}", ver.as_deref().unwrap_or("-"));
+            *LATEST.lock().unwrap() = latest.filter(|_| newer);
+            http::json(&json!({ "latest": ver, "newer": newer, "exe": exe }))
+        }
+        "/api/update/install" => {
+            // the release found by the last check: downloaded, put in place, the app restarts
+            let Some(l) = LATEST.lock().unwrap().clone() else { return http::json(&json!({ "err": "no update found" })) };
+            match crate::update::install(&l) {
+                Ok(()) => {
+                    // after the answer is sent: the new copy waits for this one to quit
+                    std::thread::spawn(|| {
+                        std::thread::sleep(std::time::Duration::from_millis(400));
+                        util::post_ui(crate::WM_QUIT_REQ, 0);
+                    });
+                    http::json(&json!({ "ok": true }))
+                }
+                Err(e) => {
+                    logf!("update failed: {e}");
+                    http::json(&json!({ "err": e }))
+                }
+            }
         }
         "/api/vst/scan" => http::json(&crate::vst::scan()),
         "/api/vst/pick" => {

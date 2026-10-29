@@ -132,6 +132,11 @@ fn main() {
     unsafe {
         let _ = SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
     }
+    // started by "Update": the previous copy is still quitting — its window shown here when ready
+    let updated = args.get(1).is_some_and(|a| a == "--after-update");
+    if updated {
+        update::after_update(args.get(2).and_then(|p| p.parse().ok()).unwrap_or(0));
+    }
     let mutex = unsafe { CreateMutexW(None, false, w!(r"Local\ArcmixSingleton")) };
     if unsafe { GetLastError() } == ERROR_ALREADY_EXISTS {
         show_running(); // a copy runs already — its window is shown
@@ -192,6 +197,12 @@ fn main() {
     vst::sync();
     std::thread::spawn(fly::cleanup_old);
     devices::start();
+    if updated {
+        logf!("updated to {APP_VER}");
+        unsafe {
+            let _ = PostMessageW(Some(hwnd), WM_SHOW_REQ, WPARAM(0), LPARAM(0)); // the window was open for "Update"
+        }
+    }
 
     let mut m = MSG::default();
     while unsafe { GetMessageW(&mut m, None, 0, 0) }.0 > 0 {

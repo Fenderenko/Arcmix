@@ -52,6 +52,9 @@ pub struct OutInfo {
     /// the Windows volume of this output, 0..100, and its mute
     pub vol: i32,
     pub mute: bool,
+    /// the headset's own "Chat" device next to this one (its dial mixes the two inside the headset)
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub chat: String,
 }
 
 #[derive(Serialize, Clone, Debug, Default, PartialEq)]
@@ -522,6 +525,8 @@ pub struct Engine {
     fx_mic: Option<String>,
     /// Windows' default recording device before the cable took its place
     fx_prev: String,
+    /// the id of the headset's "Chat" device next to the playing one (output.rs refresh_out); "" — none
+    hw_chat: String,
 }
 
 pub(crate) static SELF_PID: LazyLock<u32> = LazyLock::new(std::process::id);
@@ -559,6 +564,7 @@ fn engine_loop(rx: Receiver<Msg>) {
         endpoints_log: String::new(),
         fx_mic: None,
         fx_prev: String::new(),
+        hw_chat: String::new(),
     };
     util::safely("audio start", || {
         e.refresh_mic();
@@ -724,6 +730,9 @@ impl Engine {
             v.seen = false;
         }
         let route_on = !restore && cfg.route.auto && crate::router::route_live();
+        // hardware ChatMix (the headset mixes its "Game" and "Chat" devices by the dial): chat apps play to
+        // its "Chat" device, so the dial works for them with nothing set in the apps themselves
+        let hw_chat = if !restore && cfg.chat_to_hs && crate::devices::hardware_chatmix() { self.hw_chat.clone() } else { String::new() };
         let collect = self.duck_begin(&cfg, restore);
         self.act_begin();
         // devices whose sound ducking and the "playing" mark listen to
@@ -767,7 +776,7 @@ impl Engine {
             seen.entry(exe.clone()).and_modify(|x| x.playing |= playing).or_insert(SessInfo { exe: shown, playing, vol: 0.0 });
             let cat = cfg.category(&exe);
             if seen_pid.insert(s.pid) {
-                match self.route_app(s.pid, &exe, cat, &cfg, route_on) {
+                match self.route_app(s.pid, &exe, cat, &cfg, route_on, &hw_chat) {
                     1 => add_routed.push(exe.clone()),
                     -1 => del_routed.push(exe.clone()),
                     _ => {}
@@ -934,13 +943,17 @@ impl Engine {
     }
 
     /// Sends the app to its own output device (chosen in its menu), otherwise into the cable of its
-    /// category (when routing runs) or back to the default device. Apps not touched by us are left
-    /// alone (the user's manual settings). 1 — routed, -1 — put back, 0 — no change.
-    fn route_app(&mut self, pid: u32, exe: &str, cat: &str, cfg: &config::Config, route_on: bool) -> i32 {
+    /// category (when routing runs), a chat app to the headset's "Chat" device (`hw_chat`, hardware
+    /// ChatMix), or back to the default device. Apps not touched by us are left alone (the user's manual
+    /// settings). 1 — routed, -1 — put back, 0 — no change.
+    fn route_app(&mut self, pid: u32, exe: &str, cat: &str, cfg: &config::Config, route_on: bool, hw_chat: &str) -> i32 {
+        let cable = if route_on { cfg.route_cable(cat) } else { "" };
         let want = if let Some(dev) = cfg.app_outs.get(exe) {
             dev.clone()
-        } else if route_on {
-            cfg.route_cable(cat).to_string()
+        } else if !cable.is_empty() {
+            cable.to_string()
+        } else if cat == "chat" {
+            hw_chat.to_string()
         } else {
             String::new()
         };

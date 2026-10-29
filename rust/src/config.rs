@@ -142,6 +142,9 @@ pub struct Config {
     /// the microphone chosen in the app becomes Windows' default too; the Windows volume card shows
     #[serde(rename = "winCtl")]
     pub win_ctl: bool,
+    /// hardware ChatMix: chat apps play to the headset's "Chat" device (Engine::route_app)
+    #[serde(rename = "chatToHs")]
+    pub chat_to_hs: bool,
     /// Equalizer APO also on a headset that has its own equalizer (off: only the headset's one works)
     #[serde(rename = "apoHs")]
     pub apo_hs: bool,
@@ -387,6 +390,7 @@ impl Default for Config {
             vst_safe: false,
             untested_eq: false,
             win_ctl: true,
+            chat_to_hs: true,
             apo_hs: false,
             ui_colors: Vec::new(),
             duck_level: 100,

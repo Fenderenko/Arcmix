@@ -59,6 +59,8 @@ pub struct CfgPatch {
     vst_safe: Option<bool>,
     #[serde(rename = "winCtl")]
     win_ctl: Option<bool>,
+    #[serde(rename = "chatToHs")]
+    chat_to_hs: Option<bool>,
     #[serde(rename = "apoHs")]
     apo_hs: Option<bool>,
     #[serde(rename = "uiColors")]
@@ -149,6 +151,7 @@ pub fn apply(p: CfgPatch) {
             c.osd_corner = k.to_string();
         }
         set_b(&mut c.win_ctl, p.win_ctl);
+        set_b(&mut c.chat_to_hs, p.chat_to_hs);
         set_b(&mut c.apo_hs, p.apo_hs);
         if let Some(v) = p.ui_colors.filter(|v| v.len() == 6 && v.iter().all(|x| config::parse_hex(x).is_some())) {
             c.ui_colors = v;

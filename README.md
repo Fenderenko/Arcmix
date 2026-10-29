@@ -33,13 +33,13 @@ Arcmix started from the idea of Swiftlyx's [OpenChatMix](https://github.com/Swif
 - **Tray icon.** The app mark while the balance is equal; two capsules in the theme's game / chat colours once it moves — or the headset battery instead of the mark. The mouse wheel over it changes the balance or shows the battery.
 - **A compact window.** Four tabs — Mix, Sound, Microphone, Settings; settings open as pages, and the mouse back / forward buttons move through tabs and pages.
 - **Features you can turn off.** Settings → General → Features: a feature that is off disappears from the window and does not run.
-- **Update check.** Settings → About → *Check for updates* asks GitHub for the latest release. Nothing is checked on its own.
+- **Updates in one click.** Settings → About → *Check for updates* asks GitHub for the latest release; *Update to …* downloads it, puts it in place of `Arcmix.exe` and restarts the app (settings and autostart stay). Nothing is checked on its own.
 - **Portable settings.** Settings → Settings and help → *Settings next to Arcmix.exe* keeps `config.json` and the rest in the app folder instead of `%APPDATA%`.
 - **Themes (Black hole by default, or your own colours), profiles, hotkeys, settings in a file, 9 languages** (English, Українська, Deutsch, Français, Español, Português (Brasil), Polski, Italiano, Türkçe).
 
 ## Download and install
 
-1. Download `Arcmix-1.2.2.zip` from [Releases](../../releases) and unpack it to any folder (e.g. `C:\Programs\Arcmix`).
+1. Download `Arcmix-1.2.3.zip` from [Releases](../../releases) and unpack it to any folder (e.g. `C:\Programs\Arcmix`).
 2. Run `Arcmix.exe`. The exe is not code-signed, so Windows SmartScreen may warn you: click **More info → Run anyway**.
 3. The icon appears in the tray (click it to open the window). A short first-run guide walks through the basics, the equalizer module included.
 
@@ -110,6 +110,9 @@ Battery, sidetone, the hardware equalizer and other headset settings need the he
   the device descriptions of [Linux-Arctis-Manager](https://github.com/elegos/Linux-Arctis-Manager) in
   `web/devices.json`. They are **not tested**: some settings may be missing or behave differently.
   Reports are welcome.
+- **Hardware ChatMix** (Arctis 7, 9, Pro, Nova Pro — a separate "Chat" device in Windows): the headset's dial
+  mixes its "Game" and "Chat" devices itself, so Arcmix sends the Chat apps to the "Chat" device on its own — the
+  dial then works for Discord with nothing set in Discord (Settings → Devices → *Chat to the headset's “Chat”*).
 - **Arctis 7 (2018, 2019) and Arctis 9:** corrected after HeadsetControl and the Linux kernel driver (the USB
   interface, the ChatMix values, the Arctis 9 battery). Their dial is read every second.
 - **Connection type:** Bluetooth and a 3.5 mm jack are shown as such; over USB Windows cannot tell a cable from

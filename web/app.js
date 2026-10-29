@@ -229,7 +229,7 @@
   // every setting row: an icon tile that says what it is about
   var ROWIC = { swAuto: 'power', langSel: 'globe', swWinCtl: 'monitor', swTaskbar: 'pin', swOsd: 'msg', osdCorner: 'corner', swSounds: 'bell', swMicHk: 'keyboard',
     swPtt: 'mic', swLow: 'battery', swFull: 'batfull', swSwitch: 'refresh', swCables: 'route', swOnLost: 'refresh', swSwitchMic: 'mic', outOrder: 'list', swMfx: 'wand', swDenoise: 'sparkles', swComp: 'sliders',
-    swMonLive: 'headphones', swRt: 'route', swOled: 'moon', swDuckMedia: 'duck', wheelSeg: 'mouse' };
+    swMonLive: 'headphones', swRt: 'route', swOled: 'moon', swDuckMedia: 'duck', wheelSeg: 'mouse', swChatHs: 'msg' };
   Object.keys(ROWIC).forEach(function (id) {
     var el = $(id), row = el && el.closest('.row');
     if (row && !row.querySelector('.ri')) row.insertAdjacentHTML('afterbegin', '<span class="ri">' + icon(ROWIC[id], 15) + '</span>');
@@ -1927,6 +1927,7 @@
   $('swSounds').onclick = function () { patch({ sounds: !S.cfg.sounds }); };
   $('vstSafeOff').onclick = function () { patch({ vstSafe: false }); };
   $('swWinCtl').onclick = function () { patch({ winCtl: !S.cfg.winCtl }); };
+  $('swChatHs').onclick = function () { patch({ chatToHs: S.cfg.chatToHs === false }); };
   $('quit').onclick = function () { api('/api/quit', {}); };
   $('expBtn').onclick = function () { api('/api/settings', { op: 'export' }); };
   $('impBtn').onclick = function () { api('/api/settings', { op: 'import' }); };
@@ -2021,14 +2022,28 @@
   });
   $('creditLink').onclick = function () { api('/api/open', { url: 'https://github.com/Swiftlyx/OpenChatMix' }); };
   $('authorLink').onclick = function () { api('/api/open', { url: 'https://github.com/Fenderenko/Arcmix' }); };
-  $('updGet').onclick = function () { api('/api/open', { url: 'https://github.com/Fenderenko/Arcmix/releases/latest' }); };
+  // "Update": the release's exe put in place of this one and started (update::install); a release without
+  // it (or a failed install) — its page in the browser
+  var updExe = false;
+  function updManual() { updExe = false; $('updGet').textContent = tx('Завантажити'); }
+  $('updGet').onclick = function () {
+    if (!updExe) { api('/api/open', { url: 'https://github.com/Fenderenko/Arcmix/releases/latest' }); return; }
+    var b = $('updGet'), st = $('updStatus');
+    b.disabled = true; st.textContent = tx('Завантажую оновлення…'); st.className = 'sub';
+    api('/api/update/install', {}).then(function (r) { return r.json(); }).then(function (o) {
+      if (o.ok) { st.textContent = tx('Arcmix перезапускається з новою версією…'); return; }
+      st.textContent = tx('Не вдалося оновити:') + ' ' + (o.err || ''); st.className = 'sub st-err'; updManual(); b.disabled = false;
+    }).catch(function () { st.textContent = tx('Не вдалося оновити:'); st.className = 'sub st-err'; updManual(); b.disabled = false; });
+  };
   // update check only on request: the server asks GitHub for the latest release
   $('updCheck').onclick = function () {
     var b = $('updCheck'), st = $('updStatus');
     b.disabled = true; b.textContent = tx('Перевіряю…');
-    $('updGet').classList.add('hide');
+    $('updGet').classList.add('hide'); st.className = 'sub';
     api('/api/update', {}).then(function (r) { return r.json(); }).then(function (u) {
       st.textContent = u.newer ? tx('Доступна версія %s').replace('%s', u.latest) : (u.latest ? tx('Встановлено найновішу версію') : tx('Не вдалося перевірити оновлення'));
+      updExe = !!(u.newer && u.exe);
+      $('updGet').textContent = updExe ? tx('Оновити до %s').replace('%s', u.latest) : tx('Завантажити');
       $('updGet').classList.toggle('hide', !u.newer);
     }).catch(function () { st.textContent = tx('Не вдалося перевірити оновлення'); }).then(function () {
       st.classList.remove('hide'); b.disabled = false; b.textContent = tx('Перевірити оновлення');
@@ -2220,6 +2235,10 @@
     $('wheelHint').textContent = { battery: tx(c.trayBattery ? 'Прокрутка над іконкою ненадовго показує іконку замість заряду.' : 'Прокрутка над іконкою ненадовго показує заряд.'), balance: tx('Прокрутка над іконкою змінює баланс гра / чат, як повзунок у вікні.'), off: '' }[c.wheelMode || 'battery'];
     pressed('modeSeg', c.mode === 'light' || c.mode === 'auto' ? c.mode : 'dark'); pressed('sideSeg', c.sidetone); $('offDropT').textContent = offLabel(c.autoOff); pressed('gainSeg', c.micGain); setSw('swLed', c.muteLed !== 0);
     setSw('swLow', c.lowBattery); setSw('swAuto', c.autostart); setSw('swFull', c.fullNotify); setSw('swPortable', !!s.portable);
+    // hardware ChatMix: chat apps play to the headset's "Chat" device (audio::route_app)
+    var hsChat = s.hwChatmix && s.out && s.out.chat;
+    $('chatHsRow').classList.toggle('hide', !hsChat);
+    if (hsChat) { setSw('swChatHs', c.chatToHs !== false); $('chatHsSub').textContent = tx('програми «Чату» грають у «%s»: коліщатко ChatMix на гарнітурі міксує їх із грою').replace('%s', s.out.chat); }
     pressed('lowSeg', c.lowLevel || 20); $('lowSeg').classList.toggle('hide', !c.lowBattery);
     $('battEst').textContent = s.battHours > 0 && !s.charging ? tx('Прогноз роботи від батареї:') + ' ≈ ' + s.battHours + ' ' + tx('год') : tx('Прогноз роботи з’явиться, коли заряд почне знижуватися.');
     setSw('swSwitch', c.autoSwitch); setSw('swSwitchMic', c.switchMic); $('switchMicRow').classList.toggle('hide', !c.autoSwitch);

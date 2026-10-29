@@ -1,6 +1,7 @@
 # Every push: the build without warnings, the tests and the translations check.
-# A tag v*: the release build is packed into Arcmix-<version>.zip and put into a draft release,
-# which is published by hand after a look.
+# A tag v*: the release build is packed into Arcmix-<version>.zip (and the bare Arcmix-<version>.exe
+# for the app's "Update") and published as a release right away (the app's update check sees
+# published releases only).
 name: CI
 
 on:
@@ -57,9 +58,11 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         run: python tools/package.py
 
-      - name: Draft release
+      - name: Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: Arcmix-*.zip
-          draft: true
+          files: |
+            Arcmix-*.zip
+            Arcmix-*.exe
+          draft: false

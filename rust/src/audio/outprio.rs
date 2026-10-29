@@ -102,6 +102,25 @@ pub fn headset_rank(name: &str) -> i32 {
     }
 }
 
+/// The "Chat" device of the headset that plays now (hardware ChatMix): "Headset Earphone (Arctis 7 Chat)"
+/// next to "Headphones (Arctis 7 Game)" — the part in brackets without " Chat" begins the playing one's.
+/// (id, name) of active output devices.
+pub fn chat_endpoint<'a>(eps: &'a [(String, String)], out_id: &str, out_name: &str) -> Option<&'a (String, String)> {
+    let bracket = |n: &str| match (n.rfind('('), n.rfind(')')) {
+        (Some(i), Some(j)) if j > i => n[i + 1..j].trim().to_lowercase(),
+        _ => String::new(),
+    };
+    let out = bracket(out_name);
+    if out.is_empty() || out.ends_with(" chat") || is_virtual_name(out_name) {
+        return None;
+    }
+    eps.iter().find(|(id, name)| {
+        let b = bracket(name);
+        let base = b.strip_suffix(" chat").unwrap_or("");
+        id != out_id && !is_virtual_name(name) && !base.is_empty() && (base.contains("arctis") || base.contains("steelseries")) && out.starts_with(base)
+    })
+}
+
 /// The highest device in the list that sound can go to now.
 pub fn out_top(list: &[super::OutDevJson]) -> String {
     list.iter().find(|d| d.state == "on").map(|d| d.id.clone()).unwrap_or_default()
@@ -145,6 +164,18 @@ mod tests {
 
     fn ids(l: &[OutDev]) -> String {
         l.iter().map(|d| d.id.as_str()).collect::<Vec<_>>().join(",")
+    }
+
+    /// The "Chat" device of the playing headset only.
+    #[test]
+    fn chat_device() {
+        let l = |v: &[(&str, &str)]| v.iter().map(|(a, b)| (a.to_string(), b.to_string())).collect::<Vec<_>>();
+        let eps = l(&[("g", "Headphones (Arctis 7 Game)"), ("c", "Headset Earphone (Arctis 7 Chat)"), ("s", "Speakers (Realtek)"), ("v", "SteelSeries Sonar - Chat (SteelSeries Sonar Virtual Audio Device)")]);
+        assert_eq!(chat_endpoint(&eps, "g", "Headphones (Arctis 7 Game)").map(|x| x.0.as_str()), Some("c"));
+        assert_eq!(chat_endpoint(&eps, "s", "Speakers (Realtek)"), None, "speakers play");
+        assert_eq!(chat_endpoint(&eps, "c", "Headset Earphone (Arctis 7 Chat)"), None, "the Chat device itself plays");
+        let plus = l(&[("p", "Headphones (Arctis 7+)")]);
+        assert_eq!(chat_endpoint(&plus, "p", "Headphones (Arctis 7+)"), None, "Arctis 7+ has no Chat device");
     }
 
     fn ep(id: &str, name: &str, state: u32) -> OutEp {

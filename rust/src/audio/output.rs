@@ -199,7 +199,15 @@ impl Engine {
                 if oi.conn == "bt" {
                     oi.batt = self.bt_batt.get(&oi.id);
                 }
+                // the headset's "Chat" device next to the playing one: chat apps go there (Engine::route_app)
+                let eps: Vec<(String, String)> = com::list_flow(&en, eRender).into_iter().map(|d| (d.id, d.name)).collect();
+                if let Some((id, name)) = super::outprio::chat_endpoint(&eps, &oi.id, &oi.name) {
+                    (self.hw_chat, oi.chat) = (id.clone(), name.clone());
+                }
             }
+        }
+        if oi.chat.is_empty() {
+            self.hw_chat.clear();
         }
         let changed = {
             let mut sh = shared();
