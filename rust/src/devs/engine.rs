@@ -181,6 +181,9 @@ pub struct DevHid {
     pub sync: Option<DevIface>,
     #[serde(rename = "unnumbered_reports")]
     pub unnumbered: bool,
+    /// the described interface is in doubt: another vendor collection is taken when it is missing (quirks)
+    #[serde(skip)]
+    pub any_iface: bool,
 }
 
 #[derive(Deserialize, Clone, Debug, Default)]
@@ -240,6 +243,8 @@ fn quirks(c: &mut DevConfig) {
             chatmix_transform(c, "arctis_7_chatmix_to_percent", t);
         }
         "arctis_9.yaml" => {
+            // HeadsetControl and the Linux driver use interface 0, the description 2
+            c.device.hid.any_iface = true;
             // each channel 0..19
             let t = DevTransform { typ: "linear".into(), scale: 100.0 / 19.0, ..Default::default() };
             chatmix_transform(c, "arctis_9_chatmix_to_percent", t);

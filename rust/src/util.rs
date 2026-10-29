@@ -69,7 +69,8 @@ pub fn data_dir() -> PathBuf {
 
 /// The folder of Arcmix.exe.
 pub fn exe_dir() -> Option<PathBuf> {
-    std::env::current_exe().ok()?.parent().map(Path::to_path_buf)
+    static DIR: std::sync::OnceLock<Option<PathBuf>> = std::sync::OnceLock::new();
+    DIR.get_or_init(|| std::env::current_exe().ok()?.parent().map(Path::to_path_buf)).clone()
 }
 
 /// The settings are kept next to Arcmix.exe.
@@ -95,13 +96,28 @@ pub fn set_portable(on: bool, dir_name: &str) -> Result<(), String> {
     let probe = to.join("arcmix-write-test.tmp");
     fs::write(&probe, b"").map_err(|e| format!("{}: {e}", to.display()))?;
     let _ = fs::remove_file(&probe);
-    for n in DATA_FILES {
-        let (a, b) = (from.join(n), to.join(n));
-        if a.is_file() {
-            fs::copy(&a, &b).map_err(|e| format!("{}: {e}", b.display()))?;
-            // config.json left next to the exe would make the next start portable again
-            fs::remove_file(&a).map_err(|e| format!("{}: {e}", a.display()))?;
+    // every file copied first; a failure takes the copies back, the old folder stays as it was
+    let files: Vec<&str> = DATA_FILES.into_iter().filter(|n| from.join(n).is_file()).collect();
+    let undo = |done: &[&str]| {
+        for n in done {
+            let _ = fs::remove_file(to.join(n));
         }
+    };
+    for (i, n) in files.iter().enumerate() {
+        if let Err(e) = fs::copy(from.join(n), to.join(n)) {
+            undo(&files[..i]);
+            return Err(format!("{}: {e}", to.join(n).display()));
+        }
+    }
+    // config.json first: one left next to the exe would make the next start portable again
+    if let Some(n) = files.iter().find(|n| **n == "config.json") {
+        if let Err(e) = fs::remove_file(from.join(n)) {
+            undo(&files);
+            return Err(format!("{}: {e}", from.join(n).display()));
+        }
+    }
+    for n in files.iter().filter(|n| **n != "config.json") {
+        let _ = fs::remove_file(from.join(n));
     }
     *DATA_DIR.lock().unwrap_or_else(|p| p.into_inner()) = Some(to.clone());
     open_log(&to);

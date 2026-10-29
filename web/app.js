@@ -1699,8 +1699,9 @@
   // the processing is on but its cable is not there: none installed (VB-CABLE not installed or its driver
   // not loaded), the chosen one gone, or it is disabled in Windows — '' when the cable is fine
   function cableTrouble(s) {
-    var c = s.cfg, mf = c.micFx || {};
-    if (!mf.on || c.cables === false || DEVS === null) return '';
+    var c = s.cfg, mf = c.micFx || {}, f = c.features || {};
+    // the processing runs only with the denoiser or VST plugins on in "Features" (router::sync)
+    if (!mf.on || c.cables === false || DEVS === null || (f.denoise === false && f.vst === false)) return '';
     var vs = virt();
     if (!vs.length) return 'none';
     if (!mf.out) return '';
@@ -1930,10 +1931,12 @@
   $('expBtn').onclick = function () { api('/api/settings', { op: 'export' }); };
   $('impBtn').onclick = function () { api('/api/settings', { op: 'import' }); };
   // the settings folder: next to Arcmix.exe or in %APPDATA% (moved at once, the app goes on)
+  var portHint = $('portSub').textContent;
   $('swPortable').onclick = function () {
     var sub = $('portSub');
     api('/api/settings', { op: S && S.portable ? 'appdata' : 'portable' }).then(function (r) { return r.json(); }).then(function (o) {
-      if (o.err) { sub.textContent = tx('Не вдалося перенести:') + ' ' + o.err; sub.className = 'sub st-err'; }
+      sub.textContent = o.err ? tx('Не вдалося перенести:') + ' ' + o.err : portHint;
+      sub.className = o.err ? 'sub st-err' : 'sub';
     }).catch(function () {});
   };
   $('resetBtn').onclick = function () {

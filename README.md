@@ -39,7 +39,7 @@ Arcmix started from the idea of Swiftlyx's [OpenChatMix](https://github.com/Swif
 
 ## Download and install
 
-1. Download `Arcmix-1.2.1.zip` from [Releases](../../releases) and unpack it to any folder (e.g. `C:\Programs\Arcmix`).
+1. Download `Arcmix-1.2.2.zip` from [Releases](../../releases) and unpack it to any folder (e.g. `C:\Programs\Arcmix`).
 2. Run `Arcmix.exe`. The exe is not code-signed, so Windows SmartScreen may warn you: click **More info → Run anyway**.
 3. The icon appears in the tray (click it to open the window). A short first-run guide walks through the basics, the equalizer module included.
 

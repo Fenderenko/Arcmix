@@ -517,9 +517,10 @@ fn match_generic(devs: &[DevConfig], all: &[HidIface]) -> Option<GenDev> {
                 continue;
             }
             let want = c.device.hid.command.as_ref();
-            // the described interface missing (Arctis 9: HeadsetControl and the Linux driver use interface 0,
-            // the description 2) — a vendor collection of another one
-            let Some(cmd) = pick_iface(all, hi.pid, want, c.device.hid.usage_page, true).or_else(|| pick_iface(all, hi.pid, want, 0, true)).or_else(|| pick_vendor(all, hi.pid)) else {
+            // the described interface missing — a vendor collection of another one, only where the description's
+            // interface is in doubt (engine::quirks: Arctis 9); for the rest it may just not be enumerated yet
+            let other = || c.device.hid.any_iface.then(|| pick_vendor(all, hi.pid)).flatten();
+            let Some(cmd) = pick_iface(all, hi.pid, want, c.device.hid.usage_page, true).or_else(|| pick_iface(all, hi.pid, want, 0, true)).or_else(other) else {
                 continue;
             };
             let sync_mi = c.device.hid.sync.as_ref().map(|s| s.interface).unwrap_or(cmd.mi);
@@ -646,6 +647,8 @@ pub struct Session {
     lost: bool,
     /// a part of the state not answered — logged once
     partial_logged: bool,
+    /// state requests not answered in a row while others were (left out from 3 on)
+    silent: HashMap<String, u8>,
 }
 
 fn btoi(b: bool) -> i32 {
@@ -792,13 +795,15 @@ impl Session {
     }
 
     fn apply_emit(&mut self, e: &super::engine::DevEmit) {
+        let mut changed = false;
         {
             let mut st = self.g.status.lock().unwrap();
             for (k, v) in &e.fields {
-                st.insert(k.clone(), v.clone());
+                changed |= st.insert(k.clone(), v.clone()).as_ref() != Some(v);
             }
         }
         let mut h = headset::lock();
+        let before = (h.game, h.chat, h.batt_pct, h.have_batt, h.powered, h.charging, h.mic_muted, h.extra_batt.clone());
         let (mut game, mut chat) = (-1, -1);
         for (k, v) in &e.fields {
             let role = e.roles.get(k).map(|s| s.as_str()).unwrap_or("");
@@ -838,8 +843,16 @@ impl Session {
                 (h.game, h.chat, h.mix_new) = (g, c, true);
             }
         }
+        changed |= before != (h.game, h.chat, h.batt_pct, h.have_batt, h.powered, h.charging, h.mic_muted, h.extra_batt.clone());
+        let came_on = h.powered && !before.4;
         drop(h);
-        notify();
+        if came_on {
+            self.silent.clear(); // the headset came on: every request is asked again
+        }
+        // a state polled every second (the Arctis 7 / 9 dial) mostly repeats: the window and the tray hear of changes only
+        if changed {
+            notify();
+        }
     }
 
     /// Reads the state: an error only when nothing answers — a model may not know one of the requests
@@ -847,18 +860,34 @@ impl Session {
     fn sync_read(&mut self) -> Result<(), String> {
         let mut err = None;
         let mut any = false;
+        let mut failed = Vec::new();
         for e in self.g.cfg.sync_read.clone() {
+            // a request the model never answers (3 times in a row while others are answered) is left out:
+            // each costs a 1 s wait that holds the dial and the window's commands
+            if self.silent.get(&e.strukt).is_some_and(|n| *n >= 3) {
+                continue;
+            }
             match self.read_api(&e.strukt) {
                 Ok(f) => {
                     any = true;
+                    self.silent.remove(&e.strukt);
                     for em in self.g.cfg.map_read(&e, &f) {
                         self.apply_emit(&em);
                     }
                 }
-                Err(x) => err = Some(x),
+                Err(x) => {
+                    failed.push(e.strukt.clone());
+                    err = Some(x);
+                }
             }
             if self.lost {
                 return Err("connection lost".into());
+            }
+        }
+        // counted only while the headset is on: with it off the receiver answers part of the requests
+        if any && headset::lock().powered {
+            for s in failed {
+                *self.silent.entry(s).or_default() += 1;
             }
         }
         match err {
@@ -1009,7 +1038,7 @@ impl Session {
 fn run_generic(g: Arc<GenDev>) {
     let (tx, rx) = mpsc::channel::<Msg>();
     *g.tx.lock().unwrap() = Some(tx.clone());
-    let mut s = Session { g: g.clone(), wh: HashMap::new(), ok_out: 0, rx, pending: VecDeque::new(), inited: false, last_init: Instant::now(), lost: false, partial_logged: false };
+    let mut s = Session { g: g.clone(), wh: HashMap::new(), ok_out: 0, rx, pending: VecDeque::new(), inited: false, last_init: Instant::now(), lost: false, partial_logged: false, silent: HashMap::new() };
     for x in &g.outs {
         if let Some(h) = open_rw(&x.path) {
             s.wh.insert(x.path.clone(), h);
@@ -1073,7 +1102,7 @@ fn run_generic(g: Arc<GenDev>) {
         }
         if let Some(e) = dial.as_ref().filter(|_| Instant::now() >= next_dial) {
             next_dial = Instant::now() + Duration::from_secs(1);
-            if s.inited && headset::lock().powered {
+            if s.inited && headset::lock().powered && s.silent.get(&e.strukt).is_none_or(|n| *n < 3) {
                 if let Ok(f) = s.read_api(&e.strukt) {
                     for em in s.g.cfg.map_read(e, &f) {
                         s.apply_emit(&em);

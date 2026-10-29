@@ -353,6 +353,8 @@ fn cable_is_default_mic(en: &windows::Win32::Media::Audio::IMMDeviceEnumerator) 
 
 /// The last microphone processing state passed to sync_fx_mic: (on, its cable).
 static FX_MIC: Mutex<Option<(bool, String)>> = Mutex::new(None);
+/// The devices changed: the same state is looked at again (its cable may have come or gone).
+static FX_RECHECK: AtomicBool = AtomicBool::new(false);
 
 /// Microphone processing is running (router::sync) — as last passed to sync_fx_mic.
 fn fx_mic_on() -> bool {
@@ -367,7 +369,7 @@ pub fn sync_fx_mic(on: bool, out: &str) {
     let v = (on, if on { out.to_string() } else { String::new() });
     {
         let mut l = FX_MIC.lock().unwrap();
-        if l.as_ref() == Some(&v) {
+        if l.as_ref() == Some(&v) && !FX_RECHECK.swap(false, Ordering::Relaxed) {
             return;
         }
         *l = Some(v.clone());
@@ -433,8 +435,9 @@ pub fn list_devices_with_off() -> (Vec<AudioDev>, Vec<AudioDev>) {
     rx.recv_timeout(Duration::from_secs(3)).unwrap_or_default()
 }
 
-/// A cable picked for routing or the processed microphone: its ends switched off in Windows are switched on.
-pub fn enable_cable(out: &str) {
+/// A cable picked for routing or the processed microphone, switched off in Windows, is switched on; for
+/// the microphone (`both`) its recording end too — routing needs the playback end only.
+pub fn enable_cable(out: &str, both: bool) {
     if out.is_empty() {
         return;
     }
@@ -443,9 +446,11 @@ pub fn enable_cable(out: &str) {
         let Some(en) = e.en.get().cloned() else { return };
         let Some(r) = com::off_cables(&en, eRender).into_iter().chain(com::list_flow(&en, eRender)).find(|r| r.id == out) else { return };
         let mut ids: Vec<String> = r.off.then(|| r.id.clone()).into_iter().collect();
-        let ends: Vec<AudioDev> = com::list_flow(&en, eCapture).into_iter().filter(|c| c.is_virtual).chain(com::off_cables(&en, eCapture)).collect();
-        if let Some(c) = com::cable_pair(&r.name, &ends).filter(|c| c.off) {
-            ids.push(c.id.clone());
+        if both {
+            let ends: Vec<AudioDev> = com::list_flow(&en, eCapture).into_iter().filter(|c| c.is_virtual).chain(com::off_cables(&en, eCapture)).collect();
+            if let Some(c) = com::cable_pair(&r.name, &ends).filter(|c| c.off) {
+                ids.push(c.id.clone());
+            }
         }
         for id in ids {
             if com::set_endpoint_enabled(&id, true) {
@@ -625,6 +630,9 @@ fn engine_loop(rx: Receiver<Msg>) {
                 e.refresh_out();
                 e.refresh_outs(false);
             });
+            // the cable of microphone processing may have come or gone (installed, switched on in Windows):
+            // the next router::sync looks again (the same state does nothing)
+            FX_RECHECK.store(true, Ordering::Relaxed);
         }
         if start_due.is_some_and(|t| now >= t) {
             start_due = None;
@@ -1066,7 +1074,8 @@ impl Engine {
             let c = config::get();
             let src = if c.mic_dev.is_empty() { com::auto_mic(&capture).unwrap_or_default() } else { c.mic_dev.clone() };
             if src.is_empty() || src == want {
-                return; // no microphone to process
+                self.fx_mic = Some(had); // no microphone to process: tried again when the devices change
+                return;
             }
             if c.mic_dev != src {
                 config::set(|c| c.mic_dev = src);

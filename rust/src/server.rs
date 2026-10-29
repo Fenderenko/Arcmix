@@ -487,7 +487,7 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
         "/api/route" => {
             if let Some(v) = r.json::<RouteReq>() {
                 for x in [&v.game, &v.chat, &v.media].into_iter().flatten() {
-                    audio::enable_cable(x);
+                    audio::enable_cable(x, false);
                 }
                 config::set(|c| {
                     let rc = &mut c.route;
@@ -563,7 +563,7 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
                     }
                 });
                 if let Some(x) = &v.out {
-                    audio::enable_cable(x);
+                    audio::enable_cable(x, true);
                 }
                 std::thread::spawn(|| crate::router::sync(&config::get()));
                 notify_subs();
