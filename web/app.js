@@ -1457,11 +1457,13 @@
   function loadDevs(cb) {
     if (cb) devsCb.push(cb);
     api('/api/audiodevs').then(function (r) { return r.json(); }).then(function (d) {
-      DEVS = d || {}; if (S) renderAudioFx(S);
+      DEVS = d || {}; if (S) { renderAudioFx(S); renderCableWarn(S); }
       var l = devsCb; devsCb = []; l.forEach(function (f) { f(); });
     }).catch(function () { });
   }
   function virt() { return ((DEVS && DEVS.render) || []).filter(function (d) { return d.virtual; }); }
+  // a cable switched off in Windows is listed too: picking it switches it on (audio::enable_cable)
+  function cabName(d) { return d.name + (d.off ? ' · ' + tx('вимкнено у Windows') : ''); }
   function opt(v, label, cur, dis) { return '<option value="' + esc(v) + '"' + (v === cur ? ' selected' : '') + (dis ? ' disabled' : '') + '>' + esc(label) + '</option>'; }
   function fillSel(id, items, cur) {
     var el = $(id), html = items.join('');
@@ -1618,7 +1620,7 @@
       nvSl.set(nst); if (!nvSl.busy()) $('nvStrV').textContent = nst + '%';
     }
     $('qNs').classList.toggle('on', !!(mf.on && mf.denoise)); $('qNs').setAttribute('aria-checked', !!(mf.on && mf.denoise));
-    $('qNsV').textContent = !(mf.on && mf.denoise) ? tx('Вимкнено') : (s.micFx && s.micFx.running ? (kind === 'nv' && nv.state === 'ready' ? 'NVIDIA RTX' : 'RNNoise') : (s.micFx && s.micFx.err ? tx('Помилка') : tx('Запуск…')));
+    $('qNsV').textContent = !(mf.on && mf.denoise) ? tx('Вимкнено') : cableTrouble(s) ? tx('Немає кабелю') : (s.micFx && s.micFx.running ? (kind === 'nv' && nv.state === 'ready' ? 'NVIDIA RTX' : 'RNNoise') : (s.micFx && s.micFx.err ? tx('Помилка') : tx('Запуск…')));
     // routing: on, and which categories play through a cable
     var rcq = c.route || {}, rcats = ['game', 'chat', 'media'].filter(function (k) { return rcq[k] && !(mf.on && rcq[k] === mf.out); });
     $('qRt').classList.toggle('on', !!rcq.on); $('qRt').setAttribute('aria-checked', !!rcq.on);
@@ -1631,7 +1633,7 @@
     if (have) {
       var md = c.micDev || '';
       fillSel('mfxIn', [opt('', tx('Як у Windows') + (defName() ? ' — ' + defName() : ''), md)].concat(((DEVS.capture) || []).filter(function (d) { return !d.virtual || d.id === md; }).map(function (d) { return opt(d.id, d.name, md); })), md);
-      fillSel('mfxOut', [opt('', tx('— оберіть кабель —'), mf.out)].concat(vs.map(function (d) { return opt(d.id, d.name, mf.out, used.indexOf(d.id) >= 0); })), mf.out);
+      fillSel('mfxOut', [opt('', tx('— оберіть кабель —'), mf.out)].concat(vs.map(function (d) { return opt(d.id, cabName(d), mf.out, used.indexOf(d.id) >= 0); })), mf.out);
     }
     var pair = (vs.filter(function (d) { return d.id === mf.out; })[0] || {}).pair;
     // with a known pair the app makes it Windows' default microphone while processing runs (audio::sync_fx_mic)
@@ -1665,7 +1667,7 @@
       var cab = function (k) {
         return [opt('', tx('— не направляти —'), rc[k])].concat(vs.map(function (d) {
           var by = d.id === micOut ? 'Мікрофон' : ({ game: 'Гра', chat: 'Чат', media: 'Медіа' })[['game', 'chat', 'media'].filter(function (o) { return o !== k && d.id === rc[o]; })[0]];
-          return opt(d.id, d.name + (by ? ' · ' + tx(by) : ''), rc[k], !!by);
+          return opt(d.id, cabName(d) + (by ? ' · ' + tx(by) : ''), rc[k], !!by);
         }));
       };
       fillSel('rtGame', cab('game'), rc.game);
@@ -1676,7 +1678,9 @@
     }
   }
   $('mfxIn').onchange = function () { api('/api/mic', { dev: this.value }); };
-  $('mfxOut').onchange = function () { api('/api/micfx', { out: this.value }); };
+  // a cable switched off in Windows is switched on when picked: the lists anew after that
+  function cabPicked(id) { if (virt().some(function (d) { return d.id === id && d.off; })) setTimeout(function () { loadDevs(); }, 1500); }
+  $('mfxOut').onchange = function () { api('/api/micfx', { out: this.value }); cabPicked(this.value); };
   $('swDenoise').onclick = function () { api('/api/micfx', { denoise: !(S.cfg.micFx || {}).denoise }); };
   $('dnKind').querySelectorAll('button').forEach(function (b) { b.onclick = function () { api('/api/micfx', { denoiseKind: b.dataset.v }); }; });
   $('nvMode').querySelectorAll('button').forEach(function (b) { b.onclick = function () { api('/api/micfx', { nvMode: b.dataset.v }); }; });
@@ -1692,18 +1696,42 @@
     api('/api/micfx', o);
   }
   $('swMfx').onclick = function () { toggleMfx(); };
+  // the processing is on but its cable is not there: none installed (VB-CABLE not installed or its driver
+  // not loaded), the chosen one gone, or it is disabled in Windows — '' when the cable is fine
+  function cableTrouble(s) {
+    var c = s.cfg, mf = c.micFx || {};
+    if (!mf.on || c.cables === false || DEVS === null) return '';
+    var vs = virt();
+    if (!vs.length) return 'none';
+    if (!mf.out) return '';
+    var d = vs.filter(function (x) { return x.id === mf.out; })[0];
+    return !d ? 'gone' : d.off ? 'off' : '';
+  }
   // an app records from a virtual cable that gets no microphone while processing is off
+  var cabAct = '';
   function renderCableWarn(s) {
     var cl = s.cable || {}, c = s.cfg, mf = c.micFx || {}, f = c.features || {};
     var defCab = ((DEVS && DEVS.capture) || []).some(function (d) { return d.default && d.virtual; });
     var cabOff = c.cables === false && !!mf.on && (!!cl.who || defCab);
-    var show = cabOff || (!!cl.who && (!mf.on || !mf.out) && (f.denoise !== false || f.vst !== false));
+    var trouble = cableTrouble(s);
+    var show = !!trouble || cabOff || (!!cl.who && (!mf.on || !mf.out) && (f.denoise !== false || f.vst !== false));
     $('cableWarn').classList.toggle('hide', !show);
-    $('cableWarnGo').textContent = tx(cabOff ? 'Увімкнути віртуальні кабелі' : 'Увімкнути обробку мікрофона');
-    if (cabOff) $('cableWarnT').textContent = tx('Віртуальні кабелі вимкнено: у кабель не йде оброблений мікрофон, і програми, що слухають кабель, вас не почують.');
+    cabAct = trouble || (cabOff ? 'cables' : 'fx');
+    $('cableWarnGo').textContent = tx({ none: 'Завантажити VB-CABLE', gone: 'Обрати кабель', off: 'Увімкнути кабель', cables: 'Увімкнути віртуальні кабелі', fx: 'Увімкнути обробку мікрофона' }[cabAct]);
+    if (trouble === 'none') $('cableWarnT').textContent = tx('Шумодав і обробка мікрофона не працюють: немає віртуального кабелю. Встановіть безкоштовний VB-CABLE і перезапустіть ПК.');
+    else if (trouble === 'gone') $('cableWarnT').textContent = tx('Шумодав і обробка мікрофона не працюють: кабель, обраний для мікрофона, не знайдено. Встановіть VB-CABLE знову або оберіть інший кабель.');
+    else if (trouble === 'off') $('cableWarnT').textContent = tx('Шумодав і обробка мікрофона не працюють: кабель, обраний для мікрофона, вимкнено у Windows.');
+    else if (cabOff) $('cableWarnT').textContent = tx('Віртуальні кабелі вимкнено: у кабель не йде оброблений мікрофон, і програми, що слухають кабель, вас не почують.');
     else if (show) $('cableWarnT').textContent = tx('%s бере мікрофон з «%s», але туди зараз нічого не йде: обробку мікрофона вимкнено.').replace('%s', cl.who).replace('%s', cl.name);
   }
-  $('cableWarnGo').onclick = function () { if (S && S.cfg.cables === false) { patch({ cables: true }); return; } var cl = (S && S.cable) || {}; if (cl.out) api('/api/micfx', { on: true, out: cl.out }); };
+  $('cableWarnGo').onclick = function () {
+    var mf = (S && S.cfg.micFx) || {};
+    if (cabAct === 'none') { api('/api/open', { url: 'https://vb-audio.com/Cable/' }); return; }
+    if (cabAct === 'gone') { show('micTab', 'mfxCard'); return; }
+    if (cabAct === 'off') { api('/api/micfx', { out: mf.out }); cabPicked(mf.out); return; }
+    if (cabAct === 'cables') { patch({ cables: true }); return; }
+    var cl = (S && S.cable) || {}; if (cl.out) api('/api/micfx', { on: true, out: cl.out });
+  };
   $('swRt').onclick = function () {
     var rc = S.cfg.route || {}, o = { on: !rc.on };
     if (o.on && !rc.game && !rc.chat && !rc.media) { // самі обираємо вільні кабелі: перший — грі, другий — чату, третій — медіа
@@ -1711,12 +1739,13 @@
       if (free[0]) o.game = free[0].id;
       if (free[1]) o.chat = free[1].id;
       if (free[2]) o.media = free[2].id;
+      [o.game, o.chat, o.media].forEach(function (x) { if (x) cabPicked(x); });
     }
     api('/api/route', o);
   };
   $('swRtAuto').onclick = function () { api('/api/route', { auto: !(S.cfg.route || {}).auto }); };
   ['rtGame', 'rtChat', 'rtMedia', 'rtOut'].forEach(function (id) {
-    $(id).onchange = function () { var o = {}; o[{ rtGame: 'game', rtChat: 'chat', rtMedia: 'media', rtOut: 'out' }[id]] = this.value; api('/api/route', o); };
+    $(id).onchange = function () { var o = {}; o[{ rtGame: 'game', rtChat: 'chat', rtMedia: 'media', rtOut: 'out' }[id]] = this.value; api('/api/route', o); cabPicked(this.value); };
   });
   // Рівень мікрофона зі шкалою −60…0 дБ і зонами: фон / тихо / добре / голосно / перевантаження.
   // Коли працює обробка — ще й тонка смуга «що чують інші» та риски порогу й межі.
@@ -1900,6 +1929,13 @@
   $('quit').onclick = function () { api('/api/quit', {}); };
   $('expBtn').onclick = function () { api('/api/settings', { op: 'export' }); };
   $('impBtn').onclick = function () { api('/api/settings', { op: 'import' }); };
+  // the settings folder: next to Arcmix.exe or in %APPDATA% (moved at once, the app goes on)
+  $('swPortable').onclick = function () {
+    var sub = $('portSub');
+    api('/api/settings', { op: S && S.portable ? 'appdata' : 'portable' }).then(function (r) { return r.json(); }).then(function (o) {
+      if (o.err) { sub.textContent = tx('Не вдалося перенести:') + ' ' + o.err; sub.className = 'sub st-err'; }
+    }).catch(function () {});
+  };
   $('resetBtn').onclick = function () {
     var b = this;
     if (b.dataset.armed) { api('/api/reset', {}).then(function () { setTimeout(function () { location.reload(); }, 300); }); return; }
@@ -2180,7 +2216,7 @@
     $('wheelSeg').querySelector('[data-v=battery]').textContent = tx(c.trayBattery ? 'Іконка' : 'Заряд');
     $('wheelHint').textContent = { battery: tx(c.trayBattery ? 'Прокрутка над іконкою ненадовго показує іконку замість заряду.' : 'Прокрутка над іконкою ненадовго показує заряд.'), balance: tx('Прокрутка над іконкою змінює баланс гра / чат, як повзунок у вікні.'), off: '' }[c.wheelMode || 'battery'];
     pressed('modeSeg', c.mode === 'light' || c.mode === 'auto' ? c.mode : 'dark'); pressed('sideSeg', c.sidetone); $('offDropT').textContent = offLabel(c.autoOff); pressed('gainSeg', c.micGain); setSw('swLed', c.muteLed !== 0);
-    setSw('swLow', c.lowBattery); setSw('swAuto', c.autostart); setSw('swFull', c.fullNotify);
+    setSw('swLow', c.lowBattery); setSw('swAuto', c.autostart); setSw('swFull', c.fullNotify); setSw('swPortable', !!s.portable);
     pressed('lowSeg', c.lowLevel || 20); $('lowSeg').classList.toggle('hide', !c.lowBattery);
     $('battEst').textContent = s.battHours > 0 && !s.charging ? tx('Прогноз роботи від батареї:') + ' ≈ ' + s.battHours + ' ' + tx('год') : tx('Прогноз роботи з’явиться, коли заряд почне знижуватися.');
     setSw('swSwitch', c.autoSwitch); setSw('swSwitchMic', c.switchMic); $('switchMicRow').classList.toggle('hide', !c.autoSwitch);

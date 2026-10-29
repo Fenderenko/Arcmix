@@ -210,7 +210,53 @@ pub struct DevConfig {
 }
 
 pub fn parse_devices(b: &str) -> Result<Vec<DevConfig>, serde_json::Error> {
-    serde_json::from_str(b)
+    let mut l: Vec<DevConfig> = serde_json::from_str(b)?;
+    for c in l.iter_mut() {
+        quirks(c);
+    }
+    Ok(l)
+}
+
+/// Corrections to the Linux-Arctis-Manager descriptions, checked against HeadsetControl and the Linux
+/// kernel driver (hid-steelseries-arctis); web/devices.json stays as generated.
+fn quirks(c: &mut DevConfig) {
+    // the ChatMix values to 0..100 % in every map that reads them
+    fn chatmix_transform(c: &mut DevConfig, name: &str, t: DevTransform) {
+        c.trans.insert(name.into(), t);
+        for e in c.sync_read.iter_mut() {
+            for m in e.maps.iter_mut().filter(|m| m.emit == "chatmix_changed") {
+                m.transform = name.into();
+            }
+        }
+    }
+    match c.file.as_str() {
+        "arctis_7.yaml" => {
+            // commands and answers go through interface 5 (interface 3 does not answer)
+            for i in [&mut c.device.hid.command, &mut c.device.hid.sync] {
+                i.get_or_insert_with(Default::default).interface = 5;
+            }
+            // each channel: 0 — full volume, else 191..255 (quietest..loudest)
+            let t = DevTransform { typ: "linear".into(), scale: 100.0 / 64.0, offset: -191.0 * 100.0 / 64.0, values: [("0".to_string(), Value::from(100))].into(), ..Default::default() };
+            chatmix_transform(c, "arctis_7_chatmix_to_percent", t);
+        }
+        "arctis_9.yaml" => {
+            // each channel 0..19
+            let t = DevTransform { typ: "linear".into(), scale: 100.0 / 19.0, ..Default::default() };
+            chatmix_transform(c, "arctis_9_chatmix_to_percent", t);
+            // the battery, not mapped in the description (HeadsetControl): the level 0x64..0x9A, 1 after it — charging
+            let lvl = DevTransform { typ: "linear".into(), scale: 100.0 / 54.0, offset: -100.0 * 100.0 / 54.0, ..Default::default() };
+            c.trans.insert("arctis_9_battery_to_percent".into(), lvl);
+            let chg = DevTransform { typ: "case_int_to_str".into(), values: [("1".to_string(), Value::from("CHARGING"))].into(), default: Some(Value::from("NOT_CHARGING")), ..Default::default() };
+            c.trans.insert("arctis_9_charging_to_label".into(), chg);
+            if let Some(e) = c.sync_read.iter_mut().find(|e| e.strukt == "info_table") {
+                e.maps.push(DevReadMap { emit: "battery_changed".into(), field: "bat_voltage_lo".into(), transform: "arctis_9_battery_to_percent".into(), role: "battery_headset".into(), ..Default::default() });
+                e.maps.push(DevReadMap { emit: "charging_changed".into(), field: "bat_status".into(), transform: "arctis_9_charging_to_label".into(), ..Default::default() });
+            }
+        }
+        // a wired USB headset, though its description lists it as wireless (the window would show 2.4 GHz)
+        "arctis_5.yaml" => c.device.capabilities.retain(|x| x != "wireless"),
+        _ => {}
+    }
 }
 
 /// Only the model codes from the descriptions — to recognise a headset without keeping all the full
@@ -498,7 +544,8 @@ impl DevConfig {
                 }
                 FVal::Str(t.default.as_ref().map(s).unwrap_or_else(|| "UNKNOWN".into()))
             }
-            "linear" => FVal::Num(n * t.scale + t.offset),
+            // listed values are taken as they are, the rest scaled
+            "linear" => t.values.get(&key).and_then(any_num).map_or(FVal::Num(n * t.scale + t.offset), FVal::Num),
             _ => v,
         }
     }
@@ -1085,6 +1132,50 @@ mod tests {
         let r = d.dispatch(&[0x00, 0x45, 0x5a, 0x64]).expect("0x45 dispatch");
         assert!(r.emit.is_some());
         assert!(d.detect_eq().is_some());
+    }
+
+    /// The ChatMix map of a read as percentages: (game, chat).
+    fn dial(d: &DevConfig, api: &str, resp: &[u8]) -> (f64, f64) {
+        let e = d.sync_read.iter().find(|e| e.strukt == api).unwrap();
+        let f = d.deserialize(api, resp).unwrap();
+        let em = d.map_read(e, &f).into_iter().find(|m| m.signal == "chatmix_changed").unwrap();
+        let v = |role: &str| em.fields.iter().find(|(k, _)| em.roles.get(*k).is_some_and(|r| r == role)).map(|(_, v)| v.num().round()).unwrap();
+        (v("chatmix_game"), v("chatmix_chat"))
+    }
+
+    /// Arctis 7: interface 5, the dial as HeadsetControl reads it (0 — full volume, 191..255).
+    #[test]
+    fn arctis_7_quirks() {
+        let all = all();
+        let d = &all["arctis_7.yaml"];
+        assert_eq!(d.device.hid.command.as_ref().map(|i| i.interface), Some(5));
+        assert_eq!(d.device.hid.sync.as_ref().map(|i| i.interface), Some(5));
+        let resp = |g: u8, c: u8| -> Vec<u8> { [0x06, 0x24, g, c].into_iter().chain(std::iter::repeat_n(0, 27)).collect() };
+        assert_eq!(dial(d, "game_chat_status", &resp(0, 0)), (100.0, 100.0), "the middle");
+        assert_eq!(dial(d, "game_chat_status", &resp(0, 191)), (100.0, 0.0), "all game");
+        assert_eq!(dial(d, "game_chat_status", &resp(223, 0)), (50.0, 100.0), "towards chat");
+        assert_eq!(dial(d, "game_chat_status", &resp(255, 0)), (100.0, 100.0));
+    }
+
+    /// Arctis 9: each channel 0..19.
+    #[test]
+    fn arctis_9_quirks() {
+        let all = all();
+        let d = &all["arctis_9.yaml"];
+        let mut resp = vec![0u8; 65];
+        (resp[10], resp[11]) = (19, 0);
+        let (game, chat) = dial(d, "info_table", &resp);
+        assert_eq!((game, chat), (0.0, 100.0));
+        // the battery: 0x9A — full, charging
+        (resp[4], resp[5]) = (0x9a, 1);
+        let e = d.sync_read.iter().find(|e| e.strukt == "info_table").unwrap();
+        let ems = d.map_read(e, &d.deserialize("info_table", &resp).unwrap());
+        let b = ems.iter().find(|m| m.signal == "battery_changed").unwrap();
+        assert_eq!(b.fields["bat_voltage_lo"].num().round(), 100.0);
+        assert_eq!(b.roles["bat_voltage_lo"], "battery_headset");
+        let c = ems.iter().find(|m| m.signal == "charging_changed").unwrap();
+        assert_eq!(c.fields["bat_status"], FVal::Str("CHARGING".into()));
+        assert!(!all["arctis_5.yaml"].device.capabilities.iter().any(|x| x == "wireless"), "Arctis 5 is wired");
     }
 
     /// Nova 7 Gen 2: the parametric curve as Arctis Sound Manager sends it (hardware_eq.py, checked against

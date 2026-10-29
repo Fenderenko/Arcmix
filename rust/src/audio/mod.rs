@@ -104,6 +104,9 @@ pub struct AudioDev {
     /// recording device behind "" (as in Windows)
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub auto: bool,
+    /// a cable switched off in Windows (switched on when picked)
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub off: bool,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -402,6 +405,53 @@ pub fn headset_power(on: bool) {
         e.refresh_out();
         e.refresh_outs(false);
         e.switch_mic(on);
+    });
+}
+
+/// For the window's lists: the active devices and, after them, the virtual cables switched off in Windows
+/// (picking one switches it on: enable_cable).
+pub fn list_devices_with_off() -> (Vec<AudioDev>, Vec<AudioDev>) {
+    let (tx, rx) = mpsc::channel();
+    run(move |e| {
+        let r = match e.en.get() {
+            Some(en) => {
+                let (mut render, capture) = com::list_audio_devices(en);
+                let mut ends: Vec<AudioDev> = capture.iter().filter(|c| c.is_virtual).cloned().collect();
+                ends.extend(com::off_cables(en, eCapture));
+                for mut r in com::off_cables(en, eRender) {
+                    if let Some(c) = com::cable_pair(&r.name, &ends) {
+                        r.pair = c.name.clone();
+                    }
+                    render.push(r);
+                }
+                (render, capture)
+            }
+            None => (Vec::new(), Vec::new()),
+        };
+        let _ = tx.send(r);
+    });
+    rx.recv_timeout(Duration::from_secs(3)).unwrap_or_default()
+}
+
+/// A cable picked for routing or the processed microphone: its ends switched off in Windows are switched on.
+pub fn enable_cable(out: &str) {
+    if out.is_empty() {
+        return;
+    }
+    let out = out.to_string();
+    run(move |e| {
+        let Some(en) = e.en.get().cloned() else { return };
+        let Some(r) = com::off_cables(&en, eRender).into_iter().chain(com::list_flow(&en, eRender)).find(|r| r.id == out) else { return };
+        let mut ids: Vec<String> = r.off.then(|| r.id.clone()).into_iter().collect();
+        let ends: Vec<AudioDev> = com::list_flow(&en, eCapture).into_iter().filter(|c| c.is_virtual).chain(com::off_cables(&en, eCapture)).collect();
+        if let Some(c) = com::cable_pair(&r.name, &ends).filter(|c| c.off) {
+            ids.push(c.id.clone());
+        }
+        for id in ids {
+            if com::set_endpoint_enabled(&id, true) {
+                logf!("cable switched on in Windows: {}", r.name);
+            }
+        }
     });
 }
 
@@ -1067,12 +1117,12 @@ impl Engine {
     }
 
     /// The headset has a separate "Chat" device — ChatMix mixes in the headset, the app does not
-    /// need to change app volumes.
+    /// need to change app volumes. SteelSeries GG's virtual "SteelSeries Sonar - Chat" is not one.
     fn detect_hw_chatmix(&mut self) {
         let Some(en) = self.en.get().cloned() else { return };
         let found = com::list_flow(&en, windows::Win32::Media::Audio::eRender).iter().any(|d| {
             let n = d.name.to_lowercase();
-            n.contains("chat") && (n.contains("arctis") || n.contains("steelseries"))
+            !d.is_virtual && n.contains("chat") && (n.contains("arctis") || n.contains("steelseries"))
         });
         HW_CHATMIX.store(found, Ordering::Relaxed);
     }

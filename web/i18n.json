@@ -178,6 +178,16 @@
    "pt": "Plugins VST para o microfone",
    "tr": "Mikrofon için VST eklentileri"
   },
+  "config.json і решта — у теці програми, а не в %APPDATA%: для переносної копії": {
+   "de": "config.json und der Rest im Ordner der App statt in %APPDATA%: für eine portable Kopie",
+   "en": "config.json and the rest in the app's folder, not in %APPDATA%: for a portable copy",
+   "es": "config.json y lo demás en la carpeta de la app, no en %APPDATA%: para una copia portátil",
+   "fr": "config.json et le reste dans le dossier de l'appli, pas dans %APPDATA% : pour une copie portable",
+   "it": "config.json e il resto nella cartella dell'app, non in %APPDATA%: per una copia portatile",
+   "pl": "config.json i reszta w folderze aplikacji, nie w %APPDATA%: dla kopii przenośnej",
+   "pt": "config.json e o resto na pasta do app, não em %APPDATA%: para uma cópia portátil",
+   "tr": "config.json ve diğerleri %APPDATA% yerine uygulamanın klasöründe: taşınabilir kopya için"
+  },
   "«%s» передає мікрофон з обробкою, тому для гри, чату й медіа не підходить: інакше співрозмовники чули б ваш звук. Кожній категорії потрібен свій кабель.": {
    "de": "„%s“ überträgt das bearbeitete Mikrofon und eignet sich daher nicht für Spiel, Chat oder Medien: Deine Gesprächspartner würden deinen Sound hören. Jede Kategorie braucht ein eigenes Kabel.",
    "en": "“%s” carries the processed microphone, so it cannot be used for game, chat or media: the people in your call would hear your sound. Each category needs its own cable.",
@@ -2218,6 +2228,16 @@
    "pt": "Configurações e ajuda",
    "tr": "Ayarlar ve yardım"
   },
+  "Налаштування поруч з Arcmix.exe": {
+   "de": "Einstellungen neben Arcmix.exe",
+   "en": "Settings next to Arcmix.exe",
+   "es": "Ajustes junto a Arcmix.exe",
+   "fr": "Paramètres à côté d'Arcmix.exe",
+   "it": "Impostazioni accanto ad Arcmix.exe",
+   "pl": "Ustawienia obok Arcmix.exe",
+   "pt": "Configurações ao lado do Arcmix.exe",
+   "tr": "Ayarlar Arcmix.exe'nin yanında"
+  },
   "Налаштування у файл": {
    "de": "Einstellungen als Datei",
    "en": "Settings file",
@@ -2388,6 +2408,16 @@
    "pt": "Não foi possível verificar atualizações",
    "tr": "Güncellemeler denetlenemedi"
   },
+  "Не вдалося перенести:": {
+   "de": "Verschieben fehlgeschlagen:",
+   "en": "Could not move:",
+   "es": "No se pudo mover:",
+   "fr": "Impossible de déplacer :",
+   "it": "Impossibile spostare:",
+   "pl": "Nie udało się przenieść:",
+   "pt": "Não foi possível mover:",
+   "tr": "Taşınamadı:"
+  },
   "Не під’єднано": {
    "de": "Nicht verbunden",
    "en": "Not connected",
@@ -2407,6 +2437,16 @@
    "pl": "Neuronowe tłumienie szumów",
    "pt": "Supressão de ruído neural",
    "tr": "Sinir ağıyla gürültü bastırma"
+  },
+  "Немає кабелю": {
+   "de": "Kein Kabel",
+   "en": "No cable",
+   "es": "Sin cable",
+   "fr": "Pas de câble",
+   "it": "Nessun cavo",
+   "pl": "Brak kabla",
+   "pt": "Sem cabo",
+   "tr": "Kablo yok"
   },
   "Нептун": {
    "de": "Neptun",
@@ -2577,6 +2617,16 @@
    "pl": "Wybierz",
    "pt": "Escolher",
    "tr": "Seç"
+  },
+  "Обрати кабель": {
+   "de": "Kabel wählen",
+   "en": "Choose a cable",
+   "es": "Elegir un cable",
+   "fr": "Choisir un câble",
+   "it": "Scegli un cavo",
+   "pl": "Wybierz kabel",
+   "pt": "Escolher um cabo",
+   "tr": "Kablo seç"
   },
   "Обрати клавішу": {
    "de": "Taste wählen",
@@ -4028,6 +4078,16 @@
    "pt": "Ativar os cabos virtuais",
    "tr": "Sanal kabloları aç"
   },
+  "Увімкнути кабель": {
+   "de": "Kabel aktivieren",
+   "en": "Enable the cable",
+   "es": "Activar el cable",
+   "fr": "Activer le câble",
+   "it": "Attiva il cavo",
+   "pl": "Włącz kabel",
+   "pt": "Ativar o cabo",
+   "tr": "Kabloyu etkinleştir"
+  },
   "Увімкнути обробку мікрофона": {
    "de": "Mikrofonverarbeitung einschalten",
    "en": "Turn on microphone processing",
@@ -4398,6 +4458,36 @@
    "pt": "O supressor de ruído da NVIDIA não iniciou — o RNNoise funciona. É preciso uma placa de vídeo NVIDIA RTX.",
    "tr": "NVIDIA gürültü giderici başlamadı; RNNoise çalışıyor. NVIDIA RTX ekran kartı gerekir."
   },
+  "Шумодав і обробка мікрофона не працюють: кабель, обраний для мікрофона, вимкнено у Windows.": {
+   "de": "Rauschunterdrückung und Mikrofonverarbeitung funktionieren nicht: Das für das Mikrofon gewählte Kabel ist in Windows deaktiviert.",
+   "en": "Noise suppression and microphone processing are not working: the cable chosen for the microphone is disabled in Windows.",
+   "es": "La supresión de ruido y el procesamiento del micrófono no funcionan: el cable elegido para el micrófono está desactivado en Windows.",
+   "fr": "La suppression du bruit et le traitement du micro ne fonctionnent pas : le câble choisi pour le micro est désactivé dans Windows.",
+   "it": "La soppressione del rumore e l'elaborazione del microfono non funzionano: il cavo scelto per il microfono è disattivato in Windows.",
+   "pl": "Tłumienie szumów i przetwarzanie mikrofonu nie działają: kabel wybrany dla mikrofonu jest wyłączony w Windows.",
+   "pt": "A supressão de ruído e o processamento do microfone não funcionam: o cabo escolhido para o microfone está desativado no Windows.",
+   "tr": "Gürültü bastırma ve mikrofon işleme çalışmıyor: mikrofon için seçilen kablo Windows'ta devre dışı."
+  },
+  "Шумодав і обробка мікрофона не працюють: кабель, обраний для мікрофона, не знайдено. Встановіть VB-CABLE знову або оберіть інший кабель.": {
+   "de": "Rauschunterdrückung und Mikrofonverarbeitung funktionieren nicht: Das für das Mikrofon gewählte Kabel wurde nicht gefunden. Installiere VB-CABLE neu oder wähle ein anderes Kabel.",
+   "en": "Noise suppression and microphone processing are not working: the cable chosen for the microphone was not found. Reinstall VB-CABLE or choose another cable.",
+   "es": "La supresión de ruido y el procesamiento del micrófono no funcionan: no se encontró el cable elegido para el micrófono. Reinstala VB-CABLE o elige otro cable.",
+   "fr": "La suppression du bruit et le traitement du micro ne fonctionnent pas : le câble choisi pour le micro est introuvable. Réinstallez VB-CABLE ou choisissez un autre câble.",
+   "it": "La soppressione del rumore e l'elaborazione del microfono non funzionano: il cavo scelto per il microfono non è stato trovato. Reinstalla VB-CABLE o scegli un altro cavo.",
+   "pl": "Tłumienie szumów i przetwarzanie mikrofonu nie działają: nie znaleziono kabla wybranego dla mikrofonu. Zainstaluj ponownie VB-CABLE lub wybierz inny kabel.",
+   "pt": "A supressão de ruído e o processamento do microfone não funcionam: o cabo escolhido para o microfone não foi encontrado. Reinstale o VB-CABLE ou escolha outro cabo.",
+   "tr": "Gürültü bastırma ve mikrofon işleme çalışmıyor: mikrofon için seçilen kablo bulunamadı. VB-CABLE'ı yeniden kurun veya başka bir kablo seçin."
+  },
+  "Шумодав і обробка мікрофона не працюють: немає віртуального кабелю. Встановіть безкоштовний VB-CABLE і перезапустіть ПК.": {
+   "de": "Rauschunterdrückung und Mikrofonverarbeitung funktionieren nicht: Es gibt kein virtuelles Kabel. Installiere das kostenlose VB-CABLE und starte den PC neu.",
+   "en": "Noise suppression and microphone processing are not working: there is no virtual cable. Install the free VB-CABLE and restart the PC.",
+   "es": "La supresión de ruido y el procesamiento del micrófono no funcionan: no hay cable virtual. Instala el VB-CABLE gratuito y reinicia el PC.",
+   "fr": "La suppression du bruit et le traitement du micro ne fonctionnent pas : il n'y a pas de câble virtuel. Installez VB-CABLE (gratuit) et redémarrez le PC.",
+   "it": "La soppressione del rumore e l'elaborazione del microfono non funzionano: non c'è un cavo virtuale. Installa il VB-CABLE gratuito e riavvia il PC.",
+   "pl": "Tłumienie szumów i przetwarzanie mikrofonu nie działają: brak kabla wirtualnego. Zainstaluj darmowy VB-CABLE i uruchom ponownie komputer.",
+   "pt": "A supressão de ruído e o processamento do microfone não funcionam: não há cabo virtual. Instale o VB-CABLE gratuito e reinicie o PC.",
+   "tr": "Gürültü bastırma ve mikrofon işleme çalışmıyor: sanal kablo yok. Ücretsiz VB-CABLE'ı kurun ve bilgisayarı yeniden başlatın."
+  },
   "Шумозаглушення": {
    "de": "Geräuschunterdrückung",
    "en": "Noise cancelling",
@@ -4627,6 +4717,16 @@
    "pl": "wyciszony przyciskiem",
    "pt": "mudo no headset",
    "tr": "kulaklıktan kapalı"
+  },
+  "вимкнено у Windows": {
+   "de": "in Windows deaktiviert",
+   "en": "disabled in Windows",
+   "es": "desactivado en Windows",
+   "fr": "désactivé dans Windows",
+   "it": "disattivato in Windows",
+   "pl": "wyłączone w Windows",
+   "pt": "desativado no Windows",
+   "tr": "Windows'ta devre dışı"
   },
   "вимкнено: працює лише еквалайзер гарнітури": {
    "de": "aus: nur der Equalizer des Headsets arbeitet",

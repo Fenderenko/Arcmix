@@ -143,6 +143,8 @@ pub struct StateJson {
     pub mic_muted: Option<bool>,
     pub batteries: Option<BTreeMap<String, i32>>,
     pub version: &'static str,
+    /// the settings are kept next to Arcmix.exe
+    pub portable: bool,
     pub route: router::PipeStatus,
     #[serde(rename = "micFx")]
     pub mic_fx: router::PipeStatus,
@@ -307,6 +309,7 @@ pub fn build() -> StateJson {
         batteries: (!hs.extra_batt.is_empty()).then(|| hs.extra_batt.clone()),
         device,
         version: APP_VER,
+        portable: crate::util::portable(),
         route,
         mic_fx,
         nv: crate::nvafx::status(),

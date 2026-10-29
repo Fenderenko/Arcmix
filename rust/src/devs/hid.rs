@@ -516,7 +516,10 @@ fn match_generic(devs: &[DevConfig], all: &[HidIface]) -> Option<GenDev> {
             if !c.has_pid(hi.pid as i32) {
                 continue;
             }
-            let Some(cmd) = pick_iface(all, hi.pid, c.device.hid.command.as_ref(), c.device.hid.usage_page, true).or_else(|| pick_iface(all, hi.pid, c.device.hid.command.as_ref(), 0, true)) else {
+            let want = c.device.hid.command.as_ref();
+            // the described interface missing (Arctis 9: HeadsetControl and the Linux driver use interface 0,
+            // the description 2) — a vendor collection of another one
+            let Some(cmd) = pick_iface(all, hi.pid, want, c.device.hid.usage_page, true).or_else(|| pick_iface(all, hi.pid, want, 0, true)).or_else(|| pick_vendor(all, hi.pid)) else {
                 continue;
             };
             let sync_mi = c.device.hid.sync.as_ref().map(|s| s.interface).unwrap_or(cmd.mi);
@@ -569,6 +572,11 @@ fn pick_iface(all: &[HidIface], pid: u16, want: Option<&super::engine::DevIface>
         }
     }
     best.cloned()
+}
+
+/// A vendor-defined collection (usage page 0xFFxx) that can be written; the largest output report first.
+fn pick_vendor(all: &[HidIface], pid: u16) -> Option<HidIface> {
+    all.iter().filter(|h| h.pid == pid && h.usage_page >= 0xff00 && (h.out_len > 0 || h.feat_len > 0)).max_by_key(|h| h.out_len).cloned()
 }
 
 impl GenDev {
@@ -636,6 +644,8 @@ pub struct Session {
     inited: bool,
     last_init: Instant,
     lost: bool,
+    /// a part of the state not answered — logged once
+    partial_logged: bool,
 }
 
 fn btoi(b: bool) -> i32 {
@@ -832,14 +842,45 @@ impl Session {
         notify();
     }
 
+    /// Reads the state: an error only when nothing answers — a model may not know one of the requests
+    /// (the rest still counts).
     fn sync_read(&mut self) -> Result<(), String> {
+        let mut err = None;
+        let mut any = false;
         for e in self.g.cfg.sync_read.clone() {
-            let f = self.read_api(&e.strukt)?;
-            for em in self.g.cfg.map_read(&e, &f) {
-                self.apply_emit(&em);
+            match self.read_api(&e.strukt) {
+                Ok(f) => {
+                    any = true;
+                    for em in self.g.cfg.map_read(&e, &f) {
+                        self.apply_emit(&em);
+                    }
+                }
+                Err(x) => err = Some(x),
+            }
+            if self.lost {
+                return Err("connection lost".into());
             }
         }
-        Ok(())
+        match err {
+            Some(e) if !any => Err(e),
+            Some(e) => {
+                if !self.partial_logged {
+                    self.partial_logged = true;
+                    logf!("state read in part: {e}");
+                }
+                Ok(())
+            }
+            None => Ok(()),
+        }
+    }
+
+    /// The ChatMix dial when the headset does not report turning it (Arctis 7, Arctis 9): its request.
+    fn dial_read(&self) -> Option<super::engine::DevReadEntry> {
+        let c = &self.g.cfg;
+        if c.events.values().any(|e| e.emit == "chatmix_changed") {
+            return None;
+        }
+        c.sync_read.iter().find(|e| e.maps.iter().any(|m| m.emit == "chatmix_changed")).cloned()
     }
 
     pub fn call(&mut self, name: &str) {
@@ -968,7 +1009,7 @@ impl Session {
 fn run_generic(g: Arc<GenDev>) {
     let (tx, rx) = mpsc::channel::<Msg>();
     *g.tx.lock().unwrap() = Some(tx.clone());
-    let mut s = Session { g: g.clone(), wh: HashMap::new(), ok_out: 0, rx, pending: VecDeque::new(), inited: false, last_init: Instant::now(), lost: false };
+    let mut s = Session { g: g.clone(), wh: HashMap::new(), ok_out: 0, rx, pending: VecDeque::new(), inited: false, last_init: Instant::now(), lost: false, partial_logged: false };
     for x in &g.outs {
         if let Some(h) = open_rw(&x.path) {
             s.wh.insert(x.path.clone(), h);
@@ -1020,6 +1061,9 @@ fn run_generic(g: Arc<GenDev>) {
     s.last_init = Instant::now();
     s.inited = s.init();
     let mut next_tick = Instant::now() + Duration::from_secs(10);
+    // a dial the headset does not report: asked for every second while the headset is on
+    let dial = s.dial_read();
+    let mut next_dial = Instant::now() + Duration::from_secs(1);
     while !s.lost {
         while let Some(f) = s.pending.pop_front() {
             f(&mut s);
@@ -1027,7 +1071,19 @@ fn run_generic(g: Arc<GenDev>) {
         if s.lost {
             break;
         }
-        match s.rx.recv_timeout(next_tick.saturating_duration_since(Instant::now())) {
+        if let Some(e) = dial.as_ref().filter(|_| Instant::now() >= next_dial) {
+            next_dial = Instant::now() + Duration::from_secs(1);
+            if s.inited && headset::lock().powered {
+                if let Ok(f) = s.read_api(&e.strukt) {
+                    for em in s.g.cfg.map_read(e, &f) {
+                        s.apply_emit(&em);
+                    }
+                }
+            }
+            continue;
+        }
+        let due = if dial.is_some() { next_tick.min(next_dial) } else { next_tick };
+        match s.rx.recv_timeout(due.saturating_duration_since(Instant::now())) {
             Ok(Msg::Report(r)) => {
                 s.handle_report(&r);
                 if !s.inited && s.last_init.elapsed() > Duration::from_secs(3) {
@@ -1037,6 +1093,7 @@ fn run_generic(g: Arc<GenDev>) {
             }
             Ok(Msg::Req(f)) => f(&mut s),
             Ok(Msg::Lost) | Err(RecvTimeoutError::Disconnected) => break,
+            Err(RecvTimeoutError::Timeout) if Instant::now() < next_tick => {} // the dial is due
             Err(RecvTimeoutError::Timeout) => {
                 next_tick = Instant::now() + Duration::from_secs(10);
                 if !s.inited {

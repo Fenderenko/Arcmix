@@ -646,6 +646,22 @@ static SAVE_MU: Mutex<()> = Mutex::new(());
 
 /// Atomic write: a temporary file first, then the swap — a crash mid-write does not spoil config.json.
 pub fn save(c: &Config) {
+    let _g = SAVE_MU.lock().unwrap();
+    write(c);
+}
+
+/// The settings next to Arcmix.exe (on) or in %APPDATA% (off), moved there with the other data files; no
+/// save comes in between (a config.json left next to the exe would make the next start portable).
+pub fn set_portable(on: bool) -> Result<(), String> {
+    let _g = SAVE_MU.lock().unwrap();
+    *SAVE_LATER.lock().unwrap() = false;
+    write(&get()); // the latest into the old folder, moved from there
+    util::set_portable(on, crate::APP_DIR_NAME)?;
+    write(&get()); // there may have been none
+    Ok(())
+}
+
+fn write(c: &Config) {
     let b = match serde_json::to_vec_pretty(c) {
         Ok(b) => b,
         Err(e) => {
@@ -653,7 +669,6 @@ pub fn save(c: &Config) {
             return;
         }
     };
-    let _g = SAVE_MU.lock().unwrap();
     let path = util::config_path();
     let tmp = path.with_extension("json.tmp");
     if let Err(e) = fs::write(&tmp, &b) {

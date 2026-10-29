@@ -9,7 +9,7 @@ use windows::{
         Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
         Foundation::PROPERTYKEY,
         Media::Audio::{
-            AudioSessionState, DEVICE_STATE, DEVICE_STATE_ACTIVE, EDataFlow, ERole, IAudioSessionControl, IAudioSessionControl2, IAudioSessionEnumerator, IAudioSessionManager2,
+            AudioSessionState, DEVICE_STATE, DEVICE_STATE_ACTIVE, DEVICE_STATE_DISABLED, EDataFlow, ERole, IAudioSessionControl, IAudioSessionControl2, IAudioSessionEnumerator, IAudioSessionManager2,
             IMMDevice, IMMDeviceEnumerator, ISimpleAudioVolume, MMDeviceEnumerator, eCapture, eConsole, eRender,
         },
         Media::Audio::Endpoints::IAudioEndpointVolume,
@@ -208,13 +208,15 @@ pub fn list_audio_devices(en: &IMMDeviceEnumerator) -> (Vec<AudioDev>, Vec<Audio
             c.auto = c.id == id;
         }
     }
-    // a cable: "CABLE Input (VB-Audio Virtual Cable)" ↔ "CABLE Output (VB-Audio Virtual Cable)"
+    // the recording ends of cables, also those switched off in Windows (the pair is known then too)
+    let mut ends: Vec<AudioDev> = capture.iter().filter(|c| c.is_virtual).cloned().collect();
+    ends.extend(off_cables(en, eCapture));
     let mut groups: std::collections::HashMap<String, usize> = Default::default();
     for r in render.iter_mut().filter(|r| r.is_virtual) {
         let pp = paren_part(&r.name);
         r.group = pp.clone();
         *groups.entry(pp.clone()).or_default() += 1;
-        if let Some(c) = capture.iter().find(|c| c.is_virtual && !pp.is_empty() && paren_part(&c.name) == pp) {
+        if let Some(c) = cable_pair(&r.name, &ends) {
             r.pair = c.name.clone();
         }
     }
@@ -228,6 +230,28 @@ pub fn list_audio_devices(en: &IMMDeviceEnumerator) -> (Vec<AudioDev>, Vec<Audio
         true
     });
     (render, capture)
+}
+
+/// Virtual cables switched off in Windows ("Disable" in the sound settings), marked `off`.
+pub fn off_cables(en: &IMMDeviceEnumerator, flow: EDataFlow) -> Vec<AudioDev> {
+    devices(en, flow, DEVICE_STATE_DISABLED)
+        .iter()
+        .filter_map(|d| {
+            let (id, name) = (device_id(d), friendly_name(d));
+            (!id.is_empty() && is_virtual_name(&name)).then_some(AudioDev { id, name, is_virtual: true, off: true, ..Default::default() })
+        })
+        .collect()
+}
+
+/// The recording end of a cable: of the same name (Virtual Audio Cable: "Line 1 (Virtual Audio Cable)"
+/// both ways), "… Input" ↔ "… Output" (VB-CABLE, Voicemeeter), else the first of the same cable (the
+/// part in brackets).
+pub fn cable_pair<'a>(render: &str, ends: &'a [AudioDev]) -> Option<&'a AudioDev> {
+    let output = render.replacen(" Input", " Output", 1);
+    ends.iter().find(|c| c.name == render).or_else(|| ends.iter().find(|c| c.name == output)).or_else(|| {
+        let pp = paren_part(render);
+        ends.iter().find(|c| !pp.is_empty() && paren_part(&c.name) == pp)
+    })
 }
 
 /// The recording device "" (as in Windows) stands for: Windows' default, unless it is a virtual
@@ -404,5 +428,18 @@ mod tests {
         assert_eq!(auto_mic(&[cable(true)]).as_deref(), Some("cable"), "only cables → Windows default");
         assert_eq!(auto_mic(&[cable(false), focus(false), arctis]).as_deref(), Some("arctis"), "no default → headset");
         assert_eq!(auto_mic(&[]), None);
+    }
+
+    /// The recording end of each cable: Virtual Audio Cable lines share the part in brackets.
+    #[test]
+    fn cable_pairs() {
+        let e = |n: &str| AudioDev { id: n.into(), name: n.into(), is_virtual: true, ..Default::default() };
+        let ends = [e("Line 1 (Virtual Audio Cable)"), e("Line 2 (Virtual Audio Cable)"), e("CABLE Output (VB-Audio Virtual Cable)"), e("VoiceMeeter Output (VB-Audio VoiceMeeter VAIO)")];
+        let p = |r: &str| cable_pair(r, &ends).map(|c| c.name.as_str());
+        assert_eq!(p("Line 2 (Virtual Audio Cable)"), Some("Line 2 (Virtual Audio Cable)"));
+        assert_eq!(p("Line 1 (Virtual Audio Cable)"), Some("Line 1 (Virtual Audio Cable)"));
+        assert_eq!(p("CABLE Input (VB-Audio Virtual Cable)"), Some("CABLE Output (VB-Audio Virtual Cable)"));
+        assert_eq!(p("VoiceMeeter Input (VB-Audio VoiceMeeter VAIO)"), Some("VoiceMeeter Output (VB-Audio VoiceMeeter VAIO)"));
+        assert_eq!(p("Speakers (Realtek)"), None);
     }
 }

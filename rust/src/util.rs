@@ -8,7 +8,7 @@ use std::{
     panic::{self, AssertUnwindSafe},
     path::{Path, PathBuf},
     sync::{
-        Mutex, OnceLock,
+        Mutex,
         atomic::{AtomicIsize, Ordering},
     },
     time::{Duration, Instant},
@@ -59,11 +59,54 @@ pub fn copy_wide(dst: &mut [u16], s: &str) {
 
 // ---------- paths and the log ----------
 
-static DATA_DIR: OnceLock<PathBuf> = OnceLock::new();
+static DATA_DIR: Mutex<Option<PathBuf>> = Mutex::new(None);
 
-/// %APPDATA%\Arcmix — settings, log and crash report.
-pub fn data_dir() -> &'static Path {
-    DATA_DIR.get().map(|p| p.as_path()).unwrap_or(Path::new("."))
+/// The folder of settings, log and crash report: %APPDATA%\Arcmix, or the folder of Arcmix.exe when a
+/// config.json lies next to it (a portable copy). "." outside the app (tests).
+pub fn data_dir() -> PathBuf {
+    DATA_DIR.lock().unwrap_or_else(|p| p.into_inner()).clone().unwrap_or_else(|| PathBuf::from("."))
+}
+
+/// The folder of Arcmix.exe.
+pub fn exe_dir() -> Option<PathBuf> {
+    std::env::current_exe().ok()?.parent().map(Path::to_path_buf)
+}
+
+/// The settings are kept next to Arcmix.exe.
+pub fn portable() -> bool {
+    exe_dir().is_some_and(|d| d == data_dir())
+}
+
+/// The files of the data folder that hold settings and state (the log, crash report, AutoEQ curves and the
+/// window cache start anew in the other folder).
+const DATA_FILES: [&str; 4] = ["config.json", "apppaths.json", "vst.crashes", "vst.running"];
+
+/// Moves the settings next to Arcmix.exe (on) or back to %APPDATA% (off); the app goes on with the new
+/// folder. The caller writes the settings out before (into the old folder) and after (into the new one).
+pub fn set_portable(on: bool, dir_name: &str) -> Result<(), String> {
+    let exe = exe_dir().ok_or("no folder of Arcmix.exe")?;
+    let app = appdata_base().join(dir_name);
+    let (from, to) = if on { (app, exe) } else { (exe, app) };
+    if data_dir() == to {
+        return Ok(());
+    }
+    fs::create_dir_all(&to).map_err(|e| format!("{}: {e}", to.display()))?;
+    // the folder may be read-only (Program Files)
+    let probe = to.join("arcmix-write-test.tmp");
+    fs::write(&probe, b"").map_err(|e| format!("{}: {e}", to.display()))?;
+    let _ = fs::remove_file(&probe);
+    for n in DATA_FILES {
+        let (a, b) = (from.join(n), to.join(n));
+        if a.is_file() {
+            fs::copy(&a, &b).map_err(|e| format!("{}: {e}", b.display()))?;
+            // config.json left next to the exe would make the next start portable again
+            fs::remove_file(&a).map_err(|e| format!("{}: {e}", a.display()))?;
+        }
+    }
+    *DATA_DIR.lock().unwrap_or_else(|p| p.into_inner()) = Some(to.clone());
+    open_log(&to);
+    crate::logf!("settings folder: {}", to.display());
+    Ok(())
 }
 
 pub fn config_path() -> PathBuf {
@@ -82,21 +125,26 @@ struct LogFile {
 static LOG: Mutex<Option<LogFile>> = Mutex::new(None);
 
 pub fn init_paths(dir_name: &str) {
-    let dir = appdata_base().join(dir_name);
+    // a config.json next to Arcmix.exe — a portable copy keeps everything there
+    let dir = exe_dir().filter(|d| d.join("config.json").is_file()).unwrap_or_else(|| appdata_base().join(dir_name));
     let _ = fs::create_dir_all(&dir);
-    let _ = DATA_DIR.set(dir.clone());
-    // a small log: over 256 KB at start — begin anew
+    *DATA_DIR.lock().unwrap_or_else(|p| p.into_inner()) = Some(dir.clone());
+    open_log(&dir);
+    let cp = dir.join("crash.txt");
+    if fs::metadata(&cp).map(|m| m.len() > 512 * 1024).unwrap_or(false) {
+        let _ = fs::remove_file(&cp);
+    }
+}
+
+/// The log in this folder: a small one — over 256 KB at start, begun anew.
+fn open_log(dir: &Path) {
     let lp = dir.join("log.txt");
     if fs::metadata(&lp).map(|m| m.len() > 256 * 1024).unwrap_or(false) {
         let _ = fs::remove_file(&lp);
     }
     if let Ok(f) = OpenOptions::new().create(true).append(true).open(&lp) {
         let size = f.metadata().map(|m| m.len()).unwrap_or(0);
-        *LOG.lock().unwrap() = Some(LogFile { file: f, size });
-    }
-    let cp = dir.join("crash.txt");
-    if fs::metadata(&cp).map(|m| m.len() > 512 * 1024).unwrap_or(false) {
-        let _ = fs::remove_file(&cp);
+        *LOG.lock().unwrap_or_else(|p| p.into_inner()) = Some(LogFile { file: f, size });
     }
 }
 

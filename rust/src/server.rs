@@ -481,11 +481,14 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
         }
         "/api/procs" => http::json(&list_procs()),
         "/api/audiodevs" => {
-            let (render, capture) = audio::list_devices();
+            let (render, capture) = audio::list_devices_with_off();
             http::json(&json!({ "render": render, "capture": capture }))
         }
         "/api/route" => {
             if let Some(v) = r.json::<RouteReq>() {
+                for x in [&v.game, &v.chat, &v.media].into_iter().flatten() {
+                    audio::enable_cable(x);
+                }
                 config::set(|c| {
                     let rc = &mut c.route;
                     if let Some(x) = v.on {
@@ -522,7 +525,7 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
                         c.mic_dev = x; // older windows: now the same microphone as on the main screen
                     }
                     let m = &mut c.mic_fx;
-                    if let Some(x) = v.out {
+                    if let Some(x) = v.out.clone() {
                         m.out = x;
                     }
                     if let Some(x) = v.gate {
@@ -559,6 +562,9 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
                         m.order = x.into_iter().filter(|n| crate::dsp::MIC_STAGES.contains(&n.as_str())).collect();
                     }
                 });
+                if let Some(x) = &v.out {
+                    audio::enable_cable(x);
+                }
                 std::thread::spawn(|| crate::router::sync(&config::get()));
                 notify_subs();
             }
@@ -592,6 +598,18 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
                 match v.op.as_str() {
                     "export" => util::run_on_ui(settings::export),
                     "import" => util::run_on_ui(settings::import),
+                    // the settings folder: next to Arcmix.exe or in %APPDATA%
+                    "portable" | "appdata" => {
+                        let r = config::set_portable(v.op == "portable");
+                        notify_subs();
+                        return match r {
+                            Ok(()) => http::json(&json!({ "ok": true })),
+                            Err(e) => {
+                                logf!("settings folder not changed: {e}");
+                                http::json(&json!({ "err": e }))
+                            }
+                        };
+                    }
                     _ => {}
                 }
             }

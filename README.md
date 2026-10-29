@@ -23,7 +23,7 @@ Arcmix started from the idea of Swiftlyx's [OpenChatMix](https://github.com/Swif
 - **Equalizer presets.** Built-in presets, your own presets (edit, save, rename, delete) and the headset's own equalizer with the presets built into it, where it has them. With [Equalizer APO](https://sourceforge.net/projects/equalizerapo/) installed, Arcmix drives it too and adds AutoEQ correction for your headphone model.
 - **Microphone.** Volume, mute hotkey, push-to-talk on a key or a mouse button, soft sound cues and a mute badge on the tray icon.
 - **Hear yourself.** Record 5 seconds and play them back, or listen to your microphone live, after processing.
-- **Microphone processing.** Neural noise suppression — light RNNoise, or NVIDIA's on RTX graphics cards (with the NVIDIA Audio Effects SDK installed), which also removes room echo, with adjustable strength — a compressor, a noise gate, a loudness ceiling and 64-bit VST2 / VST3 plugins, in an order you can change. Needs a virtual audio cable, e.g. the free [VB-CABLE](https://vb-audio.com/Cable/).
+- **Microphone processing.** Neural noise suppression — light RNNoise, or NVIDIA's on RTX graphics cards (with the NVIDIA Audio Effects SDK installed), which also removes room echo, with adjustable strength — a compressor, a noise gate, a loudness ceiling and 64-bit VST2 / VST3 plugins, in an order you can change. Needs a virtual audio cable, e.g. the free [VB-CABLE](https://vb-audio.com/Cable/) or Virtual Audio Cable; a cable disabled in Windows is switched on when you pick it.
 - **Bluetooth headphones battery** in the header, as Windows knows it.
 - **Headset settings.** Battery with alerts and a time estimate, sidetone, auto power-off, mute light and more, depending on the model.
 - **Output devices by priority.** Sound goes to the highest connected device in your list: headset on, to the headset; off, to the next one. The headset microphone can follow it. You choose what happens when a device connects (switch to it if it is higher in the list, always, or never) and when one disconnects.
@@ -34,18 +34,20 @@ Arcmix started from the idea of Swiftlyx's [OpenChatMix](https://github.com/Swif
 - **A compact window.** Four tabs — Mix, Sound, Microphone, Settings; settings open as pages, and the mouse back / forward buttons move through tabs and pages.
 - **Features you can turn off.** Settings → General → Features: a feature that is off disappears from the window and does not run.
 - **Update check.** Settings → About → *Check for updates* asks GitHub for the latest release. Nothing is checked on its own.
+- **Portable settings.** Settings → Settings and help → *Settings next to Arcmix.exe* keeps `config.json` and the rest in the app folder instead of `%APPDATA%`.
 - **Themes (Black hole by default, or your own colours), profiles, hotkeys, settings in a file, 9 languages** (English, Українська, Deutsch, Français, Español, Português (Brasil), Polski, Italiano, Türkçe).
 
 ## Download and install
 
-1. Download `Arcmix-1.2.0.zip` from [Releases](../../releases) and unpack it to any folder (e.g. `C:\Programs\Arcmix`).
+1. Download `Arcmix-1.2.1.zip` from [Releases](../../releases) and unpack it to any folder (e.g. `C:\Programs\Arcmix`).
 2. Run `Arcmix.exe`. The exe is not code-signed, so Windows SmartScreen may warn you: click **More info → Run anyway**.
 3. The icon appears in the tray (click it to open the window). A short first-run guide walks through the basics, the equalizer module included.
 
 Requirements: Windows 10 or 11, 64-bit, with the Microsoft Edge WebView2 Runtime (already part of Windows 11;
 on Windows 10 it comes with Edge, or get it from [Microsoft](https://developer.microsoft.com/microsoft-edge/webview2/)).
 
-Settings, the log and crash reports are kept in `%APPDATA%\Arcmix`. **Settings → General → Start with Windows**
+Settings, the log and crash reports are kept in `%APPDATA%\Arcmix`, or next to `Arcmix.exe` when a `config.json`
+lies there (*Settings next to Arcmix.exe*). **Settings → General → Start with Windows**
 adds the app to autostart (the current user's `Run` key).
 
 **Uninstall:** turn off *Start with Windows*, quit from the tray menu, delete the folder with `Arcmix.exe`
@@ -108,6 +110,11 @@ Battery, sidetone, the hardware equalizer and other headset settings need the he
   the device descriptions of [Linux-Arctis-Manager](https://github.com/elegos/Linux-Arctis-Manager) in
   `web/devices.json`. They are **not tested**: some settings may be missing or behave differently.
   Reports are welcome.
+- **Arctis 7 (2018, 2019) and Arctis 9:** corrected after HeadsetControl and the Linux kernel driver (the USB
+  interface, the ChatMix values, the Arctis 9 battery). Their dial is read every second.
+- **Connection type:** Bluetooth and a 3.5 mm jack are shown as such; over USB Windows cannot tell a cable from
+  a 2.4 GHz receiver, so a wireless model shows 2.4 GHz. A headset on a 3.5 mm jack sends no data, so no battery
+  or dial position.
 - **Nova 7 Gen 2, Nova 5, GameBuds, Nova Elite:** their parametric hardware equalizer is ready but off until someone
   checks it on a real headset. To test it, quit Arcmix, add `"untestedEq": true` to `%APPDATA%\Arcmix\config.json`
   and start it again; please report how it went.
