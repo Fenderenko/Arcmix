@@ -57,6 +57,9 @@ struct Ui {
     wheel_accum: i32,
     wheel_last: Instant,
     wheel_toggle: Instant,
+    /// the battery icon: its picture, and what it shows (redrawn only when that changes)
+    batt_icon: HICON,
+    batt_sig: Option<(i32, bool, bool, bool, usize, String)>,
 }
 
 thread_local! {
@@ -65,6 +68,7 @@ thread_local! {
         last_tick: Instant::now(), light_task: false, icon: HICON::default(), icon_size: 16, retries: 0,
         mouse_hook: HHOOK::default(), hover: false, wheel_accum: 0,
         wheel_last: Instant::now(), wheel_toggle: Instant::now() - Duration::from_secs(1),
+        batt_icon: HICON::default(), batt_sig: None,
     });
 }
 
@@ -88,11 +92,19 @@ pub fn init() {
     });
 }
 
+/// The main icon (the mark, the balance) and the battery icon.
+const ICON_MAIN: u32 = 1;
+const ICON_BATT: u32 = 2;
+
 fn nid(flags: NOTIFY_ICON_DATA_FLAGS) -> NOTIFYICONDATAW {
+    nid_of(ICON_MAIN, flags)
+}
+
+fn nid_of(id: u32, flags: NOTIFY_ICON_DATA_FLAGS) -> NOTIFYICONDATAW {
     NOTIFYICONDATAW {
         cbSize: std::mem::size_of::<NOTIFYICONDATAW>() as u32,
         hWnd: util::main_hwnd(),
-        uID: 1,
+        uID: id,
         uFlags: flags,
         ..Default::default()
     }
@@ -168,6 +180,10 @@ pub fn add() -> bool {
     swap_icon(ic);
     if !ok {
         logf!("tray icon not added yet, will retry");
+    } else {
+        // after Explorer restarts the battery icon goes back too
+        ui(|u| u.batt_sig = None);
+        update_batt_icon();
     }
     ok
 }
@@ -200,10 +216,69 @@ pub fn retry() {
 }
 
 /// The battery shows instead of the mark: by the setting (trayBattery), flipped for a while by the mouse
-/// wheel; only with a connected headset that reports it.
+/// wheel; only with a connected headset that reports it, and not while it has an icon of its own.
 fn batt_wanted() -> bool {
     let hs = headset::snapshot();
-    hs.connected && hs.have_batt && (config::get().tray_battery != ui(|u| u.batt_flip))
+    let (own, show) = config::with(|c| (c.batt_icon, c.tray_battery));
+    hs.connected && hs.have_batt && !own && (show != ui(|u| u.batt_flip))
+}
+
+/// The battery for its own icon: the headset when it is on and reports it, else the output device
+/// (Bluetooth headphones as Windows knows them) — name, level, charging, the Nova LED steps.
+fn batt_source() -> Option<(String, i32, bool, bool)> {
+    let hs = headset::snapshot();
+    if hs.connected && hs.powered && hs.have_batt {
+        let nova = hs.dev_name.to_lowercase().contains("nova");
+        return Some((hs.dev_name, hs.batt_pct, hs.charging, nova));
+    }
+    let o = crate::audio::out_state();
+    (o.batt >= 0).then(|| (if o.short.is_empty() { o.name } else { o.short }, o.batt, false, false))
+}
+
+/// The battery icon of its own (config battIcon): added, redrawn or removed as the battery changes;
+/// gone while no device reports one.
+fn update_batt_icon() {
+    let want = if config::with(|c| c.batt_icon) { batt_source() } else { None };
+    let (size, light) = ui(|u| (u.icon_size, u.light_task));
+    let sig = want.as_ref().map(|(n, l, ch, nova)| (*l, *ch, *nova, light, size, n.clone()));
+    if ui(|u| u.batt_sig == sig) {
+        return;
+    }
+    let was = ui(|u| std::mem::replace(&mut u.batt_sig, sig.clone()).is_some());
+    let Some((name, level, charging, nova)) = want else {
+        if was {
+            unsafe {
+                let _ = Shell_NotifyIconW(NIM_DELETE, &nid_of(ICON_BATT, NOTIFY_ICON_DATA_FLAGS(0)));
+            }
+        }
+        swap_batt_icon(HICON::default());
+        return;
+    };
+    let (cg, cc) = config::with(|c| config::colors_of(&c.theme, c));
+    let p = IconParams { size, pos: 0.0, b: 1.0, bat: 1.0, level, nova, light, mic: 0, cg, cc };
+    let ic = icon::make_hicon(size, &icon::render(&p));
+    let mut n = nid_of(ICON_BATT, NIF_MESSAGE | NIF_ICON | NIF_TIP);
+    n.uCallbackMessage = crate::WM_TRAY;
+    n.hIcon = ic;
+    let mut tip = format!("{name}: {level}%");
+    if charging {
+        tip += &format!(" ({})", t("заряджається"));
+    }
+    util::copy_wide(&mut n.szTip, &tip);
+    let ok = unsafe { Shell_NotifyIconW(if was { NIM_MODIFY } else { NIM_ADD }, &n) }.as_bool() || unsafe { Shell_NotifyIconW(NIM_MODIFY, &n) }.as_bool();
+    if !ok {
+        ui(|u| u.batt_sig = None); // tried again with the next update
+    }
+    swap_batt_icon(ic);
+}
+
+fn swap_batt_icon(ic: HICON) {
+    let old = ui(|u| std::mem::replace(&mut u.batt_icon, ic));
+    if !old.is_invalid() {
+        unsafe {
+            let _ = DestroyIcon(old);
+        }
+    }
 }
 
 pub fn update(with_tip: bool) {
@@ -226,14 +301,21 @@ pub fn update(with_tip: bool) {
         let _ = Shell_NotifyIconW(NIM_MODIFY, &n);
     }
     swap_icon(ic);
+    // the battery icon follows changes of state, not the frames of an animation
+    if with_tip {
+        update_batt_icon();
+    }
 }
 
 pub fn remove() {
     let n = nid(NOTIFY_ICON_DATA_FLAGS(0));
     unsafe {
         let _ = Shell_NotifyIconW(NIM_DELETE, &n);
+        let _ = Shell_NotifyIconW(NIM_DELETE, &nid_of(ICON_BATT, NOTIFY_ICON_DATA_FLAGS(0)));
     }
     swap_icon(HICON::default());
+    swap_batt_icon(HICON::default());
+    ui(|u| u.batt_sig = None);
 }
 
 pub fn balloon(title: &str, text: &str, warn: bool) {
@@ -431,9 +513,15 @@ pub fn unhook_mouse() {
     }
 }
 
+/// What the wheel over the icon does: with the battery in an icon of its own, flipping to the battery
+/// would show it twice — the wheel then does nothing.
+fn wheel_mode() -> String {
+    config::with(|c| if c.batt_icon && c.wheel_mode == "battery" { "off".into() } else { c.wheel_mode.clone() })
+}
+
 /// The cursor is over the icon (Windows reports moves over it) — listen to the wheel.
 pub fn on_hover() {
-    if ui(|u| u.hover) || config::get().wheel_mode == "off" {
+    if ui(|u| u.hover) || wheel_mode() == "off" {
         return;
     }
     ui(|u| u.hover = true);
@@ -465,7 +553,7 @@ unsafe extern "system" fn mouse_proc(code: i32, wp: WPARAM, lp: LPARAM) -> windo
         let info = unsafe { &*(lp.0 as *const MSLLHOOKSTRUCT) };
         crate::mic::ptt_mouse(wp.0 as u32, info.mouseData);
         if wp.0 as u32 == WM_MOUSEWHEEL && ui(|u| u.hover) {
-            let mode = config::get().wheel_mode;
+            let mode = wheel_mode();
             if (mode == "battery" || mode == "balance") && over_tray(info.pt) {
                 let delta = (info.mouseData >> 16) as i16 as i32;
                 let hwnd = util::main_hwnd();
@@ -506,7 +594,7 @@ unsafe extern "system" fn mouse_proc(code: i32, wp: WPARAM, lp: LPARAM) -> windo
 
 /// The tray icon rectangle (screen coordinates).
 pub fn icon_rect() -> Option<RECT> {
-    let id = NOTIFYICONIDENTIFIER { cbSize: std::mem::size_of::<NOTIFYICONIDENTIFIER>() as u32, hWnd: util::main_hwnd(), uID: 1, ..Default::default() };
+    let id = NOTIFYICONIDENTIFIER { cbSize: std::mem::size_of::<NOTIFYICONIDENTIFIER>() as u32, hWnd: util::main_hwnd(), uID: ICON_MAIN, ..Default::default() };
     unsafe { Shell_NotifyIconGetRect(&id) }.ok()
 }
 

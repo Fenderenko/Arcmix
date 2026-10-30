@@ -5,7 +5,7 @@ use std::{
     collections::{HashMap, VecDeque},
     ffi::c_void,
     sync::{
-        Arc, Mutex,
+        Arc, Condvar, Mutex,
         atomic::{AtomicBool, AtomicU64, Ordering},
         mpsc::{self, Receiver, RecvTimeoutError, Sender},
     },
@@ -15,11 +15,15 @@ use std::{
 use windows::{
     Win32::{
         Devices::{
-            DeviceAndDriverInstallation::{DIGCF_DEVICEINTERFACE, DIGCF_PRESENT, SP_DEVICE_INTERFACE_DATA, SetupDiDestroyDeviceInfoList, SetupDiEnumDeviceInterfaces, SetupDiGetClassDevsW, SetupDiGetDeviceInterfaceDetailW},
+            DeviceAndDriverInstallation::{
+                DIGCF_DEVICEINTERFACE, DIGCF_PRESENT, SP_DEVICE_INTERFACE_DATA, SP_DEVINFO_DATA, SetupDiDestroyDeviceInfoList, SetupDiEnumDeviceInterfaces, SetupDiGetClassDevsW,
+                SetupDiGetDeviceInterfaceDetailW,
+            },
             HumanInterfaceDevice::{HIDP_CAPS, HidD_FreePreparsedData, HidD_GetFeature, HidD_GetHidGuid, HidD_GetPreparsedData, HidD_SetFeature, HidP_GetCaps, PHIDP_PREPARSED_DATA},
         },
         Foundation::{CloseHandle, GENERIC_READ, GENERIC_WRITE, HANDLE},
         Storage::FileSystem::{CreateFileW, FILE_FLAGS_AND_ATTRIBUTES, FILE_SHARE_READ, FILE_SHARE_WRITE, OPEN_EXISTING, ReadFile, WriteFile},
+        System::IO::CancelIoEx,
     },
     core::{GUID, HSTRING},
 };
@@ -32,6 +36,10 @@ const DEVICES_JSON: &str = include_str!("../../../web/devices.json");
 /// The Arctis 7+ family — the tested native driver.
 const NATIVE_PIDS: [u16; 4] = [0x220e, 0x2212, 0x2216, 0x2236];
 
+/// Descriptions whose graphic equalizer the window shows: being checked on a real headset (the others
+/// stay hidden until then).
+const SHOWN_EQ: [&str; 1] = ["arctis_7.yaml"];
+
 #[derive(Clone, Debug, Default)]
 pub struct HidIface {
     pub path: String,
@@ -41,6 +49,8 @@ pub struct HidIface {
     pub in_len: u16,
     pub out_len: u16,
     pub feat_len: u16,
+    /// the container (the physical receiver): its audio devices in Windows share it
+    pub container: Option<[u8; 16]>,
 }
 
 /// A handle that closes itself.
@@ -82,7 +92,8 @@ pub fn enum_hid() -> Vec<HidIface> {
             }
             let mut buf = vec![0u8; need as usize + 8];
             *(buf.as_mut_ptr() as *mut u32) = 8; // cbSize of SP_DEVICE_INTERFACE_DETAIL_DATA_W on x64
-            if SetupDiGetDeviceInterfaceDetailW(set, &d, Some(buf.as_mut_ptr() as *mut _), need, None, None).is_err() {
+            let mut di = SP_DEVINFO_DATA { cbSize: std::mem::size_of::<SP_DEVINFO_DATA>() as u32, ..Default::default() };
+            if SetupDiGetDeviceInterfaceDetailW(set, &d, Some(buf.as_mut_ptr() as *mut _), need, None, Some(&mut di)).is_err() {
                 continue;
             }
             let w = std::slice::from_raw_parts(buf.as_ptr().add(4) as *const u16, (need as usize - 4) / 2);
@@ -96,7 +107,7 @@ pub fn enum_hid() -> Vec<HidIface> {
             let mi = lp.find("&mi_").and_then(|k| lp.get(k + 4..k + 6)).and_then(|h| i32::from_str_radix(h, 16).ok()).unwrap_or(0);
             // access 0 — capabilities only (system collections open this way too)
             let Some(h) = open(&path, 0) else { continue };
-            let mut hi = HidIface { path, mi, pid, ..Default::default() };
+            let mut hi = HidIface { path, mi, pid, container: crate::audio::btbatt::container(di.DevInst), ..Default::default() };
             let mut ppd = PHIDP_PREPARSED_DATA::default();
             if HidD_GetPreparsedData(h.0, &mut ppd) {
                 let mut caps = HIDP_CAPS::default();
@@ -148,22 +159,87 @@ pub fn write_report(hi: &HidIface, data: &[u8]) -> bool {
     rx.recv_timeout(Duration::from_millis(1500)).unwrap_or(false)
 }
 
-/// Reads input reports until an error; false — the collection could not be opened.
-fn read_reports(hi: &HidIface, mut f: impl FnMut(&[u8])) -> bool {
+/// The reading handles of a session, so that it can stop them when it gives way to another receiver (a
+/// read waits for a report that may never come).
+#[derive(Clone, Default)]
+struct Readers {
+    handles: Arc<Mutex<Vec<isize>>>,
+    stop: Arc<AtomicBool>,
+}
+
+impl Readers {
+    /// Ends the reads of this session; each reader exits.
+    fn stop(&self) {
+        self.stop.store(true, Ordering::Release);
+        // a reader may be just between two reads: cancelled again until all are gone
+        for _ in 0..20 {
+            {
+                let l = self.handles.lock().unwrap();
+                if l.is_empty() {
+                    return;
+                }
+                for h in l.iter() {
+                    let _ = unsafe { CancelIoEx(HANDLE(*h as *mut c_void), None) };
+                }
+            }
+            std::thread::sleep(Duration::from_millis(25));
+        }
+    }
+}
+
+/// Reads input reports until an error or Readers::stop; false — the collection could not be opened.
+fn read_reports(hi: &HidIface, readers: &Readers, mut f: impl FnMut(&[u8])) -> bool {
     let Some(h) = open_rw(&hi.path).or_else(|| open(&hi.path, GENERIC_READ.0)) else {
         logf!("failed to open {}", hi.path);
         return false;
     };
+    let raw = h.0.0 as isize;
+    readers.handles.lock().unwrap().push(raw);
     let n = if hi.in_len < 8 { 65 } else { hi.in_len as usize };
     let mut buf = vec![0u8; n];
-    loop {
+    let r = loop {
+        if readers.stop.load(Ordering::Acquire) {
+            break true;
+        }
         let mut got = 0u32;
         if let Err(e) = unsafe { ReadFile(h.0, Some(&mut buf), Some(&mut got), None) } {
-            logf!("reading {} stopped: {e}", hi.path);
-            return true;
+            if !readers.stop.load(Ordering::Acquire) {
+                logf!("reading {} stopped: {e}", hi.path);
+            }
+            break true;
         }
         f(&buf[..got as usize]);
+    };
+    // out of the list before the handle closes: Readers::stop never cancels a closed one
+    readers.handles.lock().unwrap().retain(|x| *x != raw);
+    drop(h);
+    r
+}
+
+// ---------- several receivers: each has a session of its own ----------
+
+/// The container of the audio device that plays now (audio::refresh_out): its receiver is the active one
+/// (the window, the tray and the balance follow it).
+static PREFER: Mutex<Option<[u8; 16]>> = Mutex::new(None);
+/// A session runs with the native Arctis 7+ receiver / with a described one.
+static RUN_NATIVE: AtomicBool = AtomicBool::new(false);
+static RUN_GENERIC: AtomicBool = AtomicBool::new(false);
+/// Wakes the search for receivers (a device came or a session ended).
+static RESCAN: (Mutex<bool>, Condvar) = (Mutex::new(false), Condvar::new());
+
+/// (audio thread) The output that plays now, by its container.
+pub fn prefer(c: Option<[u8; 16]>) {
+    *PREFER.lock().unwrap() = c;
+    if headset::choose(c) {
+        util::post_ui(crate::WM_HID, 0);
     }
+}
+
+/// Looks for receivers again now (audio devices changed: one may have been plugged in).
+pub fn rescan() {
+    let (m, c) = &RESCAN;
+    *m.lock().unwrap() = true;
+    c.notify_one();
 }
 
 fn clamp_pct(v: i32) -> i32 {
@@ -171,6 +247,7 @@ fn clamp_pct(v: i32) -> i32 {
 }
 
 fn notify() {
+    headset::choose(*PREFER.lock().unwrap());
     util::post_ui(crate::WM_HID, 0);
 }
 
@@ -181,11 +258,16 @@ static NATIVE: Mutex<Option<HidIface>> = Mutex::new(None);
 /// The generic session, when a described headset is connected.
 static GENERIC: Mutex<Option<Arc<GenDev>>> = Mutex::new(None);
 
-pub fn native() -> Option<HidIface> {
+/// The Arctis 7+ receiver (its own settings and equalizer go there even while another headset is active).
+fn native() -> Option<HidIface> {
     NATIVE.lock().unwrap().clone()
 }
 
+/// The described headset, when it is the active one (commands from the window go to it).
 pub fn generic() -> Option<Arc<GenDev>> {
+    if headset::active() != Some(headset::SLOT_GENERIC) {
+        return None;
+    }
     GENERIC.lock().unwrap().clone()
 }
 
@@ -323,60 +405,68 @@ fn native_name(pid: u16) -> &'static str {
     }
 }
 
-/// Looks for a headset and keeps the connection; runs forever on a thread of its own.
+/// Looks for receivers and starts a session with each (an Arctis 7+ and a described headset can be
+/// connected at once); runs forever on a thread of its own.
 pub fn hid_loop() {
     let pids = device_pids(DEVICES_JSON).unwrap_or_else(|e| {
         logf!("device definitions are corrupted: {e}");
         Default::default()
     });
-    // full descriptions — only while looking for a headset found by its code
     let mut devs: Option<Vec<DevConfig>> = None;
     loop {
-        let all = enum_hid();
-        if let (Some(st), Some(mix)) = find_arctis(&all) {
-            run_native(mix, st);
-            continue;
+        let (nr, gr) = (RUN_NATIVE.load(Ordering::Acquire), RUN_GENERIC.load(Ordering::Acquire));
+        if !nr || !gr {
+            let all = enum_hid();
+            if !nr && let (Some(st), Some(mix)) = find_arctis(&all) {
+                RUN_NATIVE.store(true, Ordering::Release);
+                std::thread::spawn(move || {
+                    run_native(mix, st);
+                    RUN_NATIVE.store(false, Ordering::Release);
+                    rescan();
+                });
+            }
+            // a described headset on another receiver than the native one; the full descriptions are kept
+            // only while one is found by its code and not matched yet
+            let others: Vec<HidIface> = all.into_iter().filter(|h| !NATIVE_PIDS.contains(&h.pid)).collect();
+            let known = !gr && others.iter().any(|h| pids.contains(&(h.pid as i32)));
+            if known && devs.is_none() {
+                devs = parse_devices(DEVICES_JSON).ok();
+            }
+            if !known {
+                devs = None;
+            }
+            if let Some(d) = devs.as_deref() {
+                if let Some(g) = match_generic(d, &others) {
+                    devs = None;
+                    RUN_GENERIC.store(true, Ordering::Release);
+                    std::thread::spawn(move || {
+                        run_generic(Arc::new(g));
+                        RUN_GENERIC.store(false, Ordering::Release);
+                        rescan();
+                    });
+                }
+            }
         }
-        let known = all.iter().any(|h| pids.contains(&(h.pid as i32)));
-        if known && devs.is_none() {
-            devs = parse_devices(DEVICES_JSON).ok();
-        }
-        if let Some(g) = devs.as_deref().and_then(|d| match_generic(d, &all)) {
-            devs = None; // the found headset keeps its description, the rest are released
-            run_generic(Arc::new(g));
-            continue;
-        }
-        if !known {
-            devs = None;
-        }
-        let changed = {
-            let mut h = headset::lock();
-            let ch = h.connected;
-            h.connected = false;
-            h.generic = false;
-            ch
-        };
-        *GENERIC.lock().unwrap() = None;
-        if changed {
-            notify();
-        }
-        std::thread::sleep(Duration::from_secs(3));
+        // a new audio device or an ended session wakes the search; while a receiver is talked to,
+        // another one is looked for rarely otherwise
+        let wait = if RUN_NATIVE.load(Ordering::Acquire) || RUN_GENERIC.load(Ordering::Acquire) { Duration::from_secs(30) } else { Duration::from_secs(3) };
+        let (m, c) = &RESCAN;
+        let g = m.lock().unwrap();
+        let (mut g, _) = c.wait_timeout_while(g, wait, |r| !*r).unwrap();
+        *g = false;
     }
 }
 
 /// The tested Arctis 7+ driver (returns when the connection is lost).
 fn run_native(mix: HidIface, st: HidIface) {
+    headset::open_slot(headset::SLOT_NATIVE);
     {
-        let mut h = headset::lock();
+        let mut h = headset::lock_slot(headset::SLOT_NATIVE);
         h.connected = true;
-        h.generic = false;
-        h.generic_soft_chatmix = false;
         h.dev_name = native_name(st.pid).into();
-        h.mic_muted = -1;
-        h.extra_batt.clear();
+        h.container = st.container;
     }
     *NATIVE.lock().unwrap() = Some(st.clone());
-    *GENERIC.lock().unwrap() = None;
     EQ_NEED.store(true, Ordering::Relaxed);
     notify();
     std::thread::spawn(|| {
@@ -386,17 +476,18 @@ fn run_native(mix: HidIface, st: HidIface) {
     logf!("headset found: {} (PID {:04x}), mi_05 in={}, mi_03 in={} out={}", native_name(st.pid), st.pid, mix.in_len, st.in_len, st.out_len);
 
     let stop = Arc::new(AtomicBool::new(false));
+    let readers = Readers::default();
     let (wake_tx, wake_rx) = mpsc::channel::<()>();
     let last = Arc::new(Mutex::new(None::<(i32, i32)>)); // the dial position (game, chat), once known
     {
         // live ChatMix values
-        let (stop, wake, last) = (stop.clone(), wake_tx.clone(), last.clone());
+        let (stop, wake, last, rd) = (stop.clone(), wake_tx.clone(), last.clone(), readers.clone());
         std::thread::spawn(move || {
-            read_reports(&mix, |b| {
+            read_reports(&mix, &rd, |b| {
                 if b.len() >= 4 && b[1] == 0x45 {
                     let (g, c) = (clamp_pct(b[2] as i32), clamp_pct(b[3] as i32));
                     *last.lock().unwrap() = Some((g, c));
-                    let mut h = headset::lock();
+                    let mut h = headset::lock_slot(headset::SLOT_NATIVE);
                     (h.game, h.chat, h.mix_new) = (g, c, true);
                     drop(h);
                     notify();
@@ -408,12 +499,12 @@ fn run_native(mix: HidIface, st: HidIface) {
     }
     {
         // status: battery, power
-        let (stop, wake, last, stc) = (stop.clone(), wake_tx.clone(), last.clone(), st.clone());
+        let (stop, wake, last, stc, rd) = (stop.clone(), wake_tx.clone(), last.clone(), st.clone(), readers.clone());
         std::thread::spawn(move || {
             let mut last_status = String::new();
             // the previous frame had the headset on and its data known
             let mut was_on = false;
-            read_reports(&stc, |b| {
+            read_reports(&stc, &rd, |b| {
                 if b.len() >= 7 && b[1] == 0xb0 {
                     let s = b[..b.len().min(8)].iter().map(|x| format!("{x:02x}")).collect::<Vec<_>>().join(" ");
                     if s != last_status {
@@ -426,7 +517,7 @@ fn run_native(mix: HidIface, st: HidIface) {
                     let known = !(b[5] == 0xff && b[6] == 0xff);
                     let (g, c) = (clamp_pct(b[5] as i32), clamp_pct(b[6] as i32));
                     let mut l = last.lock().unwrap();
-                    let mut h = headset::lock();
+                    let mut h = headset::lock_slot(headset::SLOT_NATIVE);
                     let was = h.powered;
                     h.powered = b[2] == 3; // 3 — connected (0..2 — not connected / searching)
                     if h.powered && (EQ_NEED.swap(false, Ordering::Relaxed) || !was) {
@@ -471,12 +562,14 @@ fn run_native(mix: HidIface, st: HidIface) {
             Err(RecvTimeoutError::Timeout) => {}
         }
     }
+    readers.stop();
     std::thread::sleep(Duration::from_secs(1));
     logf!("lost connection to headset, searching again");
     *NATIVE.lock().unwrap() = None;
-    headset::lock().connected = false;
+    headset::close_slot(headset::SLOT_NATIVE);
     notify();
 }
+
 
 // ---------- headsets from descriptions ----------
 
@@ -511,48 +604,65 @@ enum Msg {
 /// (unlike hidraw in Linux), so all collections of the needed interfaces are taken: commands can go
 /// into one and events (ChatMix, buttons) come from another.
 fn match_generic(devs: &[DevConfig], all: &[HidIface]) -> Option<GenDev> {
-    for hi in all {
-        for c in devs {
-            if !c.has_pid(hi.pid as i32) {
-                continue;
-            }
-            let want = c.device.hid.command.as_ref();
-            // the described interface missing — a vendor collection of another one, only where the description's
-            // interface is in doubt (engine::quirks: Arctis 9); for the rest it may just not be enumerated yet
-            let other = || c.device.hid.any_iface.then(|| pick_vendor(all, hi.pid)).flatten();
-            let Some(cmd) = pick_iface(all, hi.pid, want, c.device.hid.usage_page, true).or_else(|| pick_iface(all, hi.pid, want, 0, true)).or_else(other) else {
-                continue;
-            };
-            let sync_mi = c.device.hid.sync.as_ref().map(|s| s.interface).unwrap_or(cmd.mi);
-            let mut outs = vec![cmd.clone()];
-            let mut ins = Vec::new();
-            for x in all.iter().filter(|x| x.pid == hi.pid) {
-                if x.mi == cmd.mi && x.path != cmd.path && (x.out_len > 0 || x.feat_len > 0) {
-                    outs.push(x.clone());
+    // a companion (the GameBuds case) only when its main device is not there
+    for comp in [false, true] {
+        for hi in all {
+            for c in devs.iter().filter(|c| c.device.companion == comp) {
+                if !c.has_pid(hi.pid as i32) {
+                    continue;
                 }
-                if (x.mi == cmd.mi || x.mi == sync_mi) && x.in_len > 0 {
-                    ins.push(x.clone());
+                let want = c.device.hid.command.as_ref();
+                // the described interface missing — a vendor collection of another one, only where the description's
+                // interface is in doubt (engine::quirks: Arctis 9); for the rest it may just not be enumerated yet
+                let other = || c.device.hid.any_iface.then(|| pick_vendor(all, hi.pid)).flatten();
+                let Some(cmd) = pick_iface(all, hi.pid, want, c.device.hid.usage_page, true).or_else(|| pick_iface(all, hi.pid, want, 0, true)).or_else(other) else {
+                    continue;
+                };
+                let sync_mi = c.device.hid.sync.as_ref().map(|s| s.interface).unwrap_or(cmd.mi);
+                let mut outs = vec![cmd.clone()];
+                let mut ins = Vec::new();
+                for x in all.iter().filter(|x| x.pid == hi.pid) {
+                    if x.mi == cmd.mi && x.path != cmd.path && (x.out_len > 0 || x.feat_len > 0) {
+                        outs.push(x.clone());
+                    }
+                    if (x.mi == cmd.mi || x.mi == sync_mi) && x.in_len > 0 {
+                        ins.push(x.clone());
+                    }
                 }
+                let name = c.variant_name(hi.pid as i32);
+                return Some(GenDev {
+                    name: short_model(&name),
+                    pid: hi.pid,
+                    // the parametric one is not checked on a real headset yet: only for testers (untestedEq)
+                    eq: c.detect_eq().filter(|e| e.kind != "parametric" || config::get().untested_eq).map(|mut e| {
+                        e.shown = SHOWN_EQ.contains(&c.file.as_str());
+                        e
+                    }),
+                    schema: c.settings_schema(),
+                    cfg: c.clone(),
+                    cmd,
+                    outs,
+                    ins,
+                    status: Mutex::new(HashMap::new()),
+                    eq_pending: Mutex::new(None),
+                    save_gen: AtomicU64::new(0),
+                    tx: Mutex::new(None),
+                });
             }
-            let name = c.variant_name(hi.pid as i32);
-            return Some(GenDev {
-                name: name.strip_prefix("SteelSeries ").unwrap_or(&name).to_string(),
-                pid: hi.pid,
-                // the parametric one is not checked on a real headset yet: only for testers (untestedEq)
-                eq: c.detect_eq().filter(|e| e.kind != "parametric" || config::get().untested_eq),
-                schema: c.settings_schema(),
-                cfg: c.clone(),
-                cmd,
-                outs,
-                ins,
-                status: Mutex::new(HashMap::new()),
-                eq_pending: Mutex::new(None),
-                save_gen: AtomicU64::new(0),
-                tx: Mutex::new(None),
-            });
         }
     }
     None
+}
+
+/// The model as the headset is called (and as Windows names its devices): without the brand and the
+/// variant notes — "SteelSeries Arctis 7 (2019 refresh)" → "Arctis 7".
+fn short_model(name: &str) -> String {
+    let n = name.strip_prefix("SteelSeries ").unwrap_or(name);
+    let n = match n.find(" (") {
+        Some(i) if n.ends_with(')') => &n[..i],
+        _ => n,
+    };
+    n.trim().to_string()
 }
 
 fn pick_iface(all: &[HidIface], pid: u16, want: Option<&super::engine::DevIface>, page: i32, need_out: bool) -> Option<HidIface> {
@@ -649,6 +759,8 @@ pub struct Session {
     partial_logged: bool,
     /// state requests not answered in a row while others were (left out from 3 on)
     silent: HashMap<String, u8>,
+    /// the equalizer curve in the headset now (None — unknown: the whole curve is sent)
+    eq_sent: Option<Vec<f64>>,
 }
 
 fn btoi(b: bool) -> i32 {
@@ -718,12 +830,20 @@ impl Session {
     }
 
     fn write_api(&mut self, api: &str, vals: &HashMap<String, FVal>) -> Result<(), String> {
+        self.write_api_where(api, vals, |_| true)
+    }
+
+    /// The same, leaving out the messages `keep` turns down.
+    fn write_api_where(&mut self, api: &str, vals: &HashMap<String, FVal>, keep: impl Fn(&[u8]) -> bool) -> Result<(), String> {
         let acts = self.g.cfg.prepare_write(api, vals)?;
         let mut sent = false;
         for a in acts {
             if !a.sleep.is_zero() {
                 std::thread::sleep(a.sleep);
                 sent = false;
+                continue;
+            }
+            if !keep(&a.payload) {
                 continue;
             }
             // frames of one write at least 30 ms apart: Nova 7 Gen 2 drops faster ones (Arctis Sound Manager)
@@ -802,7 +922,7 @@ impl Session {
                 changed |= st.insert(k.clone(), v.clone()).as_ref() != Some(v);
             }
         }
-        let mut h = headset::lock();
+        let mut h = headset::lock_slot(headset::SLOT_GENERIC);
         let before = (h.game, h.chat, h.batt_pct, h.have_batt, h.powered, h.charging, h.mic_muted, h.extra_batt.clone());
         let (mut game, mut chat) = (-1, -1);
         for (k, v) in &e.fields {
@@ -848,8 +968,17 @@ impl Session {
         drop(h);
         if came_on {
             self.silent.clear(); // the headset came on: every request is asked again
+            // it starts without the setup and the settings the app keeps (SteelSeries GG sends both again):
+            // the Arctis 7 chip forgets its equalizer
+            if self.inited {
+                self.eq_sent = None;
+                self.pending.push_back(Box::new(|s: &mut Session| {
+                    s.lifecycle("init");
+                    s.reapply();
+                }));
+            }
         }
-        // a state polled every second (the Arctis 7 / 9 dial) mostly repeats: the window and the tray hear of changes only
+        // a state polled often (the Arctis 7 / 9 dial, the mic button) mostly repeats: the window and the tray hear of changes only
         if changed {
             notify();
         }
@@ -885,7 +1014,7 @@ impl Session {
             }
         }
         // counted only while the headset is on: with it off the receiver answers part of the requests
-        if any && headset::lock().powered {
+        if any && headset::lock_slot(headset::SLOT_GENERIC).powered {
             for s in failed {
                 *self.silent.entry(s).or_default() += 1;
             }
@@ -903,13 +1032,24 @@ impl Session {
         }
     }
 
-    /// The ChatMix dial when the headset does not report turning it (Arctis 7, Arctis 9): its request.
-    fn dial_read(&self) -> Option<super::engine::DevReadEntry> {
+    /// Parts of the state the headset does not report by itself (Arctis 7, Arctis 9), asked for more often
+    /// than the rest: the ChatMix dial and the microphone button while the headset is on, whether it is on
+    /// at all always (true — only while on).
+    fn quick_reads(&self) -> Vec<(super::engine::DevReadEntry, Duration, bool)> {
         let c = &self.g.cfg;
-        if c.events.values().any(|e| e.emit == "chatmix_changed") {
-            return None;
+        let wanted: [(&str, Duration, bool); 3] = [("chatmix", Duration::from_millis(250), true), ("mic_mute", Duration::from_secs(1), true), ("connection", Duration::from_secs(3), false)];
+        let mut l = Vec::new();
+        for (sig, every, on_only) in wanted {
+            if c.events.values().any(|e| e.emit.contains(sig)) {
+                continue;
+            }
+            if let Some(e) = c.sync_read.iter().find(|e| e.maps.iter().any(|m| m.emit.contains(sig))) {
+                if !l.iter().any(|(x, _, _): &(super::engine::DevReadEntry, Duration, bool)| x.strukt == e.strukt) {
+                    l.push((e.clone(), every, on_only));
+                }
+            }
         }
-        c.sync_read.iter().find(|e| e.maps.iter().any(|m| m.emit == "chatmix_changed")).cloned()
+        l
     }
 
     pub fn call(&mut self, name: &str) {
@@ -1014,10 +1154,17 @@ impl Session {
 
     pub fn apply_eq(&mut self, bands: &[f64], persist: bool) {
         let Some(eq) = self.g.eq.clone() else { return };
-        if let Err(e) = self.write_api(&eq.api, &self.g.cfg.eq_values(&eq, bands)) {
+        // a chip written band by band (AV6X02): only the bands that changed since the last curve go out, as
+        // SteelSeries GG does (the whole curve is 84 messages, some 2.5 s)
+        let av6 = self.g.cfg.apis.get(&eq.api).and_then(|a| a.write.as_ref()).is_some_and(|w| w.steps.iter().any(|s| s.transform == "builtin:av6x02_eq_gains"));
+        let prev = self.eq_sent.take().filter(|_| av6);
+        let same = |b: usize| prev.as_ref().is_some_and(|p| p.len() == bands.len() && p.get(b) == bands.get(b));
+        let vals = self.g.cfg.eq_values(&eq, bands);
+        if let Err(e) = self.write_api_where(&eq.api, &vals, |m| super::builtins::av6_band_of(m).is_none_or(|b| !same(b))) {
             logf!("equalizer: {e}");
             return;
         }
+        self.eq_sent = Some(bands.to_vec());
         logf!("equalizer: {bands:?}");
         // Nova Pro / GameDAC: the curve goes into the "custom" slot, but only the selected preset
         // sounds — after writing, exactly that slot is selected (otherwise "Flat" from start stays)
@@ -1038,7 +1185,7 @@ impl Session {
 fn run_generic(g: Arc<GenDev>) {
     let (tx, rx) = mpsc::channel::<Msg>();
     *g.tx.lock().unwrap() = Some(tx.clone());
-    let mut s = Session { g: g.clone(), wh: HashMap::new(), ok_out: 0, rx, pending: VecDeque::new(), inited: false, last_init: Instant::now(), lost: false, partial_logged: false, silent: HashMap::new() };
+    let mut s = Session { g: g.clone(), wh: HashMap::new(), ok_out: 0, rx, pending: VecDeque::new(), inited: false, last_init: Instant::now(), lost: false, partial_logged: false, silent: HashMap::new(), eq_sent: None };
     for x in &g.outs {
         if let Some(h) = open_rw(&x.path) {
             s.wh.insert(x.path.clone(), h);
@@ -1062,25 +1209,27 @@ fn run_generic(g: Arc<GenDev>) {
         g.cmd.feat_len,
         cols.join(", ")
     );
+    headset::open_slot(headset::SLOT_GENERIC);
     {
-        let mut h = headset::lock();
-        (h.connected, h.powered, h.have_batt, h.mic_muted) = (true, true, false, -1);
-        h.extra_batt.clear();
+        let mut h = headset::lock_slot(headset::SLOT_GENERIC);
+        (h.connected, h.powered) = (true, true);
         h.generic = true;
         h.generic_soft_chatmix = g.cfg.apis.contains_key("software_chatmix_status");
         h.generic_wireless = g.cfg.device.capabilities.iter().any(|c| c == "wireless" || c == "battery");
         h.dev_name = g.name.clone();
+        h.container = g.cmd.container;
     }
-    *NATIVE.lock().unwrap() = None;
     *GENERIC.lock().unwrap() = Some(g.clone());
     notify();
 
+    let readers = Readers::default();
     for x in g.ins.clone() {
-        let tx = tx.clone();
+        let (tx, rd) = (tx.clone(), readers.clone());
         std::thread::spawn(move || {
-            if read_reports(&x, |b| {
+            if read_reports(&x, &rd, |b| {
                 let _ = tx.send(Msg::Report(b.to_vec()));
-            }) {
+            }) && !rd.stop.load(Ordering::Acquire)
+            {
                 let _ = tx.send(Msg::Lost); // the collection opened and then reading broke — unplugged
             }
         });
@@ -1090,9 +1239,8 @@ fn run_generic(g: Arc<GenDev>) {
     s.last_init = Instant::now();
     s.inited = s.init();
     let mut next_tick = Instant::now() + Duration::from_secs(10);
-    // a dial the headset does not report: asked for every second while the headset is on
-    let dial = s.dial_read();
-    let mut next_dial = Instant::now() + Duration::from_secs(1);
+    let quick = s.quick_reads();
+    let mut next_quick: Vec<Instant> = quick.iter().map(|(_, every, _)| Instant::now() + *every).collect();
     while !s.lost {
         while let Some(f) = s.pending.pop_front() {
             f(&mut s);
@@ -1100,18 +1248,27 @@ fn run_generic(g: Arc<GenDev>) {
         if s.lost {
             break;
         }
-        if let Some(e) = dial.as_ref().filter(|_| Instant::now() >= next_dial) {
-            next_dial = Instant::now() + Duration::from_secs(1);
-            if s.inited && headset::lock().powered && s.silent.get(&e.strukt).is_none_or(|n| *n < 3) {
-                if let Ok(f) = s.read_api(&e.strukt) {
-                    for em in s.g.cfg.map_read(e, &f) {
-                        s.apply_emit(&em);
+        let now = Instant::now();
+        if let Some(i) = next_quick.iter().position(|t| now >= *t) {
+            let (e, every, on_only) = &quick[i];
+            next_quick[i] = now + *every;
+            let on = headset::lock_slot(headset::SLOT_GENERIC).powered;
+            if s.inited && (on || !on_only) && s.silent.get(&e.strukt).is_none_or(|n| *n < 3) {
+                match s.read_api(&e.strukt) {
+                    Ok(f) => {
+                        s.silent.remove(&e.strukt);
+                        for em in s.g.cfg.map_read(e, &f) {
+                            s.apply_emit(&em);
+                        }
                     }
+                    // a request the model never answers stops being asked (as in sync_read)
+                    Err(_) if on => *s.silent.entry(e.strukt.clone()).or_default() += 1,
+                    Err(_) => {}
                 }
             }
             continue;
         }
-        let due = if dial.is_some() { next_tick.min(next_dial) } else { next_tick };
+        let due = next_quick.iter().copied().fold(next_tick, Instant::min);
         match s.rx.recv_timeout(due.saturating_duration_since(Instant::now())) {
             Ok(Msg::Report(r)) => {
                 s.handle_report(&r);
@@ -1122,42 +1279,40 @@ fn run_generic(g: Arc<GenDev>) {
             }
             Ok(Msg::Req(f)) => f(&mut s),
             Ok(Msg::Lost) | Err(RecvTimeoutError::Disconnected) => break,
-            Err(RecvTimeoutError::Timeout) if Instant::now() < next_tick => {} // the dial is due
+            Err(RecvTimeoutError::Timeout) if Instant::now() < next_tick => {} // a quick read is due
             Err(RecvTimeoutError::Timeout) => {
                 next_tick = Instant::now() + Duration::from_secs(10);
                 if !s.inited {
                     s.inited = s.init();
                 } else if let Err(e) = s.sync_read() {
                     logf!("poll: {e}");
-                    headset::lock().powered = false;
+                    headset::lock_slot(headset::SLOT_GENERIC).powered = false;
                     notify();
                 }
             }
         }
     }
+    readers.stop();
     logf!("lost connection to {}", g.name);
     *g.tx.lock().unwrap() = None;
     *GENERIC.lock().unwrap() = None;
-    {
-        let mut h = headset::lock();
-        h.connected = false;
-        h.generic = false;
-    }
+    headset::close_slot(headset::SLOT_GENERIC);
     notify();
     std::thread::sleep(Duration::from_secs(1));
 }
+
 
 /// Shutdown calls (saving to flash, switching software ChatMix off).
 pub fn shutdown() {
     if EQ_UNSAVED.swap(false, Ordering::Relaxed)
         && let Some(st) = native()
-        && headset::lock().powered
+        && headset::lock_slot(headset::SLOT_NATIVE).powered
     {
         // the curve stays in the headset for use without the app
         let ok = write_report(&st, &[0, 0x09]);
         logf!("equalizer saved to headset: {ok}");
     }
-    let Some(g) = generic() else { return };
+    let Some(g) = GENERIC.lock().unwrap().clone() else { return };
     let (tx, rx) = mpsc::channel();
     g.post(move |s| {
         s.lifecycle("shutdown");

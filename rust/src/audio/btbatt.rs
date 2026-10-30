@@ -59,9 +59,30 @@ fn prop(dn: u32, key: &DEVPROPKEY, buf: &mut [u8]) -> Option<usize> {
     (unsafe { CM_Get_DevNode_PropertyW(dn, key, &mut t, Some(buf.as_mut_ptr()), &mut n, 0) } == CR_SUCCESS).then_some(n as usize)
 }
 
-fn container(dn: u32) -> Option<[u8; 16]> {
+/// (any thread) The container (the physical device) of a device node: a USB receiver and its audio
+/// devices in Windows share it.
+pub(crate) fn container(dn: u32) -> Option<[u8; 16]> {
     let mut b = [0u8; 16];
     (prop(dn, &DEVPKEY_Device_ContainerId, &mut b)? == 16).then_some(b)
+}
+
+/// (any thread) The container of an audio endpoint ("{0.0.0.00000000}.{…}"), remembered per endpoint.
+pub(crate) fn endpoint_container(id: &str) -> Option<[u8; 16]> {
+    static CACHE: std::sync::Mutex<Option<std::collections::HashMap<String, Option<[u8; 16]>>>> = std::sync::Mutex::new(None);
+    if id.is_empty() {
+        return None;
+    }
+    let mut g = CACHE.lock().unwrap_or_else(|p| p.into_inner());
+    let m = g.get_or_insert_with(Default::default);
+    if let Some(c) = m.get(id) {
+        return *c;
+    }
+    let c = devnode(&format!(r"SWD\MMDEVAPI\{id}")).and_then(container);
+    if m.len() > 64 {
+        m.clear();
+    }
+    m.insert(id.to_string(), c);
+    c
 }
 
 /// (any thread) Battery percent of the device instance found by `find`.

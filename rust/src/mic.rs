@@ -280,8 +280,8 @@ pub fn badge() -> i32 {
     if m.ok && m.mute {
         return 1;
     }
-    let hs = crate::headset::lock();
-    if hs.mic_muted == 1 && hs.generic {
+    // muted with the headset button: only when that headset's microphone is the one in use
+    if m.cont.and_then(|c| crate::headset::mic_muted_at(&c)) == Some(true) {
         return 1;
     }
     0

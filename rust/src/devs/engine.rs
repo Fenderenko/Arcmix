@@ -194,6 +194,8 @@ pub struct DevDevice {
     pub variants: Vec<Variant>,
     pub hid: DevHid,
     pub capabilities: Vec<String>,
+    /// only accompanies another device (the GameBuds charging case): that one is talked to when both are there
+    pub companion: bool,
 }
 
 #[derive(Deserialize, Clone, Debug, Default)]
@@ -241,6 +243,11 @@ fn quirks(c: &mut DevConfig) {
             // each channel: 0 — full volume, else 191..255 (quietest..loudest)
             let t = DevTransform { typ: "linear".into(), scale: 100.0 / 64.0, offset: -191.0 * 100.0 / 64.0, values: [("0".to_string(), Value::from(100))].into(), ..Default::default() };
             chatmix_transform(c, "arctis_7_chatmix_to_percent", t);
+            // the receiver light (connected / disconnected) and the muted-mic light mode change nothing on
+            // an Arctis 7 (2019, checked on a real headset)
+            for k in ["tx_led", "mute_illumination"] {
+                c.apis.remove(k);
+            }
         }
         "arctis_9.yaml" => {
             // HeadsetControl and the Linux driver use interface 0, the description 2
@@ -707,6 +714,27 @@ const HIDDEN_APIS: [&str; 10] = [
     "reset",
 ];
 
+/// Where a setting stands in the window: the everyday ones first (noise cancelling, hearing yourself, the
+/// microphone), auto-off after them, lights last; the order of the description within each.
+fn setting_rank(api: &str, field: &str) -> u8 {
+    let n = format!("{api}_{field}").to_lowercase();
+    let word = |w: &str| n.split('_').any(|x| x == w);
+    let light = n.contains("led") || n.contains("light") || n.contains("illumin") || n.contains("bright");
+    if word("anc") || n.contains("noise_cancel") || n.contains("transparen") {
+        0
+    } else if n.contains("sidetone") {
+        1
+    } else if n.contains("mic") && !light {
+        2
+    } else if n.contains("timer") || n.contains("off_time") || n.contains("inactiv") || n.contains("standby") {
+        3
+    } else if light {
+        5
+    } else {
+        4
+    }
+}
+
 fn is_eq_api(name: &str) -> bool {
     let n = name.to_lowercase();
     n.contains("eq") || n == "equalizer"
@@ -786,6 +814,7 @@ impl DevConfig {
                 out.push(s);
             }
         }
+        out.sort_by_key(|s| setting_rank(&s.api, &s.field));
         out
     }
 

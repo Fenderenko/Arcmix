@@ -213,6 +213,9 @@ fn norm_biquad(c: [f64; 6]) -> [f64; 6] {
     [c[0] / c[3], c[1] / c[3], c[2] / c[3], 1.0, c[4] / c[3], c[5] / c[3]]
 }
 
+// AV6X02 (Arctis 7): coefficient writes as SteelSeries GG sends them (captured from the receiver's echo):
+// float32 little-endian, a1/a2 negated, each band then switched on (payload 1) or off (0); the right
+// channel's filter numbers follow the left ones at +42 for the equalizer bands, +28 for the fixed stages.
 const AV6_BANDS: [(Shape, f64, f64); 6] =
     [(Shape::Low, 64.0, 1.1), (Shape::Peak, 180.0, 0.8), (Shape::Peak, 500.0, 0.8), (Shape::Peak, 1400.0, 0.8), (Shape::Peak, 3900.0, 0.7), (Shape::High, 11000.0, 1.1)];
 const AV6_BASE: [u8; 6] = [1, 8, 15, 22, 29, 36];
@@ -226,16 +229,21 @@ fn av6_channel(ch: u8, band: u8, c: [f64; 6], base: u8) -> Vec<Vec<u8>> {
     if c[0] == 1.0 && c[3] == 1.0 {
         return vec![av6_msg(ch, bits, [0; 4], base + 6)];
     }
-    let mut out: Vec<Vec<u8>> = (0..6).map(|i| av6_msg(ch, bits | 0x08 | i as u8, (c[i] as f32).to_bits().to_be_bytes(), base + i as u8)).collect();
-    out.push(av6_msg(ch, bits, [0; 4], base + 6));
+    let mut out: Vec<Vec<u8>> = (0..6).map(|i| av6_msg(ch, bits | 0x08 | i as u8, (c[i] as f32).to_le_bytes(), base + i as u8)).collect();
+    out.push(av6_msg(ch, bits, [1, 0, 0, 0], base + 6));
     out
 }
 
-fn av6_band(band: u8, n: [f64; 6], base: u8) -> Vec<Vec<u8>> {
+fn av6_band(band: u8, n: [f64; 6], base: u8, right: u8) -> Vec<Vec<u8>> {
     let c = [n[0], n[1], n[2], n[3], -n[4], -n[5]];
     let mut out = av6_channel(3, band, c, base);
-    out.extend(av6_channel(4, band, c, base + 42));
+    out.extend(av6_channel(4, band, c, base + right));
     out
+}
+
+/// The equalizer band (0..5) an AV6X02 coefficient or switch message is for; None for any other message.
+pub fn av6_band_of(m: &[u8]) -> Option<usize> {
+    (m.len() > 3 && m[0] == 0x06 && m[1] == 0x28 && (m[2] == 3 || m[2] == 4) && m[3] >> 4 < 6).then(|| (m[3] >> 4) as usize)
 }
 
 fn av6_eq(b: Vec<u8>, _: &Args) -> Vec<Vec<u8>> {
@@ -245,7 +253,7 @@ fn av6_eq(b: Vec<u8>, _: &Args) -> Vec<Vec<u8>> {
     let mut out = Vec::new();
     for (i, (sh, f, q)) in AV6_BANDS.iter().enumerate() {
         let g = be32f(&b[2 + i * 4..6 + i * 4]);
-        out.extend(av6_band(i as u8, norm_biquad(biquad(*sh, 48000.0, *f, g, *q)), AV6_BASE[i]));
+        out.extend(av6_band(i as u8, norm_biquad(biquad(*sh, 48000.0, *f, g, *q)), AV6_BASE[i], 42));
     }
     out
 }
@@ -254,10 +262,10 @@ fn av6_init(_: Vec<u8>, _: &Args) -> Vec<Vec<u8>> {
     let mut out = vec![av6_msg(0x18, 0, [0; 4], 0), av6_msg(0x05, 0, [0x20, 0, 0, 0], 141), av6_msg(0x06, 0, [0x20, 0, 0, 0], 142)];
     let lp = [0.0003297046, 0.0006594092, 0.0003297046, 1.0, -1.9479868, 0.9493058];
     let hp = [0.97432315, -1.9486463, 0.97432315, 1.0, -1.9479868, 0.9493058];
-    out.extend(av6_band(6, lp, 85));
-    out.extend(av6_band(7, lp, 92));
-    out.extend(av6_band(8, hp, 99));
-    out.extend(av6_band(9, hp, 106));
+    out.extend(av6_band(6, lp, 85, 28));
+    out.extend(av6_band(7, lp, 92, 28));
+    out.extend(av6_band(8, hp, 99, 28));
+    out.extend(av6_band(9, hp, 106, 28));
     out.extend([
         av6_msg(0x07, 0x10, [0x67, 0, 0, 0], 145),
         av6_msg(0x07, 0x20, [0xF6, 0, 0, 0], 146),
@@ -265,6 +273,11 @@ fn av6_init(_: Vec<u8>, _: &Args) -> Vec<Vec<u8>> {
         av6_msg(0x07, 0x11, [0x67, 0, 0, 0], 150),
         av6_msg(0x07, 0x21, [0xF6, 0, 0, 0], 151),
         av6_msg(0x07, 0x03, [0; 4], 152),
+        // the four stage settings GG sends after them (not in the Linux-Arctis-Manager port)
+        av6_msg(0x07, 0x08, [0x7F, 0, 0, 0], 143),
+        av6_msg(0x07, 0x04, [0, 0x7F, 0, 0], 144),
+        av6_msg(0x07, 0x09, [0x7F, 0, 0, 0], 148),
+        av6_msg(0x07, 0x05, [0, 0x7F, 0, 0], 149),
     ]);
     out
 }
@@ -372,4 +385,46 @@ pub fn get(name: &str) -> Option<BuiltinFn> {
         },
         _ => return None,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn le(m: &[u8]) -> f32 {
+        f32::from_le_bytes([m[4], m[5], m[6], m[7]])
+    }
+
+    #[test]
+    fn av6x02_matches_steelseries_gg() {
+        // band 0 at +7.3 dB as GG wrote it to an Arctis 7 receiver (its echo, left channel)
+        let gg: [(u8, [u8; 4], u8); 7] = [
+            (0x08, [0x29, 0x35, 0x80, 0x3f], 0x01),
+            (0x09, [0xde, 0x33, 0xff, 0xbf], 0x02),
+            (0x0a, [0x66, 0x04, 0x7e, 0x3f], 0x03),
+            (0x0b, [0x00, 0x00, 0x80, 0x3f], 0x04),
+            (0x0c, [0xda, 0x34, 0xff, 0x3f], 0x05),
+            (0x0d, [0xb7, 0x6c, 0x7e, 0xbf], 0x06),
+            (0x00, [0x01, 0x00, 0x00, 0x00], 0x07),
+        ];
+        let mut b = vec![0x06, 0x28];
+        for g in [7.3f32, 0.0, 0.0, 0.0, 0.0, 0.0] {
+            b.extend(g.to_bits().to_be_bytes());
+        }
+        let out = av6_eq(b, &Args::new());
+        let left: Vec<&Vec<u8>> = out.iter().filter(|m| m[2] == 3 && m[3] >> 4 == 0).collect();
+        assert_eq!(left.len(), 7);
+        for (m, (addr, p, num)) in left.iter().zip(gg.iter()) {
+            assert_eq!((m[3], m[8]), (*addr, *num));
+            let want = f32::from_le_bytes(*p);
+            assert!((le(m) - want).abs() <= want.abs() * 1e-6 + 1e-9, "addr {addr:02x}: {} vs {want}", le(m));
+        }
+        // the right channel at +42, a flat band switched off with one message per channel
+        assert!(out.iter().any(|m| m[2] == 4 && m[3] == 0x00 && m[4] == 1 && m[8] == 0x31));
+        assert!(out.iter().any(|m| m[2] == 3 && m[3] == 0x10 && m[4..8] == [0; 4] && m[8] == 0x0e));
+        // the fixed stages of the setup: right channel at +28, the constants byte for byte
+        let init = av6_init(Vec::new(), &Args::new());
+        assert!(init.iter().any(|m| m[..9] == [0x06, 0x28, 0x04, 0x68, 0x34, 0xdc, 0xac, 0x39, 0x71]));
+        assert!(init.iter().any(|m| m[..9] == [0x06, 0x28, 0x07, 0x04, 0x00, 0x7f, 0x00, 0x00, 0x90]));
+    }
 }

@@ -161,6 +161,18 @@ fn write_curves(entries: &[Entry]) {
             if !FAILED.swap(true, Ordering::Relaxed) {
                 logf!("apomod: curves not written: {e}");
             }
+            // curves.bin made read-only by an earlier install: its access is mended (administrator
+            // permission, once per run), then the curve goes again
+            static MENDED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+            if e.kind() == std::io::ErrorKind::PermissionDenied && !MENDED.swap(true, Ordering::Relaxed) {
+                if let Ok(exe) = std::env::current_exe() {
+                    std::thread::spawn(move || {
+                        let r = apo::run_elevated(&exe.to_string_lossy(), "--apomod access -");
+                        logf!("apomod: access to curves.bin mended: {r:?}");
+                        sync(&crate::config::get());
+                    });
+                }
+            }
         }
     }
 }
@@ -185,6 +197,11 @@ pub struct ModStatus {
     /// the device it runs on
     #[serde(rename = "busyName", skip_serializing_if = "String::is_empty")]
     pub busy_name: String,
+    /// the physical output devices present that can have it, and those that have it
+    #[serde(rename = "allDevs")]
+    pub all_devs: u32,
+    #[serde(rename = "onDevs")]
+    pub on_devs: u32,
 }
 
 /// The install or removal in progress: the operation and the device name.
@@ -192,7 +209,16 @@ static BUSY: Mutex<Option<(&'static str, String)>> = Mutex::new(None);
 
 pub fn status(out_id: &str, out_name: &str) -> ModStatus {
     let (busy, busy_name) = BUSY.lock().ok().and_then(|b| b.clone()).map(|(op, n)| (op.to_string(), n)).unwrap_or_default();
-    ModStatus { inst: installed_on(out_id), live: live_on(out_id), free: free_on(out_id), sysfx: apo::sysfx_off(out_id), hs: apo::is_hw_headset(out_name), busy, busy_name }
+    let (mut all_devs, mut on_devs) = (0, 0);
+    for d in crate::audio::outs_state().iter().filter(|d| !d.is_virtual && (d.state == "on" || d.state == "hsoff")) {
+        if installed_on(&d.id) {
+            on_devs += 1;
+            all_devs += 1;
+        } else if free_on(&d.id) {
+            all_devs += 1;
+        }
+    }
+    ModStatus { inst: installed_on(out_id), live: live_on(out_id), free: free_on(out_id), sysfx: apo::sysfx_off(out_id), hs: apo::is_hw_headset(out_name), busy, busy_name, all_devs, on_devs }
 }
 
 /// The module applies the "everything" curve on this device.
@@ -325,6 +351,13 @@ fn open_data_dir() {
     let _ = std::process::Command::new("icacls").arg(&dir).arg("/grant").args(grants).creation_flags_no_window().status();
     // the sandbox runs at low integrity: without a low label it may read the folder but not write there
     let _ = std::process::Command::new("icacls").arg(&dir).args(["/setintegritylevel", "(OI)(CI)L"]).creation_flags_no_window().status();
+    // curves.bin made here (by this elevated copy) would be read-only for the app, which replaces it with
+    // every curve: users may change this one file
+    let curves = dir.join(shared::CURVES);
+    if !curves.exists() {
+        let _ = std::fs::write(&curves, []);
+    }
+    let _ = std::process::Command::new("icacls").arg(&curves).args(["/grant", "*S-1-5-32-545:M"]).creation_flags_no_window().status();
 }
 
 /// PKEY_FX_Association: the kind of pin the effects belong to; KSNODETYPE_ANY. A device whose driver
@@ -479,16 +512,20 @@ impl NoWindow for std::process::Command {
 
 /// (the elevated copy) Exit codes: 0 — done, 2 — bad request, 3 — files, 4 — registration,
 /// 5 — the device's effect keys, 6 — unsigned effects could not be allowed, 10 — Equalizer APO is on the
-/// device (not touched).
-pub fn elevated(op: &str, guid: &str) -> i32 {
-    if !(guid.starts_with('{') && guid.ends_with('}') && guid.len() == 38) {
+/// device (not touched). `guids` — one or several devices, comma-separated (one prompt, one restart of
+/// the audio services); with several, the first failure is returned and the rest still go on.
+pub fn elevated(op: &str, guids: &str) -> i32 {
+    // the data folder only: curves.bin left read-only by an earlier install (before 1.3.0)
+    if op == "access" {
+        open_data_dir();
+        return 0;
+    }
+    let gs: Vec<&str> = guids.split(',').collect();
+    if !gs.iter().all(|g| g.starts_with('{') && g.ends_with('}') && g.len() == 38) {
         return 2;
     }
     match op {
         "install" => {
-            if apo::active_on(&format!("x.{guid}")) {
-                return 10;
-            }
             let path = match dll_path() {
                 Ok(p) => p,
                 Err(_) => return 3,
@@ -500,54 +537,32 @@ pub fn elevated(op: &str, guid: &str) -> i32 {
             if !allow_unsigned() {
                 return 6;
             }
-            // an earlier placement (another build, another model) is undone first
-            take_off(guid);
-            let Some(k) = util::reg_create_hklm64(&fx_key(guid)) else { return 5 };
-            let place = plan(Some(&k));
-            let o = util::reg_create_hklm64(OUR_KEY);
-            let note = |what: &str, v: &str| {
-                if let Some(o) = &o {
-                    o.set_string(&note_name(what, guid), v);
+            let mut code = 0;
+            let mut done = Vec::new();
+            for g in gs {
+                match install_on(g) {
+                    Ok(place) => done.push((g, place)),
+                    Err(c) if code == 0 => code = c,
+                    Err(_) => {}
                 }
-            };
-            let ok = match &place {
-                Place::Fresh(slots) => {
-                    let ok = slots.iter().all(|s| k.set_string(&format!("{FX}{s}"), CLSID));
-                    let added = add_chain_values(&k, slots, slots.len() == 2);
-                    if !added.is_empty() {
-                        note("Added", &added.join("|"));
-                    }
-                    ok
-                }
-                Place::Wrap(slot, clsid) => {
-                    note("Wrapped", &format!("{slot}|{clsid}"));
-                    k.set_string(&format!("{FX}{slot}"), CLSID)
-                }
-                Place::Append(slot) => {
-                    let mut list = read_list(&k, slot);
-                    list.push(CLSID.to_string());
-                    note("Appended", slot);
-                    k.set_multi_string(&format!("{FX}{slot}"), &list.iter().map(String::as_str).collect::<Vec<_>>())
-                }
-            };
-            write_wrap_file();
-            if !ok {
-                take_off(guid);
-                write_wrap_file();
-                return 5;
             }
-            enable_effects(guid);
-            // the module logs errors only: what the test builds wrote before goes
-            if let Some(d) = data_dir() {
-                let _ = std::fs::remove_file(d.join("apo.log"));
+            if !done.is_empty() {
+                // the module logs errors only: what the test builds wrote before goes
+                if let Some(d) = data_dir() {
+                    let _ = std::fs::remove_file(d.join("apo.log"));
+                }
+                restart_audio();
+                clean_old_dlls();
+                for (g, place) in done {
+                    write_diag(g, &place);
+                }
             }
-            restart_audio();
-            clean_old_dlls();
-            write_diag(guid, &format!("{place:?}"));
-            0
+            code
         }
         "remove" => {
-            take_off(guid);
+            for g in gs {
+                take_off(g);
+            }
             write_wrap_file();
             restore_protection();
             restart_audio();
@@ -558,22 +573,121 @@ pub fn elevated(op: &str, guid: &str) -> i32 {
     }
 }
 
-/// (background thread) Installs or removes the module on a device, elevated; the window follows
-/// through the state.
+/// (the elevated copy) Puts the module into one device's effect keys; the placement for the diagnostics.
+fn install_on(guid: &str) -> Result<String, i32> {
+    if apo::active_on(&format!("x.{guid}")) {
+        return Err(10);
+    }
+    // an earlier placement (another build, another model) is undone first
+    take_off(guid);
+    let Some(k) = util::reg_create_hklm64(&fx_key(guid)) else { return Err(5) };
+    let place = plan(Some(&k));
+    let o = util::reg_create_hklm64(OUR_KEY);
+    let note = |what: &str, v: &str| {
+        if let Some(o) = &o {
+            o.set_string(&note_name(what, guid), v);
+        }
+    };
+    let ok = match &place {
+        Place::Fresh(slots) => {
+            let ok = slots.iter().all(|s| k.set_string(&format!("{FX}{s}"), CLSID));
+            let added = add_chain_values(&k, slots, slots.len() == 2);
+            if !added.is_empty() {
+                note("Added", &added.join("|"));
+            }
+            ok
+        }
+        Place::Wrap(slot, clsid) => {
+            note("Wrapped", &format!("{slot}|{clsid}"));
+            k.set_string(&format!("{FX}{slot}"), CLSID)
+        }
+        Place::Append(slot) => {
+            let mut list = read_list(&k, slot);
+            list.push(CLSID.to_string());
+            note("Appended", slot);
+            k.set_multi_string(&format!("{FX}{slot}"), &list.iter().map(String::as_str).collect::<Vec<_>>())
+        }
+    };
+    write_wrap_file();
+    if !ok {
+        take_off(guid);
+        write_wrap_file();
+        return Err(5);
+    }
+    enable_effects(guid);
+    Ok(format!("{place:?}"))
+}
+
+/// The output devices the module can still go on: physical, present, without it and without Equalizer APO.
+fn missing_on(outs: &[(String, String)]) -> Vec<(String, String)> {
+    outs.iter().filter(|(id, name)| !crate::audio::outprio::is_virtual_name(name) && guid_of(id).is_some() && !installed_on(id) && free_on(id)).cloned().collect()
+}
+
+/// (audio thread, with every device list) EQ Windows works everywhere by itself: the module goes on the
+/// output devices that do not have it yet, all of them with one administrator prompt (config apoAuto,
+/// chosen in the introduction; not before it is passed). A device asked about once is not asked again —
+/// "Install" in the window stays for it.
+pub fn auto_install(outs: &[(String, String)]) {
+    let c = crate::config::get();
+    if !c.apo_auto || !c.onboarded || BUSY.lock().is_ok_and(|b| b.is_some()) {
+        return;
+    }
+    let want: Vec<(String, String)> = missing_on(outs).into_iter().filter(|(id, _)| !c.apo_asked.contains(id)).collect();
+    if want.is_empty() {
+        return;
+    }
+    let ids: Vec<String> = want.iter().map(|(id, _)| id.clone()).collect();
+    crate::config::set(|c| c.apo_asked.extend(ids));
+    logf!("apomod: installing on {} device(s) by itself", want.len());
+    std::thread::spawn(move || run_on("install", want));
+}
+
+/// (from the introduction) EQ Windows on: the module on every output device now, with one prompt (also
+/// those asked about before), and on new ones by itself later.
+pub fn install_all() {
+    crate::config::set(|c| c.apo_auto = true);
+    let outs: Vec<(String, String)> = crate::audio::list_devices().0.into_iter().map(|d| (d.id, d.name)).collect();
+    let want = missing_on(&outs);
+    if !want.is_empty() {
+        run_on("install", want);
+    }
+}
+
+/// (background thread) Installs or removes the module on the current output device, elevated; the window
+/// follows through the state.
 pub fn run(op: &'static str, id: String) {
-    let Some(g) = guid_of(&id).map(String::from) else { return };
+    if op == "remove" {
+        // taken off by hand: not put back by itself (auto_install)
+        let k = id.clone();
+        crate::config::set(|c| {
+            if !c.apo_asked.contains(&k) {
+                c.apo_asked.push(k);
+            }
+        });
+    }
+    let o = crate::audio::out_state();
+    let name = if o.id == id { if o.short.is_empty() { o.name } else { o.short } } else { String::new() };
+    run_on(op, vec![(id, name)]);
+}
+
+/// (background thread) The same on several devices with one prompt.
+fn run_on(op: &'static str, devs: Vec<(String, String)>) {
+    let gs: Vec<String> = devs.iter().filter_map(|(id, _)| guid_of(id).map(String::from)).collect();
+    if gs.is_empty() {
+        return;
+    }
     let Ok(exe) = std::env::current_exe() else { return };
     {
         let Ok(mut b) = BUSY.lock() else { return };
         if b.is_some() {
             return; // one at a time: a second click while it runs does nothing
         }
-        let o = crate::audio::out_state();
-        *b = Some((op, if o.short.is_empty() { o.name } else { o.short }));
+        let names: Vec<&str> = devs.iter().map(|(_, n)| n.as_str()).filter(|n| !n.is_empty()).collect();
+        *b = Some((op, names.join(", ")));
     }
     crate::server::notify_subs();
-    let r = apo::run_elevated(&exe.to_string_lossy(), &format!("--apomod {op} {g}"));
-    logf!("apomod: {op} on {g}: {r:?}");
+    let r = apo::run_elevated(&exe.to_string_lossy(), &format!("--apomod {op} {}", gs.join(",")));
+    logf!("apomod: {op} on {}: {r:?}", gs.join(","));
     std::thread::sleep(std::time::Duration::from_millis(1500));
     sync(&crate::config::get());
     if let Ok(mut b) = BUSY.lock() {

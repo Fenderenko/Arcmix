@@ -645,3 +645,5 @@ html[data-corn=sharp] .xf-tk{border-radius:1px}
 .whor .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .whor .ext{color:var(--ol);flex:none;display:flex}
 html[data-corn=sharp] .who{border-radius:4px}
+/* the priority list: its title in the head next to "back" */
+.pal-t{color:var(--on);font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

@@ -19,7 +19,7 @@ Arcmix started from the idea of Swiftlyx's [OpenChatMix](https://github.com/Swif
 - **Game / chat balance for any app.** Put apps into Game / Chat / Media: drag one onto a group or add it with “+”; the trash button removes one (“+” brings it back). Every app keeps its own volume, and the balance (the dial on the headset, the slider in the window or hotkeys) scales those levels instead of overwriting them.
 - **Auto-ducking.** While someone talks in a Chat app, the game (and optionally Media) gets quieter. Chat apps are listened to directly, so music or a video never triggers it.
 - **Volume memory.** App volumes and the microphone level come back if Windows or another app resets them.
-- **An equalizer for all sound, on any device.** *EQ Windows* is one curve for everything that plays on the output device — speakers, USB or Bluetooth headphones — with no cables and no delay, through Arcmix's own module in the Windows audio engine. A device's own effects (Windows', Realtek, Dolby…) keep working: the module runs them inside itself. See [The Arcmix module](#the-arcmix-module).
+- **An equalizer for all sound, on any device.** *EQ Windows* is one curve for everything that plays on the output device — speakers, USB or Bluetooth headphones — with no cables and no delay, through Arcmix's own module in the Windows audio engine, which Arcmix puts on every output device by itself (one administrator prompt for all of them). A device's own effects (Windows', Realtek, Dolby…) keep working: the module runs them inside itself. See [The Arcmix module](#the-arcmix-module).
 - **Equalizer presets.** Built-in presets, your own presets (edit, save, rename, delete) and the headset's own equalizer with the presets built into it, where it has them. With [Equalizer APO](https://sourceforge.net/projects/equalizerapo/) installed, Arcmix drives it too and adds AutoEQ correction for your headphone model.
 - **Microphone.** Volume, mute hotkey, push-to-talk on a key or a mouse button, soft sound cues and a mute badge on the tray icon.
 - **Hear yourself.** Record 5 seconds and play them back, or listen to your microphone live, after processing.
@@ -30,7 +30,7 @@ Arcmix started from the idea of Swiftlyx's [OpenChatMix](https://github.com/Swif
 - **Audio routing** *(experimental)*. Game, chat and media into separate virtual cables, for streaming or a separate equalizer per group.
 - **One switch for the virtual cables.** Settings → Devices → *Virtual cables* turns routing and the processed microphone off together: sound and the microphone go direct, the settings stay.
 - **On-screen hint.** Changing the balance or switching the output or input device with hotkeys shows a small hint on the screen.
-- **Tray icon.** The app mark while the balance is equal; two capsules in the theme's game / chat colours once it moves — or the headset battery instead of the mark. The mouse wheel over it changes the balance or shows the battery.
+- **Tray icon.** The app mark while the balance is equal; two capsules in the theme's game / chat colours once it moves — or the headset battery instead of the mark, or the battery as a second icon of its own (any device that reports it, Bluetooth headphones too). The mouse wheel over it changes the balance or shows the battery.
 - **A compact window.** Four tabs — Mix, Sound, Microphone, Settings; settings open as pages, and the mouse back / forward buttons move through tabs and pages.
 - **Features you can turn off.** Settings → General → Features: a feature that is off disappears from the window and does not run.
 - **Updates in one click.** Settings → About → *Check for updates* asks GitHub for the latest release; *Update to …* downloads it, puts it in place of `Arcmix.exe` and restarts the app (settings and autostart stay). Nothing is checked on its own.
@@ -64,8 +64,9 @@ They can be changed in **Settings → Hotkeys** (click an action, then press the
 
 **Equalizer.** **Sound → Equalizer**: pick a preset or drag the curve. A changed curve can be saved as a new
 preset; your presets can be overwritten, renamed and deleted. *EQ* with the headset's name is the headset's own
-equalizer; *EQ Windows* is one curve for everything on the output device: click **Install** next to *Arcmix module*
-(once per device). On a headset with its own equalizer, turn on *EQ Windows on the headset* to add both curves.
+equalizer; *EQ Windows* is one curve for everything on the output device: the Arcmix module goes on every output
+device by itself (the switch is in the first-run guide; Settings → Settings and help → *Introduction* runs it again).
+On a headset with its own equalizer, turn on *EQ Windows on the headset* to add both curves.
 
 **Microphone processing** (noise suppression, gate, VST):
 1. Install [VB-CABLE](https://vb-audio.com/Cable/) and restart the PC.
@@ -89,7 +90,8 @@ your order. With *Switch sound automatically* on, the Windows output follows the
 ## The Arcmix module
 
 The *All sound* equalizer runs as an effect inside the Windows audio engine, so it needs no virtual cables and adds
-no delay. It is installed per output device: **Sound → Equalizer → EQ Windows → Install** (or in the first-run guide).
+no delay. Arcmix puts it on every output device by itself, and on new ones as they appear, with one administrator
+prompt for all devices present (the first-run guide has the switch). **Remove** on a device keeps it off there.
 
 - **Windows asks for administrator permission** and sound stops for a second while the audio services restart.
 - **What it changes:** it copies `ArcmixApo.dll` to `C:\Program Files\Arcmix`, registers it as an audio effect and adds
@@ -106,6 +108,10 @@ The balance, ducking, equalizer presets, microphone tools, routing and themes wo
 Battery, sidetone, the hardware equalizer and other headset settings need the headset's own protocol:
 
 - **Arctis 7+, 7P+, 7X+** have a native driver and are tested with the real headset.
+- **Arctis 7** is tested with the real headset too: battery, the ChatMix dial, the microphone button, sidetone,
+  auto power-off, microphone volume and its 6-band hardware equalizer (checked against SteelSeries GG).
+- **Two receivers at once** (say, an Arctis 7+ and an Arctis 7): Arcmix talks to both. The window follows the one
+  whose sound plays, and a headset switched on is noticed at once, so output priority can move to it.
 - Other Arctis models (Arctis 1, 5, 7, 9, Pro, Nova 3 / 4 / 5 / 7 / Pro / Elite, GameBuds and others) come from
   the device descriptions of [Linux-Arctis-Manager](https://github.com/elegos/Linux-Arctis-Manager) in
   `web/devices.json`. They are **not tested**: some settings may be missing or behave differently.
@@ -113,8 +119,12 @@ Battery, sidetone, the hardware equalizer and other headset settings need the he
 - **Hardware ChatMix** (Arctis 7, 9, Pro, Nova Pro — a separate "Chat" device in Windows): the headset's dial
   mixes its "Game" and "Chat" devices itself, so Arcmix sends the Chat apps to the "Chat" device on its own — the
   dial then works for Discord with nothing set in Discord (Settings → Devices → *Chat to the headset's “Chat”*).
+  While the "Game" side plays, the "Chat" device is also Windows' communications device; an app that plays on
+  "Chat" by its own setting joins the Chat group once, and a Chat app set to "Game" in its own settings gets a
+  warning with what to choose there.
 - **Arctis 7 (2018, 2019) and Arctis 9:** corrected after HeadsetControl and the Linux kernel driver (the USB
-  interface, the ChatMix values, the Arctis 9 battery). Their dial is read every second.
+  interface, the ChatMix values, the Arctis 9 battery). They report nothing by themselves, so the dial is asked
+  for four times a second, the microphone button every second and the power every three seconds.
 - **Connection type:** Bluetooth and a 3.5 mm jack are shown as such; over USB Windows cannot tell a cable from
   a 2.4 GHz receiver, so a wireless model shows 2.4 GHz. A headset on a 3.5 mm jack sends no data, so no battery
   or dial position.
@@ -135,8 +145,12 @@ Battery, sidetone, the hardware equalizer and other headset settings need the he
 - **Wireless headsets after a restart:** the receiver may report the headset as off until the headset is turned
   off and on again (seen with the Arctis 7+).
 - **The Arcmix module** cannot add a separate curve per app: it works on the whole output device.
+- **Hardware ChatMix** mixes two Windows devices inside the headset: everything on the "Game" device, Media too,
+  follows the game side of the dial.
+- **Auto power-off** is the headset's own timer: an Arctis 7 may turn off while quiet music plays (SteelSeries GG
+  sees the same). Pick a longer time or *Never*.
 - **Not tested live yet:** audio routing, push-to-talk and the microphone sound cues, the taskbar button,
-  disabling a Windows device from the device list, headsets other than the Arctis 7+ family.
+  disabling a Windows device from the device list, headsets other than the Arctis 7+ family and the Arctis 7.
 - VST plugins must be 64-bit.
 
 ## Troubleshooting

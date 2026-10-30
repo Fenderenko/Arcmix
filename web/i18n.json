@@ -48,6 +48,16 @@
    "pt": "%s usa o microfone de “%s”, mas nada está chegando lá agora: o processamento do microfone está desligado.",
    "tr": "%s mikrofonu “%s” kaynağından alıyor, ancak şu anda oraya hiçbir şey gitmiyor: mikrofon işleme kapalı."
   },
+  "%s грає в «%s», тож коліщатко ChatMix глушить його разом із грою. Оберіть у його налаштуваннях вивід «%s».": {
+   "de": "%s spielt auf „%s“, daher regelt das ChatMix-Rad es zusammen mit dem Spiel herunter. Wählen Sie in seinen Einstellungen die Ausgabe „%s“.",
+   "en": "%s plays on “%s”, so the ChatMix dial turns it down together with the game. Choose “%s” as the output in its settings.",
+   "es": "%s suena en «%s», así que la rueda ChatMix lo baja junto con el juego. Elige la salida «%s» en sus ajustes.",
+   "fr": "%s joue sur « %s », donc la molette ChatMix le baisse avec le jeu. Choisissez la sortie « %s » dans ses paramètres.",
+   "it": "%s suona su «%s», quindi la rotella ChatMix lo abbassa insieme al gioco. Scegli l'uscita «%s» nelle sue impostazioni.",
+   "pl": "%s gra na „%s”, więc pokrętło ChatMix ścisza go razem z grą. Wybierz wyjście „%s” w jego ustawieniach.",
+   "pt": "%s toca em “%s”, por isso a roda ChatMix o abaixa junto com o jogo. Escolha a saída “%s” nas configurações dele.",
+   "tr": "%s “%s” üzerinde çalıyor, bu yüzden ChatMix tekerleği onu oyunla birlikte kısıyor. Ayarlarında çıkış olarak “%s” seçin."
+  },
   "(пристрій недоступний)": {
    "de": "(Gerät nicht verfügbar)",
    "en": "(device unavailable)",
@@ -107,6 +117,16 @@
    "pl": "Bluetooth po włączeniu",
    "pt": "Bluetooth ao ligar",
    "tr": "Açılışta Bluetooth"
+  },
+  "EQ Windows на всіх пристроях": {
+   "de": "EQ Windows auf allen Geräten",
+   "en": "EQ Windows on all devices",
+   "es": "EQ Windows en todos los dispositivos",
+   "fr": "EQ Windows sur tous les appareils",
+   "it": "EQ Windows su tutti i dispositivi",
+   "pl": "EQ Windows na wszystkich urządzeniach",
+   "pt": "EQ Windows em todos os dispositivos",
+   "tr": "Tüm aygıtlarda EQ Windows"
   },
   "EQ Windows на гарнітурі": {
    "de": "EQ Windows auf dem Headset",
@@ -1128,6 +1148,16 @@
    "pt": "Detecção de uso",
    "tr": "Takılma algılama"
   },
+  "Дві іконки": {
+   "de": "Zwei Symbole",
+   "en": "Two icons",
+   "es": "Dos iconos",
+   "fr": "Deux icônes",
+   "it": "Due icone",
+   "pl": "Dwie ikony",
+   "pt": "Dois ícones",
+   "tr": "İki simge"
+  },
   "Де показувати": {
    "de": "Wo anzeigen",
    "en": "Where to show",
@@ -1658,6 +1688,16 @@
    "pt": "Mixar jogo, chat e mídia via cabos",
    "tr": "Oyun, sohbet ve medyayı kablolarla karıştır"
   },
+  "Знайомство з програмою": {
+   "de": "Einführung",
+   "en": "Introduction",
+   "es": "Introducción",
+   "fr": "Présentation",
+   "it": "Introduzione",
+   "pl": "Wprowadzenie",
+   "pt": "Introdução",
+   "tr": "Tanıtım"
+  },
   "Значення": {
    "de": "Wert",
    "en": "Value",
@@ -1858,15 +1898,15 @@
    "pt": "Correção AutoEQ",
    "tr": "AutoEQ düzeltmesi"
   },
-  "Крива «EQ Windows» діє на все, що грає на пристрої, — без кабелів і без затримки. Для цього Arcmix додає свій модуль у звук Windows: Windows попросить дозволу адміністратора, а звук на мить зникне. Прибрати модуль можна будь-коли на вкладці «Звук».": {
-   "de": "Die Kurve „EQ Windows“ wirkt auf alles, was auf dem Gerät spielt – ohne Kabel und ohne Verzögerung. Dafür fügt Arcmix sein Modul in den Windows-Sound ein: Windows fragt nach Administratorrechten, und der Ton setzt kurz aus. Das Modul lässt sich jederzeit im Tab „Sound“ entfernen.",
-   "en": "The “EQ Windows” curve works on everything that plays on the device, with no cables and no delay. For that Arcmix adds its module to Windows sound: Windows will ask for administrator permission, and sound drops for a moment. The module can be removed any time on the Sound tab.",
-   "es": "La curva «EQ Windows» actúa sobre todo lo que suena en el dispositivo, sin cables ni retardo. Para ello Arcmix añade su módulo al sonido de Windows: Windows pedirá permiso de administrador y el sonido se cortará un momento. El módulo se puede quitar en cualquier momento en la pestaña Sonido.",
-   "fr": "La courbe « EQ Windows » agit sur tout ce qui joue sur l'appareil, sans câbles ni latence. Pour cela, Arcmix ajoute son module au son de Windows : Windows demandera l'autorisation d'administrateur et le son se coupera un instant. Le module peut être retiré à tout moment dans l'onglet Son.",
-   "it": "La curva «EQ Windows» agisce su tutto ciò che suona sul dispositivo, senza cavi né ritardo. Per farlo Arcmix aggiunge il suo modulo all'audio di Windows: Windows chiederà il permesso di amministratore e l'audio si interromperà un attimo. Il modulo si può rimuovere in qualsiasi momento nella scheda Audio.",
-   "pl": "Krzywa „EQ Windows” działa na wszystko, co gra na urządzeniu — bez kabli i bez opóźnienia. W tym celu Arcmix dodaje swój moduł do dźwięku Windows: Windows poprosi o uprawnienia administratora, a dźwięk na chwilę zniknie. Moduł można usunąć w każdej chwili na karcie Dźwięk.",
-   "pt": "A curva “EQ Windows” age em tudo o que toca no dispositivo, sem cabos e sem atraso. Para isso o Arcmix adiciona seu módulo ao som do Windows: o Windows vai pedir permissão de administrador e o som some por um instante. O módulo pode ser removido a qualquer momento na aba Som.",
-   "tr": "“EQ Windows” eğrisi aygıtta çalan her şeye etki eder; kablosuz ve gecikmesiz. Bunun için Arcmix kendi modülünü Windows sesine ekler: Windows yönetici izni isteyecek ve ses bir an kesilecek. Modül, Ses sekmesinden istediğiniz zaman kaldırılabilir."
+  "Крива «EQ Windows» діє на все, що грає, на будь-якому пристрої — без кабелів і без затримки. Для цього Arcmix сам додає свій модуль у звук Windows на всі пристрої виводу, а згодом і на нові. Windows просить дозволу адміністратора — один раз на всі пристрої, що є зараз; звук на мить зникне.": {
+   "de": "Die Kurve „EQ Windows“ wirkt auf alles, was spielt, auf jedem Gerät – ohne Kabel und ohne Verzögerung. Dafür fügt Arcmix sein Modul selbst auf allen Ausgabegeräten in den Windows-Sound ein, später auch auf neuen. Windows fragt einmal für alle jetzt vorhandenen Geräte nach Administratorrechten; der Ton setzt kurz aus.",
+   "en": "The “EQ Windows” curve works on everything that plays, on any device, with no cables and no delay. For that Arcmix adds its module to Windows sound on all output devices by itself, and later on new ones too. Windows asks for administrator permission once for all the devices present now; sound drops for a moment.",
+   "es": "La curva «EQ Windows» actúa sobre todo lo que suena, en cualquier dispositivo, sin cables ni retardo. Para ello Arcmix añade por sí mismo su módulo al sonido de Windows en todos los dispositivos de salida, y luego también en los nuevos. Windows pide permiso de administrador una sola vez para todos los dispositivos actuales; el sonido se corta un momento.",
+   "fr": "La courbe « EQ Windows » agit sur tout ce qui joue, sur n'importe quel appareil, sans câbles ni latence. Pour cela, Arcmix ajoute lui-même son module au son de Windows sur tous les périphériques de sortie, puis sur les nouveaux. Windows demande l'autorisation d'administrateur une seule fois pour tous les appareils présents ; le son se coupe un instant.",
+   "it": "La curva «EQ Windows» agisce su tutto ciò che suona, su qualsiasi dispositivo, senza cavi né ritardo. Per farlo Arcmix aggiunge da sé il suo modulo all'audio di Windows su tutti i dispositivi di uscita, e poi anche su quelli nuovi. Windows chiede il permesso di amministratore una sola volta per tutti i dispositivi presenti; l'audio si interrompe un attimo.",
+   "pl": "Krzywa „EQ Windows” działa na wszystko, co gra, na każdym urządzeniu — bez kabli i bez opóźnienia. W tym celu Arcmix sam dodaje swój moduł do dźwięku Windows na wszystkich urządzeniach wyjściowych, a później także na nowych. Windows pyta o uprawnienia administratora raz dla wszystkich obecnych urządzeń; dźwięk na chwilę zniknie.",
+   "pt": "A curva “EQ Windows” age em tudo o que toca, em qualquer dispositivo, sem cabos e sem atraso. Para isso o Arcmix adiciona sozinho seu módulo ao som do Windows em todos os dispositivos de saída, e depois também nos novos. O Windows pede permissão de administrador uma vez para todos os dispositivos atuais; o som some por um instante.",
+   "tr": "“EQ Windows” eğrisi her aygıtta çalan her şeye etki eder; kablosuz ve gecikmesiz. Bunun için Arcmix kendi modülünü tüm çıkış aygıtlarında Windows sesine kendisi ekler, sonra yenilerine de. Windows, şu anki tüm aygıtlar için bir kez yönetici izni ister; ses bir an kesilir."
   },
   "Крива змінена": {
    "de": "Kurve geändert",
@@ -2167,16 +2207,6 @@
    "pl": "Księżyc",
    "pt": "Lua",
    "tr": "Ay"
-  },
-  "На «%s» уже працює Equalizer APO — модуль не потрібен.": {
-   "de": "Auf „%s“ arbeitet bereits Equalizer APO – das Modul wird nicht gebraucht.",
-   "en": "Equalizer APO already works on “%s” — the module is not needed.",
-   "es": "Equalizer APO ya funciona en «%s»: el módulo no hace falta.",
-   "fr": "Equalizer APO fonctionne déjà sur « %s » : le module n'est pas nécessaire.",
-   "it": "Equalizer APO funziona già su «%s»: il modulo non serve.",
-   "pl": "Na „%s” działa już Equalizer APO — moduł nie jest potrzebny.",
-   "pt": "O Equalizer APO já funciona em “%s” — o módulo não é necessário.",
-   "tr": "“%s” üzerinde Equalizer APO zaten çalışıyor — modüle gerek yok."
   },
   "Назад": {
    "de": "Zurück",
@@ -3347,6 +3377,16 @@
    "pl": "Przezroczystość (dźwięki otoczenia)",
    "pt": "Transparência (som ambiente)",
    "tr": "Şeffaflık (ortam sesi)"
+  },
+  "Пройти": {
+   "de": "Starten",
+   "en": "Start",
+   "es": "Empezar",
+   "fr": "Lancer",
+   "it": "Avvia",
+   "pl": "Rozpocznij",
+   "pt": "Começar",
+   "tr": "Başlat"
   },
   "Прокрутка над іконкою змінює баланс гра / чат, як повзунок у вікні.": {
    "de": "Scrollen über dem Symbol ändert die Balance Spiel / Chat wie der Regler im Fenster.",
@@ -4998,6 +5038,16 @@
    "pt": "bateria e alertas, sidetone, desligamento",
    "tr": "pil ve uyarılar, sidetone, kapanma"
   },
+  "заряд — окремою іконкою поруч, для будь-якого пристрою, що його повідомляє": {
+   "de": "der Akkustand als eigenes Symbol daneben, für jedes Gerät, das ihn meldet",
+   "en": "the battery as an icon of its own next to it, for any device that reports it",
+   "es": "la batería en un icono propio al lado, para cualquier dispositivo que la informe",
+   "fr": "la batterie dans une icône à part, à côté, pour tout appareil qui l'indique",
+   "it": "la batteria in un'icona a parte accanto, per qualsiasi dispositivo che la indichi",
+   "pl": "bateria jako osobna ikona obok, dla każdego urządzenia, które ją podaje",
+   "pt": "a bateria num ícone próprio ao lado, para qualquer dispositivo que a informe",
+   "tr": "pil, yanında ayrı bir simge olarak; bunu bildiren her aygıt için"
+  },
   "заряджається": {
    "de": "lädt",
    "en": "charging",
@@ -5268,6 +5318,16 @@
    "pt": "os atuais ficam salvos como config.json.bak",
    "tr": "mevcut ayarlar config.json.bak olarak saklanır"
   },
+  "працює на %s з %s пристроїв виводу": {
+   "de": "läuft auf %s von %s Ausgabegeräten",
+   "en": "works on %s of %s output devices",
+   "es": "funciona en %s de %s dispositivos de salida",
+   "fr": "fonctionne sur %s des %s périphériques de sortie",
+   "it": "funziona su %s di %s dispositivi di uscita",
+   "pl": "działa na %s z %s urządzeń wyjściowych",
+   "pt": "funciona em %s de %s dispositivos de saída",
+   "tr": "%s / %s çıkış aygıtında çalışıyor"
+  },
   "працює на «%s»: EQ Windows без кабелів": {
    "de": "arbeitet auf „%s“: EQ Windows ohne Kabel",
    "en": "works on “%s”: EQ Windows, no cables",
@@ -5277,6 +5337,16 @@
    "pl": "działa na „%s”: EQ Windows bez kabli",
    "pt": "funciona em “%s”: EQ Windows, sem cabos",
    "tr": "“%s” üzerinde çalışıyor: kablosuz “EQ Windows” ekolayzeri"
+  },
+  "працює на всіх пристроях виводу": {
+   "de": "läuft auf allen Ausgabegeräten",
+   "en": "works on all output devices",
+   "es": "funciona en todos los dispositivos de salida",
+   "fr": "fonctionne sur tous les périphériques de sortie",
+   "it": "funziona su tutti i dispositivi di uscita",
+   "pl": "działa na wszystkich urządzeniach wyjściowych",
+   "pt": "funciona em todos os dispositivos de saída",
+   "tr": "tüm çıkış aygıtlarında çalışıyor"
   },
   "прибираю з «%s» — звук на кілька секунд зникне": {
    "de": "wird von „%s“ entfernt – der Ton setzt einige Sekunden aus",
@@ -5397,6 +5467,16 @@
    "pl": "cisza",
    "pt": "silêncio",
    "tr": "sessizlik"
+  },
+  "ті самі кроки, що й при першому запуску": {
+   "de": "dieselben Schritte wie beim ersten Start",
+   "en": "the same steps as on the first start",
+   "es": "los mismos pasos que en el primer inicio",
+   "fr": "les mêmes étapes qu'au premier lancement",
+   "it": "gli stessi passaggi del primo avvio",
+   "pl": "te same kroki co przy pierwszym uruchomieniu",
+   "pt": "os mesmos passos do primeiro início",
+   "tr": "ilk açılıştaki adımların aynısı"
   },
   "у файл і з файлу, звіт, скинути, вийти": {
    "de": "in und aus Datei, Bericht, Zurücksetzen, Beenden",

@@ -559,8 +559,7 @@
     outSig = sig;
     var a = document.activeElement, row = a && p.contains(a) && a.closest('.od'), fk = row ? row.dataset.id + '|' + (a.dataset.act || '') : (a && a.id === 'outAuto' ? 'auto' : '');
     // a priority list: the switch sends the sound to the highest connected device
-    var h = '<div class="hd" style="color:var(--on);font-weight:600">' + esc(tx('Пріоритет пристроїв виводу')) + '</div>' +
-      '<div class="hd" style="padding-top:0">' + esc(tx('Звук іде на найвищий у списку під’єднаний пристрій. Перетягніть ⠿, щоб змінити пріоритет.')) + '</div>' +
+    var h = '<div class="hd">' + esc(tx('Звук іде на найвищий у списку під’єднаний пристрій. Перетягніть ⠿, щоб змінити пріоритет.')) + '</div>' +
       '<div class="oauto"><span>' + tx('Перемикати звук автоматично') + '</span><button class="sw" role="switch" id="outAuto" aria-checked="' + !!(S && S.cfg.autoSwitch) + '" aria-label="' + tx('Перемикати звук автоматично') + '"><i></i></button></div>';
     if (!OUTS.length) h += '<div class="hd">' + tx('Шукаю пристрої…') + '</div>';
     OUTGR.forEach(function (g) {
@@ -700,12 +699,13 @@
     $('pal').dataset.mode = mode;
     $('pal').classList.remove('off');
     var prio = mode === 'prio';
-    $('pal').querySelector('.pal-s').classList.toggle('hide', prio);
+    // the priority list: a title with "back" instead of the search; changes apply at once, so no "Done"
+    $('palQ').classList.toggle('hide', prio);
+    $('palTitle').classList.toggle('hide', !prio);
     $('palKeys').classList.toggle('hide', prio);
     $('palL').classList.toggle('prio', prio);
-    $('palOrder').classList.toggle('hide', mode === 'in');
-    $('palOrder').textContent = tx(prio ? 'Готово' : 'Пріоритет');
-    $('palOrder').classList.toggle('acc', prio);
+    $('palOrder').classList.toggle('hide', mode === 'in' || prio);
+    $('palOrder').textContent = tx('Пріоритет');
     $('palL').scrollTop = 0;
     if (prio) { outPopRender(true); return; }
     palRender(true);
@@ -1450,13 +1450,18 @@
   $('winDuckGo').onclick = function () { api('/api/winducking', {}); };
 
   // ---------- маршрутизація та обробка мікрофона ----------
-  var DEVS = null, devsCb = [];
+  var DEVS = null, devsCb = [], devsRetry = 0;
   document.querySelectorAll('[data-get-cable]').forEach(function (b) { b.onclick = function () { api('/api/open', { url: 'https://vb-audio.com/Cable/' }); }; });
   // VB-CABLE A+B may not be bundled: it is sold only in the VB-Audio shop (donationware)
   document.querySelectorAll('[data-get-ab]').forEach(function (b) { b.onclick = function () { api('/api/open', { url: 'https://shop.vb-audio.com/en/audio-apps/12-vb-cable-ab.html' }); }; });
   function loadDevs(cb) {
     if (cb) devsCb.push(cb);
     api('/api/audiodevs').then(function (r) { return r.json(); }).then(function (d) {
+      // no device at all: the audio engine was busy or Windows' audio services restart (the Arcmix module
+      // being put on) — the last lists stay and are asked for again (otherwise "no cable" flashes up)
+      var none = !d || !((d.render || []).length || (d.capture || []).length);
+      if (none && devsRetry < 5) { devsRetry++; setTimeout(function () { loadDevs(); }, 3000); return; }
+      devsRetry = 0;
       DEVS = d || {}; if (S) { renderAudioFx(S); renderCableWarn(S); }
       var l = devsCb; devsCb = []; l.forEach(function (f) { f(); });
     }).catch(function () { });
@@ -1916,7 +1921,7 @@
   $('swOled').onclick = function () { patch({ customOled: !S.cfg.customOled }); };
   $('swSwitch').onclick = function () { patch({ autoSwitch: !S.cfg.autoSwitch }); };
   $('swTaskbar').onclick = function () { patch({ taskbar: !S.cfg.taskbar }); };
-  $('trayShow').querySelectorAll('button').forEach(function (b) { b.onclick = function () { patch({ trayBattery: b.dataset.v === 'battery' }); }; });
+  $('trayShow').querySelectorAll('button').forEach(function (b) { b.onclick = function () { patch({ trayBattery: b.dataset.v === 'battery', battIcon: b.dataset.v === 'both' }); }; });
   $('swSwitchMic').onclick = function () { patch({ switchMic: !S.cfg.switchMic }); };
   $('swCables').onclick = function () { patch({ cables: S.cfg.cables === false }); };
   $('swOnLost').onclick = function () { patch({ outOnLost: S.cfg.outOnLost === false }); };
@@ -2139,18 +2144,15 @@
         if (on !== !!(S.cfg.micFx || {}).on) toggleMfx();
         obHint(on);
       };
-    } else if (obStep === 2) { // the equalizer of everything: the Arcmix module on the current output (skipping is "Next")
-      var md = S.apoMod || {}, ap = S.apo || {}, o = S.out || {}, dn = o.short || o.name || '';
-      obModSig = JSON.stringify([md, ap.dev, o.id, dn, I18.lang]);
-      var st;
-      if (md.busy) st = '<div class="sub">' + esc(tx(md.busy === 'install' ? 'встановлюю на «%s» — звук на кілька секунд зникне' : 'прибираю з «%s» — звук на кілька секунд зникне').replace('%s', md.busyName || dn)) + '</div>';
-      else if (ap.dev) st = '<div class="sub">' + esc(tx('На «%s» уже працює Equalizer APO — модуль не потрібен.').replace('%s', dn)) + '</div>';
-      else if (md.inst) st = '<div class="sub">' + esc(tx(md.live ? 'працює на «%s»: EQ Windows без кабелів' : 'встановлено — запрацює, щойно зазвучить звук').replace('%s', dn)) + '</div>';
-      else if (md.free) st = '<button class="chip acc" id="obMod">' + tx('Встановити') + '</button>';
-      else st = '<div class="sub">' + tx('Шукаю пристрої…') + '</div>';
-      b.innerHTML = '<h1>' + tx('Еквалайзер для всього звуку') + '</h1><div class="sub" style="font-size:13px;line-height:1.45">' + tx('Крива «EQ Windows» діє на все, що грає на пристрої, — без кабелів і без затримки. Для цього Arcmix додає свій модуль у звук Windows: Windows попросить дозволу адміністратора, а звук на мить зникне. Прибрати модуль можна будь-коли на вкладці «Звук».') + '</div>' +
-        '<div class="obr">' + icon('layers', 16) + '<div class="grow">' + esc(dn || tx('Пристрій виводу Windows')) + '</div>' + st + '</div>';
-      var mb = $('obMod'); if (mb) mb.onclick = function () { mb.disabled = true; api('/api/apo', { op: 'modInstall' }); };
+    } else if (obStep === 2) { // EQ Windows everywhere: the Arcmix module on every output device by itself (apoAuto)
+      var md = S.apoMod || {}, auto = S.cfg.apoAuto !== false;
+      obModSig = obModKey(S);
+      var st = md.busy ? tx(md.busy === 'install' ? 'встановлюю на «%s» — звук на кілька секунд зникне' : 'прибираю з «%s» — звук на кілька секунд зникне').replace('%s', md.busyName || '')
+        : md.allDevs && md.onDevs >= md.allDevs ? tx('працює на всіх пристроях виводу')
+        : md.onDevs ? tx('працює на %s з %s пристроїв виводу').replace('%s', md.onDevs).replace('%s', md.allDevs) : '';
+      b.innerHTML = '<h1>' + tx('Еквалайзер для всього звуку') + '</h1><div class="sub" style="font-size:13px;line-height:1.45">' + tx('Крива «EQ Windows» діє на все, що грає, на будь-якому пристрої — без кабелів і без затримки. Для цього Arcmix сам додає свій модуль у звук Windows на всі пристрої виводу, а згодом і на нові. Windows просить дозволу адміністратора — один раз на всі пристрої, що є зараз; звук на мить зникне.') + '</div>' +
+        '<div class="obr">' + icon('layers', 16) + '<div class="grow"><div>' + tx('EQ Windows на всіх пристроях') + '</div>' + (st ? '<div class="sub">' + esc(st) + '</div>' : '') + '</div><button class="sw" role="switch" id="obMod" aria-checked="' + auto + '" aria-label="' + tx('EQ Windows на всіх пристроях') + '"><i></i></button></div>';
+      $('obMod').onclick = function () { var on = this.getAttribute('aria-checked') !== 'true'; this.setAttribute('aria-checked', on); patch({ apoAuto: on }); };
     } else if (obStep === 3) {
       b.innerHTML = '<h1>' + tx('Оберіть вигляд') + '</h1><div class="sub" style="font-size:13px">' + tx('Тему можна змінити будь-коли в налаштуваннях.') + '</div><div class="obt" id="obThemes"></div><div class="seg" id="obMode"><button data-v="dark">' + tx('Темна') + '</button><button data-v="light">' + tx('Світла') + '</button><button data-v="auto">' + tx('Як у Windows') + '</button></div>';
       themeButtons($('obThemes'), 36, function (k) { patch({ theme: k }); });
@@ -2162,8 +2164,16 @@
       $('obAuto').onclick = function () { var on = this.getAttribute('aria-checked') !== 'true'; this.setAttribute('aria-checked', on); patch({ autostart: on }); };
     }
   }
-  $('obNext').onclick = function () { if (obStep < OB_LAST) { obStep++; obRender(); } else { patch({ onboarded: true }); $('ob').classList.add('hide'); obStep = -2; } };
+  // the module step follows the install and the switch
+  function obModKey(s) { return JSON.stringify([s.apoMod || {}, s.cfg.apoAuto !== false, I18.lang]); }
+  $('obNext').onclick = function () {
+    if (obStep < OB_LAST) { obStep++; obRender(); return; }
+    patch({ onboarded: true }); $('ob').classList.add('hide'); obStep = -2;
+    // EQ Windows left on: the module goes on every output device now, with one prompt
+    if (S && S.cfg.apoAuto !== false) api('/api/apo', { op: 'modInstallAll' });
+  };
   $('obBack').onclick = function () { if (obStep > 0) { obStep--; obRender(); } };
+  $('obAgain').onclick = function () { obStep = 0; $('ob').classList.remove('hide'); obRender(); };
 
   // ---------- level meters: streams from the app (only of what is visible), drawn every frame ----------
   var MS = {}, MV = {}, SM = {}, meterRaf = 0;
@@ -2229,10 +2239,15 @@
     pressed('cornSeg', c.corners || 'round');
     if (c.theme === 'custom' && !(hH.busy() || hS.busy() || hL.busy())) syncHSL();
     // the tray icon: what it shows, and the wheel over it flips that for a while (or moves the balance)
-    pressed('trayShow', c.trayBattery ? 'battery' : 'icon');
-    pressed('wheelSeg', c.wheelMode || 'battery');
+    pressed('trayShow', c.battIcon ? 'both' : c.trayBattery ? 'battery' : 'icon');
+    $('trayBothHint').classList.toggle('hide', !c.battIcon);
+    // the battery in an icon of its own: the wheel has nothing to flip (tray.rs wheel_mode)
+    var wm = c.wheelMode || 'battery';
+    if (c.battIcon && wm === 'battery') wm = 'off';
+    pressed('wheelSeg', wm);
+    $('wheelSeg').querySelector('[data-v=battery]').classList.toggle('hide', !!c.battIcon);
     $('wheelSeg').querySelector('[data-v=battery]').textContent = tx(c.trayBattery ? 'Іконка' : 'Заряд');
-    $('wheelHint').textContent = { battery: tx(c.trayBattery ? 'Прокрутка над іконкою ненадовго показує іконку замість заряду.' : 'Прокрутка над іконкою ненадовго показує заряд.'), balance: tx('Прокрутка над іконкою змінює баланс гра / чат, як повзунок у вікні.'), off: '' }[c.wheelMode || 'battery'];
+    $('wheelHint').textContent = { battery: tx(c.trayBattery ? 'Прокрутка над іконкою ненадовго показує іконку замість заряду.' : 'Прокрутка над іконкою ненадовго показує заряд.'), balance: tx('Прокрутка над іконкою змінює баланс гра / чат, як повзунок у вікні.'), off: '' }[wm];
     pressed('modeSeg', c.mode === 'light' || c.mode === 'auto' ? c.mode : 'dark'); pressed('sideSeg', c.sidetone); $('offDropT').textContent = offLabel(c.autoOff); pressed('gainSeg', c.micGain); setSw('swLed', c.muteLed !== 0);
     setSw('swLow', c.lowBattery); setSw('swAuto', c.autostart); setSw('swFull', c.fullNotify); setSw('swPortable', !!s.portable);
     // hardware ChatMix: chat apps play to the headset's "Chat" device (audio::route_app)
@@ -2271,10 +2286,10 @@
     var rtSW = !!(s.route && s.route.running && (rcfg.game || rcfg.chat || rcfg.media));
     var canSW = rtSW || apoAvail;
     rcfg.all = canSW ? 'all' : '';
-    // the headset's own equalizer only on a headset tested with Arcmix; any other gets the software one.
-    // A parametric one comes only when a tester turned it on (untestedEq; otherwise the app does not
-    // report it at all)
-    var hwEq = dev.eq && (dev.native !== false || dev.eq.kind === 'parametric') ? dev.eq : null;
+    // the headset's own equalizer only on a headset tested with Arcmix (or being checked: eq.shown); any
+    // other gets the software one. A parametric one comes only when a tester turned it on (untestedEq;
+    // otherwise the app does not report it at all)
+    var hwEq = dev.eq && (dev.native !== false || dev.eq.kind === 'parametric' || dev.eq.shown) ? dev.eq : null;
     $('eqTarget').classList.toggle('hide', !canSW);
     if (canSW) {
       $('eqTarget').querySelector('[data-t=hw]').classList.toggle('hide', !hwEq);
@@ -2297,6 +2312,10 @@
     $('eqNoteRt').classList.toggle('hide', canSW || !feat('route'));
     renderAudioFx(s);
     renderCableWarn(s);
+    // a chat app set in itself to the headset's "Game" device: Windows cannot move it, the dial mixes it as game
+    var cm = s.chatMiss || [], o = s.out || {};
+    $('chatMiss').classList.toggle('hide', !cm.length || !o.chat);
+    if (cm.length && o.chat) $('chatMiss').textContent = tx('%s грає в «%s», тож коліщатко ChatMix глушить його разом із грою. Оберіть у його налаштуваннях вивід «%s».').replace('%s', cm.join(', ')).replace('%s', o.short || o.name).replace('%s', o.chat);
     $('nativeBox').classList.toggle('hide', dev.native === false);
     // users of other headsets do not see settings of a headset Arcmix cannot talk to
     $('devCard').classList.toggle('hide', !s.connected);
@@ -2336,7 +2355,7 @@
     renderApps(s.apps || []);
     aliveSoon();
     if (!c.onboarded && obStep === -1) { obStep = 0; $('ob').classList.remove('hide'); obRender(); }
-    else if (obStep === 2 && JSON.stringify([s.apoMod || {}, (s.apo || {}).dev, (s.out || {}).id, (s.out || {}).short || (s.out || {}).name || '', I18.lang]) !== obModSig) obRender(); // the module step follows the install
+    else if (obStep === 2 && obModKey(s) !== obModSig) obRender();
     else if (obStep === 3) { themeMarks($('obThemes'), c.theme, c); $('obMode').querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x.dataset.v === (c.mode || 'dark')); }); }
     pollers();
   }

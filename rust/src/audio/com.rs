@@ -81,7 +81,12 @@ pub fn get_device(en: &IMMDeviceEnumerator, id: &str) -> Option<IMMDevice> {
 
 /// Windows' default device of a flow (eConsole role) — "" when there is none.
 pub fn default_id(en: &IMMDeviceEnumerator, flow: EDataFlow) -> String {
-    unsafe { en.GetDefaultAudioEndpoint(flow, eConsole) }.map(|d| device_id(&d)).unwrap_or_default()
+    default_role_id(en, flow, eConsole)
+}
+
+/// Windows' default device of a flow for a role — "" when there is none.
+pub fn default_role_id(en: &IMMDeviceEnumerator, flow: EDataFlow, role: ERole) -> String {
+    unsafe { en.GetDefaultAudioEndpoint(flow, role) }.map(|d| device_id(&d)).unwrap_or_default()
 }
 
 /// Devices of a flow in the given states.
@@ -325,11 +330,15 @@ fn policy_config() -> Option<Raw> {
 
 /// The same as "Set as default" in the sound settings (for all roles).
 pub fn set_default_endpoint(id: &str) -> bool {
+    set_default_roles(id, &[0, 1, 2])
+}
+
+/// "Set as default" for some roles only (0 eConsole, 1 eMultimedia, 2 eCommunications).
+pub fn set_default_roles(id: &str, roles: &[u32]) -> bool {
     let Some(pc) = policy_config() else { return false };
     let h = HSTRING::from(id);
     let mut ok = true;
-    for role in 0..3u32 {
-        // eConsole, eMultimedia, eCommunications
+    for &role in roles {
         let r = unsafe {
             let f: unsafe extern "system" fn(*mut c_void, PCWSTR, u32) -> HRESULT = pc.method(13); // SetDefaultEndpoint
             f(pc.ptr(), PCWSTR(h.as_ptr()), role)
@@ -391,13 +400,13 @@ impl AppRouting {
         let h = HSTRING::from(full.as_str());
         let hraw: *mut c_void = if full.is_empty() { std::ptr::null_mut() } else { unsafe { std::mem::transmute_copy(&h) } };
         let mut ok = true;
-        for role in [1i32, 0] {
-            // eMultimedia, eConsole
+        for role in [1i32, 0, 2] {
+            // eMultimedia, eConsole, eCommunications (chat apps that use the communications device)
             let r = unsafe {
                 let m: unsafe extern "system" fn(*mut c_void, u32, i32, i32, *mut c_void) -> HRESULT = f.method(POLICY_SET_PERSISTED);
                 m(f.ptr(), pid, eRender.0, role, hraw)
             };
-            if r.is_err() {
+            if r.is_err() && role != 2 {
                 crate::logf!("route app {pid} → {dev_id:?}: 0x{:08x}", r.0 as u32);
                 ok = false;
             }

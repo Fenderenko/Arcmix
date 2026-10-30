@@ -48,6 +48,7 @@
     </div>
   </div>
   <div class="note warn hide" id="cableWarn" style="margin:0"><span id="cableWarnT"></span><br><button class="chip acc" id="cableWarnGo" style="margin-top:8px">Увімкнути обробку мікрофона</button></div>
+  <div class="note warn hide" id="chatMiss" style="margin:0"></div>
 
   <div class="card bal mixc">
     <div class="bh">
@@ -339,7 +340,8 @@
     <div data-pg="look" class="card" style="margin-top:12px">
       <div class="ttl" data-ic="window">Іконка в треї</div>
       <div class="sub" style="margin-bottom:6px">Показує</div>
-      <div class="seg" id="trayShow"><button data-v="icon">Іконку</button><button data-v="battery">Заряд</button></div>
+      <div class="seg" id="trayShow"><button data-v="icon">Іконку</button><button data-v="battery">Заряд</button><button data-v="both">Дві іконки</button></div>
+      <div class="sub hide" id="trayBothHint" style="margin-top:6px">заряд — окремою іконкою поруч, для будь-якого пристрою, що його повідомляє</div>
       <div class="sub" style="margin:14px 0 6px">Колесо миші над іконкою</div>
       <div class="seg" id="wheelSeg">
         <button data-v="battery">Заряд</button><button data-v="balance">Баланс</button><button data-v="off">Вимк.</button>
@@ -476,6 +478,10 @@
         <button class="chip" id="repBtn">Створити</button>
       </div>
       <div class="row">
+        <div class="grow"><div>Знайомство з програмою</div><div class="sub">ті самі кроки, що й при першому запуску</div></div>
+        <button class="chip" id="obAgain">Пройти</button>
+      </div>
+      <div class="row">
         <div class="grow"><div>Скинути налаштування</div><div class="sub">поточні збережуться як config.json.bak</div></div>
         <button class="chip no" id="resetBtn">Скинути</button>
       </div>
@@ -538,7 +544,7 @@
 
 <div class="pal off" id="pal" role="dialog" aria-label="Пристрої">
   <div class="pal-box">
-    <div class="pal-s"><button class="pback" id="palBack" aria-label="Назад" title="Назад"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="palQ" class="pal-in" autocomplete="off" spellcheck="false" placeholder="Пошук пристрою…" aria-label="Пошук пристрою…"></div>
+    <div class="pal-s"><button class="pback" id="palBack" aria-label="Назад" title="Назад"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="palQ" class="pal-in" autocomplete="off" spellcheck="false" placeholder="Пошук пристрою…" aria-label="Пошук пристрою…"><span class="pal-t hide" id="palTitle">Пріоритет пристроїв виводу</span></div>
     <div class="pal-l" id="palL" role="listbox"></div>
     <div class="pal-f"><span class="pal-k" id="palKeys"><kbd>↑↓</kbd><span>вибрати</span><kbd>↵</kbd><span>застосувати</span></span><span class="sp"></span><button class="chip sm" id="palOrder">Пріоритет</button><button class="chip sm" id="palWin">Windows</button></div>
   </div>

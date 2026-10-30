@@ -327,7 +327,8 @@ fn handle(h: HWND, m: u32, wp: WPARAM, lp: LPARAM) -> Option<LRESULT> {
             match (lp.0 & 0xffff) as u32 {
                 WM_LBUTTONUP => fly::toggle(),
                 WM_RBUTTONUP => tray::show_menu(),
-                WM_MOUSEMOVE => tray::on_hover(), // the cursor is over the icon
+                // the cursor is over the main icon (the battery icon has wParam 2)
+                WM_MOUSEMOVE if wp.0 == 1 => tray::on_hover(),
                 _ => {}
             }
         }

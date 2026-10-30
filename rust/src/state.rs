@@ -102,11 +102,15 @@ pub struct CfgJson {
     #[serde(rename = "eqUser")]
     pub eq_user: Vec<EqUserPreset>,
     pub onboarded: bool,
+    #[serde(rename = "apoAuto")]
+    pub apo_auto: bool,
     #[serde(rename = "keepOpen")]
     pub keep_open: bool,
     pub taskbar: bool,
     #[serde(rename = "trayBattery")]
     pub tray_battery: bool,
+    #[serde(rename = "battIcon")]
+    pub batt_icon: bool,
     #[serde(rename = "outOnNew")]
     pub out_on_new: String,
     #[serde(rename = "outOnLost")]
@@ -150,6 +154,9 @@ pub struct StateJson {
     /// the headset mixes game and chat itself by its dial (separate "Chat" device)
     #[serde(rename = "hwChatmix")]
     pub hw_chatmix: bool,
+    /// chat apps playing on the headset's "Game" device by their own setting
+    #[serde(rename = "chatMiss", skip_serializing_if = "Vec::is_empty")]
+    pub chat_miss: Vec<String>,
     pub route: router::PipeStatus,
     #[serde(rename = "micFx")]
     pub mic_fx: router::PipeStatus,
@@ -299,9 +306,11 @@ pub fn build() -> StateJson {
             hotkeys: hk,
             eq_user: c.eq_user.clone(),
             onboarded: c.onboarded,
+            apo_auto: c.apo_auto,
             keep_open: c.keep_open,
             taskbar: c.taskbar,
             tray_battery: c.tray_battery,
+            batt_icon: c.batt_icon,
             out_on_new: c.out_on_new.clone(),
             out_on_lost: c.out_on_lost,
             cables: c.cables,
@@ -311,12 +320,13 @@ pub fn build() -> StateJson {
         mic: audio::mic_state(),
         eq,
         eq_preset,
-        mic_muted: (hs.mic_muted >= 0 && hs.generic).then_some(hs.mic_muted == 1),
+        mic_muted: crate::audio::mic_state().cont.and_then(|c| headset::mic_muted_at(&c)),
         batteries: (!hs.extra_batt.is_empty()).then(|| hs.extra_batt.clone()),
         device,
         version: APP_VER,
         portable: crate::util::portable(),
         hw_chatmix: crate::devices::hardware_chatmix(),
+        chat_miss: crate::audio::chat_miss(),
         route,
         mic_fx,
         nv: crate::nvafx::status(),

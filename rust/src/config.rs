@@ -34,6 +34,9 @@ pub struct Config {
     pub chat: Vec<String>,
     #[serde(deserialize_with = "null_default")]
     pub media: Vec<String>,
+    /// apps put into Chat by themselves once, as they play on the headset's Chat device by their own setting
+    #[serde(rename = "chatAuto", skip_serializing_if = "Vec::is_empty")]
+    pub chat_auto: Vec<String>,
     #[serde(deserialize_with = "null_default")]
     pub game: Vec<String>,
     #[serde(rename = "lowBattery")]
@@ -43,6 +46,9 @@ pub struct Config {
     /// the tray icon shows the headset battery instead of the mark
     #[serde(rename = "trayBattery")]
     pub tray_battery: bool,
+    /// the battery as a tray icon of its own next to the mark (any device that reports it)
+    #[serde(rename = "battIcon")]
+    pub batt_icon: bool,
     pub mode: String,
     pub sidetone: i32,
     #[serde(rename = "autoOff")]
@@ -91,6 +97,13 @@ pub struct Config {
     pub auto_eq: BTreeMap<String, AutoEq>,
     #[serde(rename = "routedApps", deserialize_with = "null_default", skip_serializing_if = "Vec::is_empty")]
     pub routed_apps: Vec<String>,
+    /// EQ Windows everywhere: the Arcmix module goes on every output device by itself (apomod::auto_install;
+    /// chosen in the introduction)
+    #[serde(rename = "apoAuto")]
+    pub apo_auto: bool,
+    /// output devices the module was put on by itself once: not asked again ("Install" stays for them)
+    #[serde(rename = "apoAsked", skip_serializing_if = "Vec::is_empty")]
+    pub apo_asked: Vec<String>,
     /// An app's own output device (exe → device id), over the cable of its category.
     #[serde(rename = "appOuts", deserialize_with = "null_default", skip_serializing_if = "BTreeMap::is_empty")]
     pub app_outs: BTreeMap<String, String>,
@@ -342,10 +355,12 @@ impl Default for Config {
             lang: String::new(),
             chat: s(&["discord.exe", "telegram.exe", "teams.exe", "zoom.exe", "skype.exe", "viber.exe", "steam.exe", "xboxpartychathost.exe", "slack.exe", "whatsapp.exe", "signal.exe"]),
             media: s(&["spotify.exe", "vlc.exe", "chrome.exe", "msedge.exe", "firefox.exe"]),
+            chat_auto: Vec::new(),
             game: Vec::new(),
             low_battery: true,
             hold_sec: 3,
             tray_battery: false,
+            batt_icon: false,
             mode: "dark".into(),
             sidetone: -1,
             auto_off: -1,
@@ -369,6 +384,8 @@ impl Default for Config {
             soft_eq: BTreeMap::new(),
             auto_eq: BTreeMap::new(),
             routed_apps: Vec::new(),
+            apo_auto: true,
+            apo_asked: Vec::new(),
             app_outs: BTreeMap::new(),
             auto_switch: false,
             out_devs: Vec::new(),

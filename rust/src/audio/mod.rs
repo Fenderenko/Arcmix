@@ -2,7 +2,7 @@
 //! Runs on a thread of its own with COM (MTA); other threads hand it work through `run`.
 
 mod activity;
-mod btbatt;
+pub(crate) mod btbatt;
 pub mod com;
 mod duck;
 pub mod echo;
@@ -34,6 +34,9 @@ pub struct MicInfo {
     pub name: String,
     pub level: i32,
     pub mute: bool,
+    /// the container of the microphone (a headset's one shares it with its receiver)
+    #[serde(skip)]
+    pub cont: Option<[u8; 16]>,
 }
 
 #[derive(Serialize, Clone, Debug, Default, PartialEq)]
@@ -136,6 +139,8 @@ struct Shared {
     cable: CableJson,
     /// new app volumes from the window (applied in apply)
     app_pend: HashMap<String, f32>,
+    /// chat apps that play on the "Game" side of a hardware ChatMix by their own setting
+    chat_miss: Vec<String>,
 }
 
 static SHARED: LazyLock<Mutex<Shared>> = LazyLock::new(|| Mutex::new(Shared::default()));
@@ -152,6 +157,11 @@ pub static HW_CHATMIX: AtomicBool = AtomicBool::new(false);
 
 pub fn sessions() -> Vec<SessInfo> {
     shared().sess.clone()
+}
+
+/// Chat apps that play on the headset's "Game" device by their own setting (the dial mixes them as game).
+pub fn chat_miss() -> Vec<String> {
+    shared().chat_miss.clone()
 }
 
 pub fn audible(exe: &str) -> bool {
@@ -403,6 +413,15 @@ pub fn auto_switch_now() {
     });
 }
 
+/// A headset other than the active one was switched on or off (UI thread): "headset off" in the list and
+/// the output order follow.
+pub fn headsets_changed() {
+    run(|e| {
+        e.refresh_out();
+        e.refresh_outs(false);
+    });
+}
+
 /// The headset was switched on or off (UI thread): "headset off" in the list, output order and
 /// the headset microphone follow.
 pub fn headset_power(on: bool) {
@@ -527,6 +546,12 @@ pub struct Engine {
     fx_prev: String,
     /// the id of the headset's "Chat" device next to the playing one (output.rs refresh_out); "" — none
     hw_chat: String,
+    /// the "Chat" device made Windows' default communications device here (output.rs sync_comm)
+    comm_ours: String,
+    /// apps whose output this run changed (route_app): not put into Chat by where they play
+    moved: HashSet<String>,
+    /// apps found on the wrong side of a hardware ChatMix last time ("m:" chat on Game, "c:" on Chat)
+    hw_prev: HashSet<String>,
 }
 
 pub(crate) static SELF_PID: LazyLock<u32> = LazyLock::new(std::process::id);
@@ -565,6 +590,9 @@ fn engine_loop(rx: Receiver<Msg>) {
         fx_mic: None,
         fx_prev: String::new(),
         hw_chat: String::new(),
+        comm_ours: String::new(),
+        moved: HashSet::new(),
+        hw_prev: HashSet::new(),
     };
     util::safely("audio start", || {
         e.refresh_mic();
@@ -636,6 +664,8 @@ fn engine_loop(rx: Receiver<Msg>) {
                 e.refresh_out();
                 e.refresh_outs(false);
             });
+            // a receiver plugged in brings audio devices: its HID side is looked for now
+            crate::devs::hid::rescan();
             // the cable of microphone processing may have come or gone (installed, switched on in Windows):
             // the next router::sync looks again (the same state does nothing)
             FX_RECHECK.store(true, Ordering::Relaxed);
@@ -745,6 +775,12 @@ impl Engine {
         let mut seen_pid = HashSet::new();
         let mut save_pv: HashMap<String, f32> = HashMap::new();
         let (mut add_routed, mut del_routed) = (Vec::new(), Vec::new());
+        // hardware ChatMix: apps on the wrong side of the dial (seen twice in a row — a just routed app moves
+        // over in a moment)
+        let out_id = if hw_chat.is_empty() { String::new() } else { shared().out.id.clone() };
+        let mut hw_now: HashSet<String> = HashSet::new();
+        let mut to_chat: Vec<String> = Vec::new();
+        let mut miss: Vec<String> = Vec::new();
         let sessions = match self.en.get().map(com::sessions) {
             Some(Some(s)) => s,
             Some(None) => {
@@ -773,13 +809,31 @@ impl Engine {
             }
             let playing = s.state == AudioSessionStateActive;
             let shown = if exe.eq_ignore_ascii_case(util::base_name(&full)) { util::base_name(&full).to_string() } else { exe.clone() };
-            seen.entry(exe.clone()).and_modify(|x| x.playing |= playing).or_insert(SessInfo { exe: shown, playing, vol: 0.0 });
+            seen.entry(exe.clone()).and_modify(|x| x.playing |= playing).or_insert(SessInfo { exe: shown.clone(), playing, vol: 0.0 });
             let cat = cfg.category(&exe);
             if seen_pid.insert(s.pid) {
                 match self.route_app(s.pid, &exe, cat, &cfg, route_on, &hw_chat) {
                     1 => add_routed.push(exe.clone()),
                     -1 => del_routed.push(exe.clone()),
                     _ => {}
+                }
+            }
+            if !out_id.is_empty() && playing && !cfg.app_outs.contains_key(&exe) {
+                if cat == "chat" && s.dev_id == out_id {
+                    // its own output is set to the "Game" device: Windows cannot move it
+                    let k = format!("m:{exe}");
+                    if self.hw_prev.contains(&k) && !miss.contains(&shown) {
+                        miss.push(shown.clone());
+                    }
+                    hw_now.insert(k);
+                } else if cat == "game" && s.dev_id == hw_chat && !cfg.game.contains(&exe) && !self.moved.contains(&exe) && !cfg.chat_auto.contains(&exe) {
+                    // it plays on the "Chat" device by its own setting and was not put into Game by hand: it is a
+                    // chat app (once per app)
+                    let k = format!("c:{exe}");
+                    if self.hw_prev.contains(&k) && !to_chat.contains(&exe) {
+                        to_chat.push(exe.clone());
+                    }
+                    hw_now.insert(k);
                 }
             }
             // the level is taken only from the headset (and routing cables); "System sounds" and apps
@@ -886,6 +940,28 @@ impl Engine {
         let want_pm = !restore && (self.dk.next.is_some() || self.act.on());
         self.pm.sync(want_pm);
         self.routed.retain(|pid, _| seen_pid.contains(pid));
+        self.moved.extend(add_routed.iter().chain(del_routed.iter()).cloned());
+        self.hw_prev = hw_now;
+        if !to_chat.is_empty() {
+            logf!("chat apps by the headset's Chat device they play on: {}", to_chat.join(", "));
+            config::set(|c| {
+                for x in &to_chat {
+                    c.chat.retain(|y| y != x);
+                    c.media.retain(|y| y != x);
+                    c.chat.push(x.clone());
+                    c.chat_auto.push(x.clone());
+                }
+            });
+        }
+        let miss_changed = {
+            let mut sh = shared();
+            let ch = sh.chat_miss != miss;
+            sh.chat_miss = miss;
+            ch
+        };
+        if miss_changed || !to_chat.is_empty() {
+            server::notify_subs();
+        }
         if !add_routed.is_empty() || !del_routed.is_empty() {
             config::set(|c| {
                 c.routed_apps.retain(|x| !del_routed.contains(x));
@@ -1012,6 +1088,7 @@ impl Engine {
             mi.name = name.to_string();
             mi.level = (v * 100.0).round() as i32;
             mi.mute = m;
+            mi.cont = btbatt::endpoint_container(dev_id);
             if !c.on("volmem") {
                 return;
             }

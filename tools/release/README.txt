@@ -18,9 +18,10 @@ Settings, the log and crash reports: %APPDATA%\Arcmix
 Start with Windows: Settings -> General -> Start with Windows.
 Uninstall: turn that off, quit from the tray menu, delete this folder and %APPDATA%\Arcmix.
 
-The "All sound" equalizer runs as Arcmix's own module in the Windows audio engine:
-Sound -> Equalizer -> All sound -> Install (Windows asks for administrator permission).
-Remove puts everything back.
+The "EQ Windows" equalizer runs as Arcmix's own module in the Windows audio engine.
+Arcmix puts it on every output device by itself (Windows asks for administrator
+permission once for all of them); the switch is in the first-run guide. Remove puts
+everything back.
 
 Microphone processing and audio routing need a virtual audio cable,
 e.g. the free VB-CABLE: https://vb-audio.com/Cable/

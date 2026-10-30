@@ -55,6 +55,9 @@ pub struct DevEq {
     pub custom_slot: f64,
     #[serde(skip)]
     pub has_custom: bool,
+    /// a described headset's equalizer the window shows (hid::SHOWN_EQ)
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub shown: bool,
 }
 
 #[derive(Serialize, Clone, Debug, Default, PartialEq)]
@@ -110,12 +113,18 @@ pub fn hardware_chatmix() -> bool {
         return false;
     }
     let h = headset::lock();
+    // the Arctis 7+ mixes by app volumes, even with another receiver's "Chat" device present
+    if h.connected && !h.generic {
+        return false;
+    }
     !h.generic || !h.generic_soft_chatmix
 }
 
 thread_local! {
     /// (UI thread) the last state reacted to: receiver found, headset on, both (-1 — not yet)
     static LAST: std::cell::Cell<(i8, i8, i8)> = const { std::cell::Cell::new((-1, -1, -1)) };
+    /// (UI thread) the active receiver and the power of every receiver, last reacted to
+    static LAST_ALL: RefCell<(Option<u8>, Vec<(u8, bool, bool)>)> = const { RefCell::new((None, Vec::new())) };
 }
 
 /// (UI thread) Receiver found / headset powered changed: output order and the headset mic follow,
@@ -124,10 +133,22 @@ pub fn on_state(connected: bool, powered: bool) {
     let (c, p, on) = (connected as i8, powered as i8, (connected && powered) as i8);
     let (lc, lp, lon) = LAST.with(|l| l.get());
     LAST.with(|l| l.set((c, p, on)));
-    if on != lon {
+    let (act, sig) = (headset::active(), headset::power_sig());
+    let (act_moved, sig_moved) = LAST_ALL.with(|l| {
+        let mut l = l.borrow_mut();
+        let r = (l.0 != act, l.1 != sig);
+        *l = (act, sig);
+        r
+    });
+    if on != lon || (act_moved && on == 1) {
+        // the active headset came on, went off, or another one that is on became active (its sound
+        // plays now): its microphone follows too
         crate::audio::headset_power(on == 1);
     } else if (c, p) != (lc, lp) {
         crate::audio::refresh_out();
+    } else if sig_moved {
+        // another receiver's headset came on or went off: its devices in the output list
+        crate::audio::headsets_changed();
     }
 }
 

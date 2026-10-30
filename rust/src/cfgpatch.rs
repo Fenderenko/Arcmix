@@ -70,11 +70,15 @@ pub struct CfgPatch {
     #[serde(rename = "duckMedia")]
     duck_media: Option<bool>,
     onboarded: Option<bool>,
+    #[serde(rename = "apoAuto")]
+    apo_auto: Option<bool>,
     #[serde(rename = "keepOpen")]
     keep_open: Option<bool>,
     taskbar: Option<bool>,
     #[serde(rename = "trayBattery")]
     tray_battery: Option<bool>,
+    #[serde(rename = "battIcon")]
+    batt_icon: Option<bool>,
     #[serde(rename = "outOnNew")]
     out_on_new: Option<String>,
     #[serde(rename = "outOnLost")]
@@ -164,9 +168,11 @@ pub fn apply(p: CfgPatch) {
         }
         set_b(&mut c.duck_media, p.duck_media);
         set_b(&mut c.onboarded, p.onboarded);
+        set_b(&mut c.apo_auto, p.apo_auto);
         set_b(&mut c.keep_open, p.keep_open);
         set_b(&mut c.taskbar, p.taskbar);
         set_b(&mut c.tray_battery, p.tray_battery);
+        set_b(&mut c.batt_icon, p.batt_icon);
         set_b(&mut c.out_on_lost, p.out_on_lost);
         set_b(&mut c.cables, p.cables);
         if let Some(v) = p.out_on_new.as_deref().filter(|v| ["order", "always", "never"].contains(v)) {

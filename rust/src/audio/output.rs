@@ -16,7 +16,7 @@ use windows::{
             AUDIO_VOLUME_NOTIFICATION_DATA, DEVICE_STATE, DEVICE_STATE_ACTIVE, DEVICE_STATE_DISABLED, DEVICE_STATE_UNPLUGGED, EDataFlow, ERole, IDeviceTopology, IMMDevice,
             IMMDeviceEnumerator, IMMNotificationClient, IMMNotificationClient_Impl,
             Endpoints::{IAudioEndpointVolumeCallback, IAudioEndpointVolumeCallback_Impl},
-            eCapture, eConsole, eRender,
+            eCapture, eCommunications, eConsole, eRender,
         },
         System::Com::{CLSCTX_ALL, CoTaskMemFree},
     },
@@ -122,6 +122,24 @@ pub fn trim_inst_prefix(s: &str) -> &str {
     if i > 0 && s.as_bytes().get(i) == Some(&b'-') { s[i + 1..].trim() } else { s }
 }
 
+/// An audio device of the active headset: the same container as its receiver (by the name while no
+/// receiver is found). With two headsets connected the name alone would take both for one.
+pub(super) fn is_our_headset(id: &str, name: &str) -> bool {
+    let c = headset::lock().container;
+    match c {
+        Some(c) => super::btbatt::endpoint_container(id) == Some(c),
+        None => is_headset_name(name),
+    }
+}
+
+/// An audio device of a wireless headset switched off with its button (any receiver talked to).
+fn off_at(id: &str, name: &str) -> bool {
+    if let Some(off) = super::btbatt::endpoint_container(id).and_then(|c| headset::off_at(&c)) {
+        return off;
+    }
+    headset::lock().container.is_none() && is_headset_name(name) && headset_off()
+}
+
 /// A wireless headset switched off with its button, though its receiver (and the Windows device)
 /// is there.
 fn headset_off() -> bool {
@@ -156,13 +174,15 @@ impl Engine {
                     }
                 };
                 let ln = oi.name.to_lowercase();
-                // the headset Arcmix talks to (its receiver says whether it is on)
+                // the headset Arcmix talks to (its receiver says whether it is on); its receiver is the one
+                // to talk to when several are connected
+                let cont = super::btbatt::endpoint_container(&oi.id);
+                crate::devs::hid::prefer(cont);
                 let (known, on) = {
                     let h = headset::lock();
-                    let n = h.dev_name.to_lowercase();
-                    (h.connected && !n.is_empty() && ln.contains(&n), h.powered)
+                    (h.connected && h.container.is_some() && h.container == cont, h.powered)
                 };
-                oi.headset = known || is_headset_name(&oi.name);
+                oi.headset = known || (headset::lock().container.is_none() && is_headset_name(&oi.name));
                 // the Windows volume of this output, and a watch on it while it stays the output
                 if let Some(epv) = com::endpoint_volume(&dev) {
                     unsafe {
@@ -199,9 +219,12 @@ impl Engine {
                 if oi.conn == "bt" {
                     oi.batt = self.bt_batt.get(&oi.id);
                 }
-                // the headset's "Chat" device next to the playing one: chat apps go there (Engine::route_app)
-                let eps: Vec<(String, String)> = com::list_flow(&en, eRender).into_iter().map(|d| (d.id, d.name)).collect();
-                if let Some((id, name)) = super::outprio::chat_endpoint(&eps, &oi.id, &oi.name) {
+                // the headset's "Chat" device next to the playing one (the same receiver, else by the names):
+                // chat apps go there (Engine::route_app)
+                let eps: Vec<(String, String)> = com::list_flow(&en, eRender).into_iter().filter(|d| !d.is_virtual).map(|d| (d.id, d.name)).collect();
+                let same = |id: &str| cont.is_some() && super::btbatt::endpoint_container(id) == cont;
+                let by_cont = (!ln.contains("chat")).then(|| eps.iter().find(|(id, name)| *id != oi.id && name.to_lowercase().contains("chat") && same(id))).flatten();
+                if let Some((id, name)) = by_cont.or_else(|| super::outprio::chat_endpoint(&eps, &oi.id, &oi.name)) {
                     (self.hw_chat, oi.chat) = (id.clone(), name.clone());
                 }
             }
@@ -209,14 +232,20 @@ impl Engine {
         if oi.chat.is_empty() {
             self.hw_chat.clear();
         }
-        let changed = {
+        self.sync_comm(&oi.id);
+        let batt = oi.batt;
+        let (changed, batt_moved) = {
             let mut sh = shared();
             let ch = sh.out != oi;
+            let bm = sh.out.batt != batt;
             sh.out = oi;
-            ch
+            (ch, bm)
         };
         if changed {
             server::notify_subs();
+        }
+        if batt_moved {
+            crate::util::post_ui(crate::WM_MIC_CHG, 0); // the battery icon in the tray
         }
     }
 
@@ -248,6 +277,27 @@ impl Engine {
         )
     }
 
+    /// Hardware ChatMix: while the headset's "Game" side plays, Windows' default communications device is its
+    /// "Chat" (chat apps that use that device land where the dial mixes them as chat); otherwise it is the
+    /// output again — only when it is still the one set here.
+    fn sync_comm(&mut self, out_id: &str) {
+        let Some(en) = self.en.get().cloned() else { return };
+        let c = config::get();
+        let want = if c.chat_to_hs && !self.hw_chat.is_empty() && crate::devices::hardware_chatmix() { self.hw_chat.clone() } else { String::new() };
+        let cur = com::default_role_id(&en, eRender, eCommunications);
+        if !want.is_empty() {
+            if cur != want && com::set_default_roles(&want, &[2]) {
+                logf!("communications device → the headset's Chat");
+                self.comm_ours = want;
+            }
+        } else if !self.comm_ours.is_empty() {
+            if cur == self.comm_ours && !out_id.is_empty() && com::set_default_roles(out_id, &[2]) {
+                logf!("communications device → the output again");
+            }
+            self.comm_ours.clear();
+        }
+    }
+
     /// (audio thread) The list for the window and, if on, switching to the highest available
     /// device. force — apply the order even without changes (switching was just turned on).
     pub(crate) fn refresh_outs(&mut self, force: bool) {
@@ -275,7 +325,7 @@ impl Engine {
             logf!("output priority: the headset state changed, the order applies again");
         }
         let moved = !self.devs.def.is_empty() && self.devs.def != def;
-        let def_is_hs = eps.iter().any(|e| e.id == def && is_headset_name(&e.name));
+        let def_is_hs = eps.iter().any(|e| e.id == def && is_our_headset(&e.id, &e.name));
         // the previous device is still there: the change was the user's, not Windows' fallback
         let prev_there = eps.iter().any(|e| e.id == self.devs.def && e.state != DEV_DISABLED && e.state != DEV_UNPLUGGED);
         let mut picked_away = false;
@@ -287,7 +337,10 @@ impl Engine {
             self.devs.keep_hs = Some(rx);
             logf!("output priority: the headset picked by hand while its receiver says it is off — kept");
         }
-        let hs_off = headset_off() && self.devs.keep_hs.is_none();
+        // EQ Windows everywhere: the module on the present devices that lack it (one prompt for all)
+        let present: Vec<(String, String)> = eps.iter().filter(|e| e.state == DEVICE_STATE_ACTIVE.0).map(|e| (e.id.clone(), e.name.clone())).collect();
+        crate::apomod::auto_install(&present);
+        let kept = self.devs.keep_hs.is_some();
         let list: Vec<OutDevJson> = order
             .iter()
             .map(|d| {
@@ -295,7 +348,7 @@ impl Engine {
                     None => "absent",
                     Some(e) if e.state == DEV_DISABLED => "disabled",
                     Some(e) if e.state == DEV_UNPLUGGED => "unplugged",
-                    Some(e) if hs_off && is_headset_name(&e.name) => "hsoff",
+                    Some(e) if off_at(&e.id, &e.name) && !(kept && is_our_headset(&e.id, &e.name)) => "hsoff",
                     Some(_) => "on",
                 };
                 OutDevJson { id: d.id.clone(), name: d.name.clone(), state: state.into(), default: d.id == def, is_virtual: super::outprio::is_virtual_name(&d.name) }
@@ -380,7 +433,7 @@ impl Engine {
             return;
         }
         let capture = com::list_flow(&en, eCapture);
-        let Some(hs_id) = capture.iter().find(|d| is_headset_name(&d.name)).map(|d| d.id.clone()) else { return };
+        let Some(hs_id) = capture.iter().find(|d| !d.is_virtual && is_our_headset(&d.id, &d.name)).map(|d| d.id.clone()) else { return };
         let mut prev = c.prev_mic.clone();
         let cur = com::default_id(&en, eCapture);
         if capture.iter().any(|d| d.id == cur && d.is_virtual) {
