@@ -38,6 +38,9 @@ pub struct PipeStatus {
     pub on: bool,
     pub running: bool,
     pub latency: i32,
+    /// microphone processing sleeps: no app records from its cable (micFx.sleep)
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub asleep: bool,
     #[serde(skip_serializing_if = "String::is_empty")]
     pub err: String,
     #[serde(skip_serializing_if = "String::is_empty")]
@@ -529,6 +532,42 @@ struct Mgr {
 static MGR: LazyLock<Mutex<Mgr>> = LazyLock::new(Default::default);
 /// Routing is running — apps can be sent into the cables.
 static ROUTE_LIVE: AtomicBool = AtomicBool::new(false);
+/// Microphone processing sleeps (micFx.sleep): no app records from its cable.
+static MIC_ASLEEP: AtomicBool = AtomicBool::new(false);
+/// The Microphone tab shows the processing levels (server meters "fx"): it runs meanwhile.
+static FX_WATCH: AtomicU32 = AtomicU32::new(0);
+/// A sync before the next 2 s: someone started or stopped recording from the cable.
+static WAKE: (Mutex<bool>, Condvar) = (Mutex::new(false), Condvar::new());
+
+/// Wakes the router thread for a sync now.
+pub fn wake() {
+    *lock(&WAKE.0) = true;
+    WAKE.1.notify_one();
+}
+
+fn wait_wake(d: Duration) {
+    let g = lock(&WAKE.0);
+    let (mut g, _) = WAKE.1.wait_timeout_while(g, d, |w| !*w).unwrap_or_else(|p| p.into_inner());
+    *g = false;
+}
+
+/// (server) While it lives, the window shows the levels of microphone processing: it does not sleep.
+pub struct FxWatch;
+
+impl FxWatch {
+    pub fn new() -> Self {
+        FX_WATCH.fetch_add(1, Ordering::Relaxed);
+        wake();
+        FxWatch
+    }
+}
+
+impl Drop for FxWatch {
+    fn drop(&mut self) {
+        FX_WATCH.fetch_sub(1, Ordering::Relaxed);
+        wake();
+    }
+}
 
 /// The same error repeating on every attempt is logged once.
 #[derive(Default)]
@@ -573,7 +612,7 @@ pub fn start() {
         .name("router".into())
         .spawn(|| {
             loop {
-                std::thread::sleep(Duration::from_secs(2));
+                wait_wake(Duration::from_secs(2));
                 util::safely("router", || sync(&config::get()));
             }
         })
@@ -667,10 +706,18 @@ pub fn sync(c: &Config) {
     } else {
         crate::nvafx::release();
     }
+    // asleep (micFx.sleep): no app records from the cable, and neither the Microphone tab's levels nor
+    // "listen to yourself" need the processed sound; the plugins and the NVIDIA effect stay loaded
+    let sleepy = want_mic && mc.sleep;
+    crate::audio::watch_cable(if sleepy { &mc.out } else { "" });
+    let asleep = sleepy && crate::audio::cable_idle() && FX_WATCH.load(Ordering::Relaxed) == 0 && !(monitor_wanted() && c.on("monitor"));
+    if MIC_ASLEEP.swap(asleep, Ordering::Relaxed) != asleep {
+        crate::server::notify_subs();
+    }
     // the same microphone whose volume and mute the app controls
     let msig = format!("{}|{}", c.mic_dev, mc.out);
     let cur = r.mic.take();
-    r.mic = r.keep(cur, "mic", want_mic, &msig, || {
+    r.mic = r.keep(cur, "mic", want_mic && !asleep, &msig, || {
         let p = Pipeline::new("mic", msig.clone(), mc.out.clone(), vec![PipeIn::new(&c.mic_dev, false, false)]);
         // before the threads start: otherwise the first seconds the gate would be at 0 dB
         p.gate.store(mc.gate.to_bits(), Ordering::Relaxed);
@@ -780,6 +827,7 @@ pub fn status(c: &Config) -> (PipeStatus, PipeStatus) {
         s
     };
     let (mut route, mut mic) = (st(&g.route, c.route_live()), st(&g.mic, c.mic_fx_live()));
+    mic.asleep = mic.on && MIC_ASLEEP.load(Ordering::Relaxed);
     route.hint = wasapi::err_hint(&route.err).into();
     mic.hint = wasapi::err_hint(&mic.err).into();
     (route, mic)

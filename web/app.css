@@ -647,3 +647,52 @@ html[data-corn=sharp] .xf-tk{border-radius:1px}
 html[data-corn=sharp] .who{border-radius:4px}
 /* the priority list: its title in the head next to "back" */
 .pal-t{color:var(--on);font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* the home's device rows with the volume on the right (from 1.4) */
+.drow{padding:10px 6px 10px 12px;gap:8px}
+.dic{position:relative;width:30px;height:30px;border-radius:8px;border:1px solid var(--line2);background:color-mix(in srgb,var(--on) 4%,transparent);display:flex;align-items:center;justify-content:center;flex:none;color:var(--on)}
+.dic:hover{background:var(--hov)}
+.dic .slash{position:absolute;inset:-1px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;pointer-events:none}
+.drow .dsl{flex:none;width:clamp(110px,29%,165px);padding:0;gap:6px}
+.drow .dsl .val{min-width:26px}
+.dmore{width:24px;height:30px;color:var(--ol)}
+.lvlrow{display:flex;align-items:center;gap:8px;margin:-6px 36px 10px 50px}
+.devs .lvlrow .lvl{flex:1;margin:0}
+/* the settings list: groups under labels, a value before "›" */
+.glab{margin:6px 4px -6px}
+.glist .prow{min-height:46px;gap:10px}
+.glist .prow .grow>div:first-child{font-size:14px;font-weight:500}
+.glist .prow .ri{width:28px;height:28px;border-radius:8px}
+.rv{font-size:12px;color:var(--ol);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px}
+/* the microphone chain: each stage a row with its state and value, opening its page */
+.ordl .od .dn.go{flex-direction:row;align-items:center;gap:8px;min-height:38px;cursor:pointer}
+.ordl .od .dn .t{flex:none}
+.ordl .od .dn .v{margin-left:auto;font-size:12px;color:var(--ol);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ordl .od .dn .tic{flex:none;color:var(--ol)}
+.sdot{width:8px;height:8px;border-radius:4px;background:var(--tr);flex:none}
+.sdot.on{background:var(--okc)}
+.ordl .od.fix.go{cursor:pointer}
+.ordl .od.fix.go:hover{background:var(--hov)}
+.card>.stg{padding:0}
+.glist .row>.grow{font-size:14px;font-weight:500}
+/* waiting (the module being put on or taken off) */
+.spin{display:inline-block;width:12px;height:12px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite;vertical-align:-2px}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* the device icons as the others: no frame */
+.dic{border:0;background:none;border-radius:8px}
+/* the header battery: filled, no outline (as the tray one); charging — the rest breathes towards full */
+#bchip .btr{fill:currentColor;opacity:.22}
+#bchg{opacity:0}
+#bchg.on{animation:bbreath 2.4s ease-in-out infinite}
+@keyframes bbreath{0%,100%{opacity:0}50%{opacity:.55}}
+html[data-corn=sharp] #bchip rect{rx:1.1px}
+/* the noise and ducking tiles: a thin level line along the bottom while they work */
+.qgrid .qt{position:relative}
+.qbar{position:absolute;left:10px;right:10px;bottom:4px;height:2px;border-radius:1px;overflow:hidden;background:var(--tr);opacity:0;transition:opacity .25s}
+.qt.live .qbar{opacity:1}
+.qbar i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:1px}
+#qNsIn{background:var(--ol);opacity:.45}
+#qNsOut{background:var(--okc)}
+/* live levels on the Mix tab turned off */
+#mix.nolvl .qbar,#mix.nolvl #micLvlBox{display:none}
+#mix.nolvl .lvlrow:has(.hwm.hide){display:none}

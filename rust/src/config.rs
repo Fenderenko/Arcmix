@@ -46,9 +46,9 @@ pub struct Config {
     /// the tray icon shows the headset battery instead of the mark
     #[serde(rename = "trayBattery")]
     pub tray_battery: bool,
-    /// the battery as a tray icon of its own next to the mark (any device that reports it)
-    #[serde(rename = "battIcon")]
-    pub batt_icon: bool,
+    /// the battery in the tray as a battery glyph filled to the level (otherwise the number)
+    #[serde(rename = "battGlyph")]
+    pub batt_glyph: bool,
     pub mode: String,
     pub sidetone: i32,
     #[serde(rename = "autoOff")]
@@ -60,6 +60,10 @@ pub struct Config {
     /// the custom theme in dark mode on a pure black background (OLED)
     #[serde(rename = "customOled")]
     pub custom_oled: bool,
+    /// the Mix tab shows live levels (the microphone, the noise and ducking tiles); off — no meter streams
+    /// there, and the microphone is not opened just for its level
+    #[serde(rename = "homeMeters")]
+    pub home_meters: bool,
     /// the custom theme's background ("" — the default one)
     #[serde(rename = "customS")]
     pub custom_s: String,
@@ -294,11 +298,13 @@ pub struct MicFxCfg {
     pub order: Vec<String>,
     #[serde(deserialize_with = "null_default", skip_serializing_if = "Vec::is_empty")]
     pub plugins: Vec<VstSlot>,
+    /// the processing sleeps while no app records from its cable (less CPU, and GPU with NVIDIA)
+    pub sleep: bool,
 }
 
 impl Default for MicFxCfg {
     fn default() -> Self {
-        MicFxCfg { on: false, input: String::new(), out: String::new(), gate: -50.0, ceil: -6.0, denoise: false, denoise_kind: "rnn".into(), nv_mode: "denoise".into(), nv_strength: 100, comp: false, comp_db: -24.0, comp_ratio: 3.0, comp_gain: 6.0, order: Vec::new(), plugins: Vec::new() }
+        MicFxCfg { on: false, input: String::new(), out: String::new(), gate: -50.0, ceil: -6.0, denoise: false, denoise_kind: "rnn".into(), nv_mode: "denoise".into(), nv_strength: 100, comp: false, comp_db: -24.0, comp_ratio: 3.0, comp_gain: 6.0, order: Vec::new(), plugins: Vec::new(), sleep: true }
     }
 }
 
@@ -360,15 +366,16 @@ impl Default for Config {
             low_battery: true,
             hold_sec: 3,
             tray_battery: false,
-            batt_icon: false,
+            batt_glyph: false,
             mode: "dark".into(),
             sidetone: -1,
             auto_off: -1,
             custom_a: "#FF6A3D".into(),
             custom_s: String::new(),
-            corners: "round".into(),
+            corners: "sharp".into(),
             custom_b: "#3DC8FF".into(),
             custom_oled: false,
+            home_meters: true,
             pinned: Vec::new(),
             hidden: Vec::new(),
             eq: Vec::new(),
@@ -597,6 +604,10 @@ pub fn migrate(c: &mut Config) {
     // the cable kept aside by the cables switch: Windows' default microphone now follows microphone
     // processing itself (audio::sync_fx_mic)
     c.extra.remove("cablesMic");
+    // 1.3.2–1.4.0: the battery as a tray icon of its own next to the mark is gone — the icon shows it instead
+    if c.extra.remove("battIcon").and_then(|v| v.as_bool()) == Some(true) {
+        c.tray_battery = true;
+    }
     // early builds: a helper is handled as its app (Steam Client WebHelper as Steam); the app's own category
     // wins, the helper's pin and saved volume pass to the app
     let is = |x: &String, n: &str| x.eq_ignore_ascii_case(n);
@@ -819,10 +830,11 @@ mod tests {
 
     #[test]
     fn dropped_fields_leave_the_file() {
-        let v: Value = serde_json::from_str(r#"{"theme":"steam","iconTheme":"twitch","morph":"drop","appOuts":{"spotify.exe":"r2"}}"#).unwrap();
+        let v: Value = serde_json::from_str(r#"{"theme":"steam","iconTheme":"twitch","morph":"drop","battIcon":true,"appOuts":{"spotify.exe":"r2"}}"#).unwrap();
         let mut c: Config = serde_json::from_value(v).unwrap();
         migrate(&mut c);
         assert!(!c.extra.contains_key("iconTheme") && !c.extra.contains_key("morph"));
+        assert!(!c.extra.contains_key("battIcon") && c.tray_battery, "two icons became the battery in the icon");
         assert_eq!(c.app_outs.get("spotify.exe").map(String::as_str), Some("r2"));
     }
 

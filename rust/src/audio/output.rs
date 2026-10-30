@@ -132,6 +132,20 @@ pub(super) fn is_our_headset(id: &str, name: &str) -> bool {
     }
 }
 
+/// The "Game" device of the same headset in place of its "Chat" one, when it is there and on; the device
+/// itself otherwise.
+fn game_side(list: &[OutDevJson], id: &str) -> String {
+    let Some(d) = list.iter().find(|d| d.id == id) else { return id.into() };
+    let cont = super::btbatt::endpoint_container(id);
+    if d.is_virtual || cont.is_none() || !d.name.to_lowercase().contains("chat") {
+        return id.into();
+    }
+    list.iter()
+        .find(|x| x.id != id && x.state == "on" && !x.is_virtual && x.name.to_lowercase().contains("game") && super::btbatt::endpoint_container(&x.id) == cont)
+        .map(|x| x.id.clone())
+        .unwrap_or_else(|| id.into())
+}
+
 /// An audio device of a wireless headset switched off with its button (any receiver talked to).
 fn off_at(id: &str, name: &str) -> bool {
     if let Some(off) = super::btbatt::endpoint_container(id).and_then(|c| headset::off_at(&c)) {
@@ -233,19 +247,19 @@ impl Engine {
             self.hw_chat.clear();
         }
         self.sync_comm(&oi.id);
-        let batt = oi.batt;
-        let (changed, batt_moved) = {
+        let (changed, tray) = {
             let mut sh = shared();
             let ch = sh.out != oi;
-            let bm = sh.out.batt != batt;
+            // the tray shows the battery of the device that plays (not every volume change)
+            let tr = sh.out.id != oi.id || sh.out.headset != oi.headset || sh.out.batt != oi.batt;
             sh.out = oi;
-            (ch, bm)
+            (ch, tr)
         };
         if changed {
             server::notify_subs();
         }
-        if batt_moved {
-            crate::util::post_ui(crate::WM_MIC_CHG, 0); // the battery icon in the tray
+        if tray {
+            crate::util::post_ui(crate::WM_MIC_CHG, 0);
         }
     }
 
@@ -395,6 +409,8 @@ impl Engine {
         } else {
             String::new()
         };
+        // a hardware ChatMix headset plays on its "Game" side; "Chat" is for the chat apps (route_app)
+        let pick = game_side(&list, &pick);
         if !pick.is_empty() && pick != def {
             let name = list.iter().find(|d| d.id == pick).map(|d| d.name.clone()).unwrap_or_default();
             if com::set_default_endpoint(&pick) {

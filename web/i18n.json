@@ -408,6 +408,16 @@
    "pt": "Bateria",
    "tr": "Pil"
   },
+  "Батареєю": {
+   "de": "Akku",
+   "en": "As a battery",
+   "es": "Batería",
+   "fr": "Batterie",
+   "it": "Batteria",
+   "pl": "Baterią",
+   "pt": "Bateria",
+   "tr": "Pil"
+  },
   "Без звуку": {
    "de": "Stumm",
    "en": "Muted",
@@ -1148,16 +1158,6 @@
    "pt": "Detecção de uso",
    "tr": "Takılma algılama"
   },
-  "Дві іконки": {
-   "de": "Zwei Symbole",
-   "en": "Two icons",
-   "es": "Dos iconos",
-   "fr": "Deux icônes",
-   "it": "Due icone",
-   "pl": "Dwie ikony",
-   "pt": "Dois ícones",
-   "tr": "İki simge"
-  },
   "Де показувати": {
    "de": "Wo anzeigen",
    "en": "Where to show",
@@ -1327,6 +1327,16 @@
    "pl": "Korektor, sidetone i przetwarzanie mikrofonu jednym kliknięciem. Profil można też wybrać w menu ikony w zasobniku.",
    "pt": "Equalizador, sidetone e processamento do microfone com um clique. O perfil também pode ser escolhido no menu do ícone da bandeja.",
    "tr": "Ekolayzer, sidetone ve mikrofon işleme tek tıkla. Profil, tepsi simgesinin menüsünden de seçilebilir."
+  },
+  "Живі рівні на головній": {
+   "de": "Live-Pegel auf dem Startbildschirm",
+   "en": "Live levels on the home screen",
+   "es": "Niveles en vivo en la pantalla principal",
+   "fr": "Niveaux en direct sur l'accueil",
+   "it": "Livelli in tempo reale nella schermata principale",
+   "pl": "Poziomy na żywo na ekranie głównym",
+   "pt": "Níveis ao vivo na tela inicial",
+   "tr": "Ana ekranda canlı seviyeler"
   },
   "Завантажити": {
    "de": "Herunterladen",
@@ -1558,6 +1568,16 @@
    "pt": "Escurecimento da tela",
    "tr": "Ekran karartma"
   },
+  "Зачекайте": {
+   "de": "Bitte warten",
+   "en": "Please wait",
+   "es": "Espera",
+   "fr": "Veuillez patienter",
+   "it": "Attendi",
+   "pl": "Poczekaj",
+   "pt": "Aguarde",
+   "tr": "Lütfen bekleyin"
+  },
   "Зберегти": {
    "de": "Speichern",
    "en": "Save",
@@ -1747,16 +1767,6 @@
    "pl": "Zatrzymaj nagrywanie",
    "pt": "Parar gravação",
    "tr": "Kaydı durdur"
-  },
-  "Кабелі": {
-   "de": "Kabel",
-   "en": "Cables",
-   "es": "Cables",
-   "fr": "Câbles",
-   "it": "Cavi",
-   "pl": "Kable",
-   "pt": "Cabos",
-   "tr": "Kablolar"
   },
   "Кейс": {
    "de": "Case",
@@ -1967,6 +1977,16 @@
    "pl": "L",
    "pt": "E",
    "tr": "S"
+  },
+  "Ланцюжок обробки": {
+   "de": "Verarbeitungskette",
+   "en": "Processing chain",
+   "es": "Cadena de procesamiento",
+   "fr": "Chaîne de traitement",
+   "it": "Catena di elaborazione",
+   "pl": "Łańcuch przetwarzania",
+   "pt": "Cadeia de processamento",
+   "tr": "İşleme zinciri"
   },
   "Легкий": {
    "de": "Leicht",
@@ -2267,16 +2287,6 @@
    "pl": "Ustawienia dźwięku Windows",
    "pt": "Configurações de som do Windows",
    "tr": "Windows ses ayarları"
-  },
-  "Налаштування й допомога": {
-   "de": "Einstellungen und Hilfe",
-   "en": "Settings and help",
-   "es": "Ajustes y ayuda",
-   "fr": "Paramètres et aide",
-   "it": "Impostazioni e assistenza",
-   "pl": "Ustawienia i pomoc",
-   "pt": "Configurações e ajuda",
-   "tr": "Ayarlar ve yardım"
   },
   "Налаштування поруч з Arcmix.exe": {
    "de": "Einstellungen neben Arcmix.exe",
@@ -2818,6 +2828,26 @@
    "pt": "Opções da tela inicial",
    "tr": "Ana ekran seçenekleri"
   },
+  "Пауза, коли мікрофон ніхто не слухає": {
+   "de": "Pause, solange niemand das Mikrofon hört",
+   "en": "Pause while nobody listens to the microphone",
+   "es": "Pausa mientras nadie escucha el micrófono",
+   "fr": "Pause quand personne n'écoute le micro",
+   "it": "Pausa quando nessuno ascolta il microfono",
+   "pl": "Pauza, gdy nikt nie słucha mikrofonu",
+   "pt": "Pausar enquanto ninguém ouve o microfone",
+   "tr": "Mikrofonu kimse dinlemiyorken duraklat"
+  },
+  "Пауза: мікрофон зараз ніхто не слухає": {
+   "de": "Pausiert: Niemand hört gerade das Mikrofon",
+   "en": "Paused: nobody listens to the microphone now",
+   "es": "En pausa: ahora nadie escucha el micrófono",
+   "fr": "En pause : personne n'écoute le micro pour l'instant",
+   "it": "In pausa: ora nessuno ascolta il microfono",
+   "pl": "Wstrzymano: nikt teraz nie słucha mikrofonu",
+   "pt": "Em pausa: ninguém está ouvindo o microfone agora",
+   "tr": "Duraklatıldı: şu anda mikrofonu kimse dinlemiyor"
+  },
   "Перевірити оновлення": {
    "de": "Nach Updates suchen",
    "en": "Check for updates",
@@ -2998,6 +3028,16 @@
    "pt": "Ordem de processamento",
    "tr": "İşleme sırası"
   },
+  "Порядок і автоперемикання": {
+   "de": "Reihenfolge und automatischer Wechsel",
+   "en": "Order and auto-switching",
+   "es": "Orden y cambio automático",
+   "fr": "Ordre et bascule automatique",
+   "it": "Ordine e cambio automatico",
+   "pl": "Kolejność i automatyczne przełączanie",
+   "pt": "Ordem e troca automática",
+   "tr": "Sıra ve otomatik geçiş"
+  },
   "Порівну": {
    "de": "Ausgeglichen",
    "en": "Balanced",
@@ -3137,6 +3177,16 @@
    "pl": "Ustawienie zmienione",
    "pt": "Predefinição alterada",
    "tr": "Ön ayar değişti"
+  },
+  "Пресети гарнітури": {
+   "de": "Headset-Presets",
+   "en": "Headset presets",
+   "es": "Preajustes del auricular",
+   "fr": "Préréglages du casque",
+   "it": "Preset delle cuffie",
+   "pl": "Presety zestawu słuchawkowego",
+   "pt": "Predefinições do headset",
+   "tr": "Kulaklık ön ayarları"
   },
   "Пресети, вбудовані в гарнітуру": {
    "de": "Im Headset gespeicherte Voreinstellungen",
@@ -3647,6 +3697,16 @@
    "pl": "Tryb hosta",
    "pt": "Modo host",
    "tr": "Ana bilgisayar modu"
+  },
+  "Резервна копія й допомога": {
+   "de": "Sicherung und Hilfe",
+   "en": "Backup and help",
+   "es": "Copia de seguridad y ayuda",
+   "fr": "Sauvegarde et aide",
+   "it": "Backup e aiuto",
+   "pl": "Kopia zapasowa i pomoc",
+   "pt": "Backup e ajuda",
+   "tr": "Yedekleme ve yardım"
   },
   "Розділи": {
    "de": "Bereiche",
@@ -4358,6 +4418,16 @@
    "pt": "Aguardando um aplicativo no grupo “Chat” (ex.: Discord).",
    "tr": "“Sohbet” grubunda bir uygulama bekleniyor (ör. Discord)."
   },
+  "Числом": {
+   "de": "Zahl",
+   "en": "As a number",
+   "es": "Número",
+   "fr": "Chiffre",
+   "it": "Numero",
+   "pl": "Liczbą",
+   "pt": "Número",
+   "tr": "Sayı"
+  },
   "Чорна (OLED)": {
    "de": "Schwarz (OLED)",
    "en": "Black (OLED)",
@@ -4397,6 +4467,16 @@
    "pl": "Słyszysz mikrofon bez przetwarzania. Włącz przetwarzanie poniżej, aby usłyszeć redukcję szumów.",
    "pt": "Você ouve o microfone sem processamento. Ative o processamento abaixo para ouvir a supressão de ruído.",
    "tr": "Mikrofonu işlenmemiş duyuyorsunuz. Gürültü engellemeyi duymak için aşağıdan işlemeyi açın."
+  },
+  "Чути себе": {
+   "de": "Selbst hören",
+   "en": "Hear yourself",
+   "es": "Oírte",
+   "fr": "S'entendre",
+   "it": "Sentirti",
+   "pl": "Słyszeć siebie",
+   "pt": "Ouvir-se",
+   "tr": "Kendini duy"
   },
   "Чути так, як вас чують інші — після обробки мікрофона.": {
    "de": "Du hörst, was andere hören – nach der Mikrofonverarbeitung.",
@@ -4688,16 +4768,6 @@
    "pt": "Brilho do indicador de microfone mudo",
    "tr": "Mikrofon kapalı ışığı parlaklığı"
   },
-  "автоперемикання, пріоритет, віртуальні кабелі": {
-   "de": "automatisches Umschalten, Priorität, virtuelle Kabel",
-   "en": "auto switching, priority, virtual cables",
-   "es": "cambio automático, prioridad, cables virtuales",
-   "fr": "basculement auto, priorité, câbles virtuels",
-   "it": "cambio automatico, priorità, cavi virtuali",
-   "pl": "automatyczne przełączanie, priorytet, kable wirtualne",
-   "pt": "troca automática, prioridade, cabos virtuais",
-   "tr": "otomatik geçiş, öncelik, sanal kablolar"
-  },
   "автор · Arcmix на GitHub": {
    "de": "Autor · Arcmix auf GitHub",
    "en": "author · Arcmix on GitHub",
@@ -4737,16 +4807,6 @@
    "pl": "balans tu nie działa",
    "pt": "o equilíbrio não se aplica",
    "tr": "denge uygulanmaz"
-  },
-  "баланс, вивід, мікрофон, підказка на екрані": {
-   "de": "Balance, Ausgabe, Mikrofon, Bildschirmhinweis",
-   "en": "balance, output, microphone, on-screen hint",
-   "es": "balance, salida, micrófono, aviso en pantalla",
-   "fr": "balance, sortie, micro, indication à l'écran",
-   "it": "bilanciamento, uscita, microfono, indicazione a schermo",
-   "pl": "balans, wyjście, mikrofon, podpowiedź na ekranie",
-   "pt": "balanço, saída, microfone, aviso na tela",
-   "tr": "denge, çıkış, mikrofon, ekran ipucu"
   },
   "баланс, пристрій чи мікрофон — коли змінюєте їх гарячими клавішами або коліщатком гарнітури": {
    "de": "Balance, Gerät oder Mikrofon – wenn du sie per Tastenkürzel oder Headset-Rad änderst",
@@ -4858,15 +4918,15 @@
    "pt": "instalado — começa assim que tocar som",
    "tr": "kuruldu — ses çalınca başlar"
   },
-  "встановлюю на «%s» — звук на кілька секунд зникне": {
-   "de": "wird auf „%s“ installiert – der Ton setzt einige Sekunden aus",
-   "en": "installing on “%s” — sound drops for a few seconds",
-   "es": "instalando en «%s»: el sonido se corta unos segundos",
-   "fr": "installation sur « %s » : le son se coupe quelques secondes",
-   "it": "installazione su «%s»: l'audio si interrompe per qualche secondo",
-   "pl": "instaluję na „%s” — dźwięk zniknie na kilka sekund",
-   "pt": "instalando em “%s” — o som some por alguns segundos",
-   "tr": "“%s” üzerine kuruluyor — ses birkaç saniye kesilecek"
+  "встановлюю на «%s»: підтвердіть дозвіл у вікні Windows, потім звук на кілька секунд зникне": {
+   "de": "Installation auf „%s“: Berechtigung im Windows-Fenster bestätigen, danach fällt der Ton einige Sekunden aus",
+   "en": "installing on “%s”: confirm the permission in the Windows prompt; then sound drops for a few seconds",
+   "es": "instalando en «%s»: confirma el permiso en la ventana de Windows; después el sonido se corta unos segundos",
+   "fr": "installation sur « %s » : confirmez l'autorisation dans la fenêtre de Windows ; le son se coupe ensuite quelques secondes",
+   "it": "installazione su «%s»: conferma il permesso nella finestra di Windows; poi l'audio si interrompe per qualche secondo",
+   "pl": "instaluję na „%s”: potwierdź uprawnienia w oknie Windows; potem dźwięk zniknie na kilka sekund",
+   "pt": "instalando em “%s”: confirme a permissão na janela do Windows; depois o som some por alguns segundos",
+   "tr": "“%s” üzerine kuruluyor: Windows penceresinde izni onaylayın; ardından ses birkaç saniye kesilir"
   },
   "віртуальний": {
    "de": "virtuell",
@@ -4907,6 +4967,16 @@
    "pl": "głośno",
    "pt": "alto",
    "tr": "yüksek"
+  },
+  "гра, чат і медіа — в окремі віртуальні кабелі, наприклад для стріму": {
+   "de": "Spiel, Chat und Medien in getrennte virtuelle Kabel, z. B. zum Streamen",
+   "en": "game, chat and media into separate virtual cables, e.g. for streaming",
+   "es": "juego, chat y multimedia en cables virtuales separados, p. ej. para streaming",
+   "fr": "jeu, chat et médias dans des câbles virtuels séparés, par ex. pour le streaming",
+   "it": "gioco, chat e media in cavi virtuali separati, ad es. per lo streaming",
+   "pl": "gra, czat i multimedia do osobnych kabli wirtualnych, np. do streamowania",
+   "pt": "jogo, chat e mídia em cabos virtuais separados, por ex. para streaming",
+   "tr": "oyun, sohbet ve medya ayrı sanal kablolara, ör. yayın için"
   },
   "грає": {
    "de": "spielt",
@@ -5028,25 +5098,15 @@
    "pt": "gravar e ouvir o próprio microfone",
    "tr": "kendi mikrofonunu kaydet ve dinle"
   },
-  "заряд і сповіщення, sidetone, вимкнення": {
-   "de": "Akku und Hinweise, Sidetone, Abschaltung",
-   "en": "battery and alerts, sidetone, auto off",
-   "es": "batería y avisos, sidetone, apagado",
-   "fr": "batterie et alertes, sidetone, extinction",
-   "it": "batteria e avvisi, sidetone, spegnimento",
-   "pl": "bateria i powiadomienia, sidetone, wyłączanie",
-   "pt": "bateria e alertas, sidetone, desligamento",
-   "tr": "pil ve uyarılar, sidetone, kapanma"
-  },
-  "заряд — окремою іконкою поруч, для будь-якого пристрою, що його повідомляє": {
-   "de": "der Akkustand als eigenes Symbol daneben, für jedes Gerät, das ihn meldet",
-   "en": "the battery as an icon of its own next to it, for any device that reports it",
-   "es": "la batería en un icono propio al lado, para cualquier dispositivo que la informe",
-   "fr": "la batterie dans une icône à part, à côté, pour tout appareil qui l'indique",
-   "it": "la batteria in un'icona a parte accanto, per qualsiasi dispositivo che la indichi",
-   "pl": "bateria jako osobna ikona obok, dla każdego urządzenia, które ją podaje",
-   "pt": "a bateria num ícone próprio ao lado, para qualquer dispositivo que a informe",
-   "tr": "pil, yanında ayrı bir simge olarak; bunu bildiren her aygıt için"
+  "заряд, поки грає пристрій, що його повідомляє: увімкнена гарнітура чи Bluetooth-навушники; інакше — знак": {
+   "de": "der Akkustand, solange das Gerät spielt, das ihn meldet: das eingeschaltete Headset oder Bluetooth-Kopfhörer; sonst das Symbol",
+   "en": "the battery while the device that reports it plays: the headset on, or Bluetooth headphones; the mark otherwise",
+   "es": "la batería mientras suena el dispositivo que la informa: el auricular encendido o auriculares Bluetooth; si no, el icono",
+   "fr": "la batterie tant que joue l'appareil qui la signale : le casque allumé ou des écouteurs Bluetooth ; sinon l'icône",
+   "it": "la batteria mentre suona il dispositivo che la segnala: le cuffie accese o auricolari Bluetooth; altrimenti l'icona",
+   "pl": "bateria, dopóki gra urządzenie, które ją podaje: włączony zestaw słuchawkowy lub słuchawki Bluetooth; inaczej ikona",
+   "pt": "a bateria enquanto toca o dispositivo que a informa: o headset ligado ou fones Bluetooth; senão, o ícone",
+   "tr": "pili bildiren cihaz çalarken pil: açık kulaklık veya Bluetooth kulaklık; aksi halde simge"
   },
   "заряджається": {
    "de": "lädt",
@@ -5148,16 +5208,6 @@
    "pt": "roteamento e microfone processado; desativado — som e microfone diretos, as configurações ficam",
    "tr": "yönlendirme ve işlenmiş mikrofon; kapalı — ses ve mikrofon doğrudan, ayarlar kalır"
   },
-  "мова, запуск з Windows, панель завдань, функції": {
-   "de": "Sprache, Start mit Windows, Taskleiste, Funktionen",
-   "en": "language, start with Windows, taskbar, features",
-   "es": "idioma, inicio con Windows, barra de tareas, funciones",
-   "fr": "langue, démarrage avec Windows, barre des tâches, fonctions",
-   "it": "lingua, avvio con Windows, barra delle applicazioni, funzioni",
-   "pl": "język, uruchamianie z Windows, pasek zadań, funkcje",
-   "pt": "idioma, iniciar com o Windows, barra de tarefas, recursos",
-   "tr": "dil, Windows ile başlat, görev çubuğu, özellikler"
-  },
   "мс": {
    "de": "ms",
    "en": "ms",
@@ -5248,6 +5298,16 @@
    "pt": "conjuntos de ajustes de som, troca pela bandeja",
    "tr": "ses ayarı setleri, tepsiden değiştirilir"
   },
+  "наживо": {
+   "de": "live",
+   "en": "live",
+   "es": "en vivo",
+   "fr": "en direct",
+   "it": "dal vivo",
+   "pl": "na żywo",
+   "pt": "ao vivo",
+   "tr": "canlı"
+  },
   "не запущено": {
    "de": "nicht gestartet",
    "en": "not running",
@@ -5268,15 +5328,15 @@
    "pt": "abaixo do limiar",
    "tr": "eşiğin altında"
   },
-  "окремий еквалайзер гри, чату й медіа через віртуальні кабелі": {
-   "de": "eigener Equalizer für Spiel, Chat und Medien über virtuelle Kabel",
-   "en": "separate game, chat and media equalizer via virtual cables",
-   "es": "ecualizador separado para juego, chat y multimedia mediante cables virtuales",
-   "fr": "égaliseur séparé pour le jeu, le chat et les médias via des câbles virtuels",
-   "it": "equalizzatore separato per gioco, chat e media tramite cavi virtuali",
-   "pl": "osobny korektor gry, czatu i multimediów przez wirtualne kable",
-   "pt": "equalizador separado de jogo, chat e mídia por cabos virtuais",
-   "tr": "sanal kablolarla oyun, sohbet ve medya için ayrı ekolayzer"
+  "пауза": {
+   "de": "pausiert",
+   "en": "paused",
+   "es": "en pausa",
+   "fr": "en pause",
+   "it": "in pausa",
+   "pl": "wstrzymano",
+   "pt": "em pausa",
+   "tr": "duraklatıldı"
   },
   "перевантаження": {
    "de": "Übersteuerung",
@@ -5307,6 +5367,16 @@
    "pl": "przywraca głośność aplikacji i mikrofonu, jeśli zmieni ją Windows lub inna aplikacja",
    "pt": "restaura o volume dos apps e do microfone se o Windows ou outro app o mudar",
    "tr": "Windows veya başka bir uygulama değiştirirse uygulama ve mikrofon sesini geri yükler"
+  },
+  "поки жодна програма не записує з кабелю, обробка стоїть: менше навантаження на процесор (і відеокарту з NVIDIA). Програма відкрила мікрофон — вмикається за мить; поки відкрита ця вкладка чи ввімкнено «Послухати себе» — працює": {
+   "de": "solange keine App vom Kabel aufnimmt, steht die Verarbeitung still: weniger Last für die CPU (und mit NVIDIA für die Grafikkarte). Öffnet eine App das Mikrofon, startet sie sofort; solange dieser Tab offen oder „Sich selbst anhören“ an ist, läuft sie",
+   "en": "while no app records from the cable, processing stands still: less load on the CPU (and the graphics card with NVIDIA). An app opens the microphone — it starts in a moment; while this tab is open or “Hear yourself” is on, it runs",
+   "es": "mientras ninguna app graba desde el cable, el procesamiento se detiene: menos carga para la CPU (y la tarjeta gráfica con NVIDIA). Una app abre el micrófono y arranca al instante; mientras esta pestaña está abierta o «Escucharte» está activo, funciona",
+   "fr": "tant qu'aucune app n'enregistre depuis le câble, le traitement est à l'arrêt : moins de charge pour le processeur (et la carte graphique avec NVIDIA). Une app ouvre le micro : il démarre aussitôt ; tant que cet onglet est ouvert ou que « S'écouter » est actif, il fonctionne",
+   "it": "finché nessuna app registra dal cavo, l'elaborazione è ferma: meno carico sulla CPU (e sulla scheda video con NVIDIA). Un'app apre il microfono e parte in un attimo; finché questa scheda è aperta o «Ascoltati» è attivo, funziona",
+   "pl": "dopóki żadna aplikacja nie nagrywa z kabla, przetwarzanie stoi: mniejsze obciążenie procesora (i karty graficznej z NVIDIA). Aplikacja otwiera mikrofon — rusza w mgnieniu oka; gdy ta karta jest otwarta lub włączono „Posłuchaj siebie”, działa",
+   "pt": "enquanto nenhum app grava do cabo, o processamento fica parado: menos carga na CPU (e na placa de vídeo com NVIDIA). Um app abre o microfone e ele inicia num instante; enquanto esta aba está aberta ou “Ouvir a si mesmo” está ligado, ele funciona",
+   "tr": "hiçbir uygulama kablodan kayıt yapmadığı sürece işleme durur: işlemciye (NVIDIA ile ekran kartına da) daha az yük. Bir uygulama mikrofonu açınca hemen başlar; bu sekme açıkken ya da “Kendini dinle” açıkken çalışır"
   },
   "поточні збережуться як config.json.bak": {
    "de": "die aktuellen bleiben als config.json.bak erhalten",
@@ -5348,15 +5418,15 @@
    "pt": "funciona em todos os dispositivos de saída",
    "tr": "tüm çıkış aygıtlarında çalışıyor"
   },
-  "прибираю з «%s» — звук на кілька секунд зникне": {
-   "de": "wird von „%s“ entfernt – der Ton setzt einige Sekunden aus",
-   "en": "removing from “%s” — sound drops for a few seconds",
-   "es": "quitando de «%s»: el sonido se corta unos segundos",
-   "fr": "retrait de « %s » : le son se coupe quelques secondes",
-   "it": "rimozione da «%s»: l'audio si interrompe per qualche secondo",
-   "pl": "usuwam z „%s” — dźwięk zniknie na kilka sekund",
-   "pt": "removendo de “%s” — o som some por alguns segundos",
-   "tr": "“%s” üzerinden kaldırılıyor — ses birkaç saniye kesilecek"
+  "прибираю з «%s»: підтвердіть дозвіл у вікні Windows, потім звук на кілька секунд зникне": {
+   "de": "Entfernen von „%s“: Berechtigung im Windows-Fenster bestätigen, danach fällt der Ton einige Sekunden aus",
+   "en": "removing from “%s”: confirm the permission in the Windows prompt; then sound drops for a few seconds",
+   "es": "quitando de «%s»: confirma el permiso en la ventana de Windows; después el sonido se corta unos segundos",
+   "fr": "suppression de « %s » : confirmez l'autorisation dans la fenêtre de Windows ; le son se coupe ensuite quelques secondes",
+   "it": "rimozione da «%s»: conferma il permesso nella finestra di Windows; poi l'audio si interrompe per qualche secondo",
+   "pl": "usuwam z „%s”: potwierdź uprawnienia w oknie Windows; potem dźwięk zniknie na kilka sekund",
+   "pt": "removendo de “%s”: confirme a permissão na janela do Windows; depois o som some por alguns segundos",
+   "tr": "“%s” üzerinden kaldırılıyor: Windows penceresinde izni onaylayın; ardından ses birkaç saniye kesilir"
   },
   "прибирає клавіатуру, вентилятор, вуличний шум": {
    "de": "entfernt Tastatur-, Lüfter- und Straßengeräusche",
@@ -5408,6 +5478,16 @@
    "pt": "os apps do «Chat» tocam em «%s»: a roda ChatMix do headset as mistura com o jogo",
    "tr": "«Sohbet» uygulamaları «%s» üzerinden çalar: kulaklıktaki ChatMix tekerleği onları oyunla karıştırır"
   },
+  "рівень мікрофона й лінії на плитках шумодаву та приглушення; вимкнені — вікно не перемальовує їх щокадру й не відкриває мікрофон лише для індикатора": {
+   "de": "der Mikrofonpegel und die Linien auf den Kacheln Rauschfilter und Absenkung; aus — das Fenster zeichnet sie nicht in jedem Frame neu und öffnet das Mikrofon nicht nur für die Anzeige",
+   "en": "the microphone level and the lines on the noise and ducking tiles; off, the window does not redraw them every frame or open the microphone just for the meter",
+   "es": "el nivel del micrófono y las líneas de los mosaicos de antirruido y atenuación; desactivados, la ventana no los redibuja en cada fotograma ni abre el micrófono solo para el indicador",
+   "fr": "le niveau du micro et les lignes des tuiles anti-bruit et atténuation ; désactivés, la fenêtre ne les redessine pas à chaque image et n'ouvre pas le micro juste pour l'indicateur",
+   "it": "il livello del microfono e le linee sui riquadri antirumore e attenuazione; disattivati, la finestra non li ridisegna a ogni fotogramma né apre il microfono solo per l'indicatore",
+   "pl": "poziom mikrofonu i linie na kafelkach redukcji szumów i wyciszania; wyłączone — okno nie odrysowuje ich w każdej klatce i nie otwiera mikrofonu tylko dla wskaźnika",
+   "pt": "o nível do microfone e as linhas nos blocos de antirruído e redução; desligados, a janela não os redesenha a cada quadro nem abre o microfone só para o indicador",
+   "tr": "mikrofon seviyesi ve gürültü önleme ile kısma kutucuklarındaki çizgiler; kapalıyken pencere bunları her karede yeniden çizmez ve mikrofonu yalnızca gösterge için açmaz"
+  },
   "рівне звучання для вашої моделі навушників": {
    "de": "neutraler Klang für dein Kopfhörermodell",
    "en": "a flat sound for your headphone model",
@@ -5427,16 +5507,6 @@
    "pl": "świeci na słuchawkach, gdy mikrofon jest wyciszony",
    "pt": "acende no headset quando o microfone está mudo",
    "tr": "mikrofon kapalıyken kulaklıkta yanar"
-  },
-  "тема, іконка в треї, кути": {
-   "de": "Design, Tray-Symbol, Ecken",
-   "en": "theme, tray icon, corners",
-   "es": "tema, icono de la bandeja, esquinas",
-   "fr": "thème, icône de la zone de notification, coins",
-   "it": "tema, icona nell'area di notifica, angoli",
-   "pl": "motyw, ikona w zasobniku, narożniki",
-   "pt": "tema, ícone da bandeja, cantos",
-   "tr": "tema, tepsi simgesi, köşeler"
   },
   "тихий звук": {
    "de": "leise",
@@ -5477,16 +5547,6 @@
    "pl": "te same kroki co przy pierwszym uruchomieniu",
    "pt": "os mesmos passos do primeiro início",
    "tr": "ilk açılıştaki adımların aynısı"
-  },
-  "у файл і з файлу, звіт, скинути, вийти": {
-   "de": "in und aus Datei, Bericht, Zurücksetzen, Beenden",
-   "en": "to and from a file, report, reset, quit",
-   "es": "a y desde un archivo, informe, restablecer, salir",
-   "fr": "vers et depuis un fichier, rapport, réinitialiser, quitter",
-   "it": "da e verso un file, rapporto, ripristina, esci",
-   "pl": "do i z pliku, raport, resetuj, zakończ",
-   "pt": "para e de arquivo, relatório, redefinir, sair",
-   "tr": "dosyaya ve dosyadan, rapor, sıfırla, çık"
   },
   "увімкнули гарнітуру — працює її мікрофон; вимкнули — попередній": {
    "de": "Headset an – sein Mikrofon arbeitet; aus – das vorherige",

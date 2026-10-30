@@ -30,6 +30,8 @@ use crate::{
 pub const TIMER_ANIM: usize = 1;
 pub const TIMER_BATT: usize = 2;
 pub const TIMER_TRAY: usize = 3;
+/// Charging: the battery pulses towards full.
+pub const TIMER_CHG: usize = 4;
 pub const TIMER_HOVER: usize = 11;
 
 const ID_OPEN: u32 = 1000;
@@ -57,9 +59,9 @@ struct Ui {
     wheel_accum: i32,
     wheel_last: Instant,
     wheel_toggle: Instant,
-    /// the battery icon: its picture, and what it shows (redrawn only when that changes)
-    batt_icon: HICON,
-    batt_sig: Option<(i32, bool, bool, bool, usize, String)>,
+    /// the charging pulse runs; its phase 0..1
+    chg_on: bool,
+    chg_phase: f64,
 }
 
 thread_local! {
@@ -68,7 +70,7 @@ thread_local! {
         last_tick: Instant::now(), light_task: false, icon: HICON::default(), icon_size: 16, retries: 0,
         mouse_hook: HHOOK::default(), hover: false, wheel_accum: 0,
         wheel_last: Instant::now(), wheel_toggle: Instant::now() - Duration::from_secs(1),
-        batt_icon: HICON::default(), batt_sig: None,
+        chg_on: false, chg_phase: 0.0,
     });
 }
 
@@ -92,19 +94,14 @@ pub fn init() {
     });
 }
 
-/// The main icon (the mark, the balance) and the battery icon.
+/// The tray icon's id.
 const ICON_MAIN: u32 = 1;
-const ICON_BATT: u32 = 2;
 
 fn nid(flags: NOTIFY_ICON_DATA_FLAGS) -> NOTIFYICONDATAW {
-    nid_of(ICON_MAIN, flags)
-}
-
-fn nid_of(id: u32, flags: NOTIFY_ICON_DATA_FLAGS) -> NOTIFYICONDATAW {
     NOTIFYICONDATAW {
         cbSize: std::mem::size_of::<NOTIFYICONDATAW>() as u32,
         hWnd: util::main_hwnd(),
-        uID: id,
+        uID: ICON_MAIN,
         uFlags: flags,
         ..Default::default()
     }
@@ -113,19 +110,24 @@ fn nid_of(id: u32, flags: NOTIFY_ICON_DATA_FLAGS) -> NOTIFYICONDATAW {
 fn params() -> IconParams {
     // called on every animation frame: the settings are read in place, not copied
     let (cg, cc) = config::with(|c| config::colors_of(&c.theme, c));
-    let hs = headset::snapshot();
+    let (glyph, round) = config::with(|c| (c.batt_glyph, c.corners == "round"));
+    let src = batt_source();
+    let (level, nova, charging) = src.as_ref().map(|(_, l, ch, nova)| (*l, *nova, *ch)).unwrap_or((0, false, false));
     let mic = crate::mic::badge();
     ui(|u| IconParams {
         size: u.icon_size,
         pos: u.cur_pos,
         b: u.cur_b,
         bat: u.cur_bat,
-        level: hs.batt_pct,
-        nova: hs.dev_name.to_lowercase().contains("nova"),
+        level,
+        nova,
         light: u.light_task,
         mic,
         cg,
         cc,
+        glyph,
+        round,
+        charge: if charging { u.chg_phase } else { -1.0 },
     })
 }
 
@@ -180,10 +182,6 @@ pub fn add() -> bool {
     swap_icon(ic);
     if !ok {
         logf!("tray icon not added yet, will retry");
-    } else {
-        // after Explorer restarts the battery icon goes back too
-        ui(|u| u.batt_sig = None);
-        update_batt_icon();
     }
     ok
 }
@@ -216,69 +214,76 @@ pub fn retry() {
 }
 
 /// The battery shows instead of the mark: by the setting (trayBattery), flipped for a while by the mouse
-/// wheel; only with a connected headset that reports it, and not while it has an icon of its own.
+/// wheel; only while the device that plays reports one.
 fn batt_wanted() -> bool {
-    let hs = headset::snapshot();
-    let (own, show) = config::with(|c| (c.batt_icon, c.tray_battery));
-    hs.connected && hs.have_batt && !own && (show != ui(|u| u.batt_flip))
+    let show = config::with(|c| c.tray_battery);
+    (show != ui(|u| u.batt_flip)) && batt_source().is_some()
 }
 
-/// The battery for its own icon: the headset when it is on and reports it, else the output device
-/// (Bluetooth headphones as Windows knows them) — name, level, charging, the Nova LED steps.
+/// The battery of the device that plays: the supported headset while it is on and its audio device is the
+/// output, or Bluetooth headphones as Windows knows them — name, level, charging, the Nova LED steps.
+/// None for any other output (headphones on a jack, a sound card) or the headset off: the tray shows the mark
+/// then.
 fn batt_source() -> Option<(String, i32, bool, bool)> {
+    let o = crate::audio::out_state();
     let hs = headset::snapshot();
-    if hs.connected && hs.powered && hs.have_batt {
+    if o.headset && hs.connected && hs.powered && hs.have_batt {
         let nova = hs.dev_name.to_lowercase().contains("nova");
         return Some((hs.dev_name, hs.batt_pct, hs.charging, nova));
     }
-    let o = crate::audio::out_state();
     (o.batt >= 0).then(|| (if o.short.is_empty() { o.name } else { o.short }, o.batt, false, false))
 }
 
-/// The battery icon of its own (config battIcon): added, redrawn or removed as the battery changes;
-/// gone while no device reports one.
-fn update_batt_icon() {
-    let want = if config::with(|c| c.batt_icon) { batt_source() } else { None };
-    let (size, light) = ui(|u| (u.icon_size, u.light_task));
-    let sig = want.as_ref().map(|(n, l, ch, nova)| (*l, *ch, *nova, light, size, n.clone()));
-    if ui(|u| u.batt_sig == sig) {
-        return;
-    }
-    let was = ui(|u| std::mem::replace(&mut u.batt_sig, sig.clone()).is_some());
-    let Some((name, level, charging, nova)) = want else {
-        if was {
-            unsafe {
-                let _ = Shell_NotifyIconW(NIM_DELETE, &nid_of(ICON_BATT, NOTIFY_ICON_DATA_FLAGS(0)));
-            }
+/// (UI thread) While the battery shown in the tray charges, it pulses towards full: 10 frames a second, only
+/// then.
+fn sync_charge() {
+    let src = batt_source();
+    let charging = src.as_ref().is_some_and(|s| s.2);
+    let want = charging && batt_wanted();
+    let run = ui(|u| u.chg_on);
+    let hwnd = util::main_hwnd();
+    if want && !run {
+        ui(|u| u.chg_on = true);
+        unsafe {
+            SetTimer(Some(hwnd), TIMER_CHG, 100, None);
         }
-        swap_batt_icon(HICON::default());
-        return;
-    };
-    let (cg, cc) = config::with(|c| config::colors_of(&c.theme, c));
-    let p = IconParams { size, pos: 0.0, b: 1.0, bat: 1.0, level, nova, light, mic: 0, cg, cc };
-    let ic = icon::make_hicon(size, &icon::render(&p));
-    let mut n = nid_of(ICON_BATT, NIF_MESSAGE | NIF_ICON | NIF_TIP);
-    n.uCallbackMessage = crate::WM_TRAY;
-    n.hIcon = ic;
-    let mut tip = format!("{name}: {level}%");
-    if charging {
-        tip += &format!(" ({})", t("заряджається"));
+    } else if !want && run {
+        ui(|u| {
+            u.chg_on = false;
+            u.chg_phase = 0.0;
+        });
+        unsafe {
+            let _ = KillTimer(Some(hwnd), TIMER_CHG);
+        }
     }
-    util::copy_wide(&mut n.szTip, &tip);
-    let ok = unsafe { Shell_NotifyIconW(if was { NIM_MODIFY } else { NIM_ADD }, &n) }.as_bool() || unsafe { Shell_NotifyIconW(NIM_MODIFY, &n) }.as_bool();
-    if !ok {
-        ui(|u| u.batt_sig = None); // tried again with the next update
-    }
-    swap_batt_icon(ic);
 }
 
-fn swap_batt_icon(ic: HICON) {
-    let old = ui(|u| std::mem::replace(&mut u.batt_icon, ic));
-    if !old.is_invalid() {
+/// A frame of the charging pulse (a 2.4 s cycle).
+pub fn charge_tick() {
+    ui(|u| u.chg_phase = (u.chg_phase + 0.1 / 2.4) % 1.0);
+    if ui(|u| u.cur_bat > 0.0) {
+        let ic = build_icon();
+        let mut n = nid(NIF_ICON);
+        n.hIcon = ic;
         unsafe {
-            let _ = DestroyIcon(old);
+            let _ = Shell_NotifyIconW(NIM_MODIFY, &n);
         }
+        swap_icon(ic);
     }
+}
+
+/// The balance moved with the wheel while the icon shows the battery: the mark and the capsules come back
+/// for a while (holdSec, at least 2 s), so the move is seen.
+pub fn peek_balance() {
+    if !config::with(|c| c.tray_battery) || batt_source().is_none() {
+        return;
+    }
+    ui(|u| u.batt_flip = true);
+    let sec = config::with(|c| c.hold_sec).max(2) as u32;
+    unsafe {
+        SetTimer(Some(util::main_hwnd()), TIMER_BATT, sec * 1000, None);
+    }
+    start_anim();
 }
 
 pub fn update(with_tip: bool) {
@@ -301,9 +306,9 @@ pub fn update(with_tip: bool) {
         let _ = Shell_NotifyIconW(NIM_MODIFY, &n);
     }
     swap_icon(ic);
-    // the battery icon follows changes of state, not the frames of an animation
+    // the charging pulse follows changes of state, not the frames of an animation
     if with_tip {
-        update_batt_icon();
+        sync_charge();
     }
 }
 
@@ -311,11 +316,8 @@ pub fn remove() {
     let n = nid(NOTIFY_ICON_DATA_FLAGS(0));
     unsafe {
         let _ = Shell_NotifyIconW(NIM_DELETE, &n);
-        let _ = Shell_NotifyIconW(NIM_DELETE, &nid_of(ICON_BATT, NOTIFY_ICON_DATA_FLAGS(0)));
     }
     swap_icon(HICON::default());
-    swap_batt_icon(HICON::default());
-    ui(|u| u.batt_sig = None);
 }
 
 pub fn balloon(title: &str, text: &str, warn: bool) {
@@ -390,7 +392,8 @@ pub fn anim_tick() {
 
 /// Flips the mark / battery for config holdSec seconds (on) or back (off).
 pub fn set_battery(on: bool) {
-    if on && !headset::lock().connected {
+    // turning the mark into the battery needs a battery to show
+    if on && !config::with(|c| c.tray_battery) && batt_source().is_none() {
         return;
     }
     ui(|u| u.batt_flip = on);
@@ -513,10 +516,9 @@ pub fn unhook_mouse() {
     }
 }
 
-/// What the wheel over the icon does: with the battery in an icon of its own, flipping to the battery
-/// would show it twice — the wheel then does nothing.
+/// What the wheel over the icon does (config wheelMode).
 fn wheel_mode() -> String {
-    config::with(|c| if c.batt_icon && c.wheel_mode == "battery" { "off".into() } else { c.wheel_mode.clone() })
+    config::with(|c| c.wheel_mode.clone())
 }
 
 /// The cursor is over the icon (Windows reports moves over it) — listen to the wheel.

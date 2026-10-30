@@ -52,6 +52,8 @@ pub struct CfgJson {
     pub custom_b: String,
     #[serde(rename = "customOled")]
     pub custom_oled: bool,
+    #[serde(rename = "homeMeters")]
+    pub home_meters: bool,
     #[serde(rename = "customS")]
     pub custom_s: String,
     pub corners: String,
@@ -109,8 +111,8 @@ pub struct CfgJson {
     pub taskbar: bool,
     #[serde(rename = "trayBattery")]
     pub tray_battery: bool,
-    #[serde(rename = "battIcon")]
-    pub batt_icon: bool,
+    #[serde(rename = "battGlyph")]
+    pub batt_glyph: bool,
     #[serde(rename = "outOnNew")]
     pub out_on_new: String,
     #[serde(rename = "outOnLost")]
@@ -277,6 +279,7 @@ pub fn build() -> StateJson {
             mute_led: c.mute_led,
             custom_a: c.custom_a.clone(),
             custom_oled: c.custom_oled,
+            home_meters: c.home_meters,
             custom_s: c.custom_s.clone(),
             corners: c.corners.clone(),
             custom_b: c.custom_b.clone(),
@@ -310,7 +313,7 @@ pub fn build() -> StateJson {
             keep_open: c.keep_open,
             taskbar: c.taskbar,
             tray_battery: c.tray_battery,
-            batt_icon: c.batt_icon,
+            batt_glyph: c.batt_glyph,
             out_on_new: c.out_on_new.clone(),
             out_on_lost: c.out_on_lost,
             cables: c.cables,

@@ -188,10 +188,13 @@
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   // ---------- icons (Lucide, ISC) for card labels and setting rows ----------
   var IC = {
+    chev: '<path d="m9 6 6 6-6 6"/>',
     user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
     sliders: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M2 14h4M10 8h4M18 16h4"/>',
+    activity: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
     headphones: '<path d="M3 14v-2a9 9 0 0 1 18 0v2"/><rect x="2.5" y="14" width="5" height="7" rx="2"/><rect x="16.5" y="14" width="5" height="7" rx="2"/>',
     route: '<circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/>',
+    cable: '<path d="M17 21v-2a1 1 0 0 1-1-1v-1a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1"/><path d="M19 15V6.5a1 1 0 0 0-7 0v11a1 1 0 0 1-7 0V9"/><path d="M21 21v-2h-4"/><path d="M3 5h4V3"/><path d="M7 5a1 1 0 0 1 1 1v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a1 1 0 0 1 1-1V3"/>',
     duck: '<path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/>',
     ear: '<path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 1 1-7 0"/><path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 1 1 0 4"/>',
     wand: '<path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8 19 13M17.8 6.2 19 5M3 21l9-9M12.2 6.2 11 5"/>',
@@ -228,8 +231,8 @@
   document.querySelectorAll('.ttl[data-ic]').forEach(function (t) { t.insertAdjacentHTML('afterbegin', icon(t.dataset.ic, 13)); });
   // every setting row: an icon tile that says what it is about
   var ROWIC = { swAuto: 'power', langSel: 'globe', swWinCtl: 'monitor', swTaskbar: 'pin', swOsd: 'msg', osdCorner: 'corner', swSounds: 'bell', swMicHk: 'keyboard',
-    swPtt: 'mic', swLow: 'battery', swFull: 'batfull', swSwitch: 'refresh', swCables: 'route', swOnLost: 'refresh', swSwitchMic: 'mic', outOrder: 'list', swMfx: 'wand', swDenoise: 'sparkles', swComp: 'sliders',
-    swMonLive: 'headphones', swRt: 'route', swOled: 'moon', swDuckMedia: 'duck', wheelSeg: 'mouse', swChatHs: 'msg' };
+    swPtt: 'mic', swLow: 'battery', swFull: 'batfull', swSwitch: 'refresh', swCables: 'cable', swOnLost: 'refresh', swSwitchMic: 'mic', outOrder: 'list', swMfx: 'wand', swDenoise: 'sparkles', swComp: 'sliders',
+    swMonLive: 'headphones', swRt: 'route', swOled: 'moon', swMfxSleep: 'moon', swMeters: 'activity', swDuckMedia: 'duck', wheelSeg: 'mouse', swChatHs: 'msg' };
   Object.keys(ROWIC).forEach(function (id) {
     var el = $(id), row = el && el.closest('.row');
     if (row && !row.querySelector('.ri')) row.insertAdjacentHTML('afterbegin', '<span class="ri">' + icon(ROWIC[id], 15) + '</span>');
@@ -239,11 +242,11 @@
     ['eq', 'Еквалайзер', 'гарнітури й вбудовані в неї пресети'],
     ['profiles', 'Профілі', 'набори налаштувань звуку, перемикання з трею'],
     ['volmem', 'Пам’ять гучності', 'повертає гучність програм і мікрофона, якщо її змінить Windows чи інша програма'],
-    ['vst', 'VST-плагіни для мікрофона', 'через віртуальний кабель'],
     ['denoise', 'Шумодав', 'прибирає клавіатуру, вентилятор, вуличний шум · через віртуальний кабель'],
     ['duck', 'Автоприглушення гри', 'коли говорять у чаті'],
+    ['vst', 'VST-плагіни для мікрофона', 'через віртуальний кабель'],
     ['monitor', 'Послухати себе', 'запис і прослуховування свого мікрофона'],
-    ['route', 'Маршрутизація звуку', 'окремий еквалайзер гри, чату й медіа через віртуальні кабелі']
+    ['route', 'Маршрутизація звуку', 'гра, чат і медіа — в окремі віртуальні кабелі, наприклад для стріму']
   ];
   var FEATIC = { eq: 'sliders', profiles: 'user', volmem: 'refresh', vst: 'wand', denoise: 'sparkles', duck: 'duck', monitor: 'ear', route: 'route' };
   var FEAT_BASIC = { eq: 1, profiles: 1, volmem: 1, denoise: 1, duck: 1 };
@@ -276,17 +279,17 @@
     off('profCard', !feat('profiles'));
     off('duckCard', !feat('duck')); off('qDuck', !feat('duck'));
     off('qNs', !feat('denoise')); off('denoiseRow', !feat('denoise')); off('dnBox', !feat('denoise'));
-    off('qRt', !feat('route'));
-    off('quickRow', !feat('duck') && !feat('denoise') && !feat('route'));
+    off('qEq', !feat('eq')); off('qMon', !feat('monitor')); off('hsEq', !feat('eq'));
+    off('quickRow', !feat('duck') && !feat('denoise') && !feat('eq') && !feat('monitor'));
     // an odd tile at the end takes the whole row
     var qv = [].filter.call($('quickRow').children, function (t) { return !t.classList.contains('foff'); });
     qv.forEach(function (t, i) { t.classList.toggle('wide', qv.length % 2 === 1 && i === qv.length - 1); });
     off('profBtn', !feat('profiles'));
     off('vstBox', !feat('vst'));
-    off('mfxCard', !mfx);
+    off('mfxCard', !mfx); off('ordCard', !mfx);
     off('monCard', !feat('monitor'));
-    off('rtCard', !feat('route')); off('rtEntry', !feat('route'));
-    var snd = feat('eq') || feat('profiles') || feat('duck') || feat('route');
+    off('rtCard', !feat('route'));
+    var snd = feat('eq') || feat('profiles') || feat('duck');
     document.querySelector('#nav [data-tab=sound]').classList.toggle('foff', !snd);
     if (!snd && tab === 'sound') show('mix');
     $('featWarn').classList.toggle('hide', mfx || !(c.micFx && c.micFx.on));
@@ -377,16 +380,20 @@
   });
   // ---------- pages inside a tab (Sound, Settings): a "‹" header and only that page's blocks (data-pg);
   //            "" is the tab's own first page ----------
-  var PG = {}, PGT = { order: 'Порядок обробки', cables: 'Кабелі', dev: 'Пристрої', hs: 'Гарнітура', keys: 'Гарячі клавіші', look: 'Вигляд', gen: 'Загальне', about: 'Про програму', help: 'Налаштування й допомога' };
+  var SCR = {}, PG = {}, PGT = { order: 'Порядок обробки', dev: 'Пристрої', hs: 'Гарнітура', keys: 'Гарячі клавіші', look: 'Вигляд', gen: 'Загальне', about: 'Про програму', help: 'Резервна копія й допомога',
+    prof: 'Профілі', duck: 'Автоприглушення гри', 'st-denoise': 'Шумодав', 'st-comp': 'Компресор', 'st-plugins': 'VST-плагіни', 'st-gate': 'Поріг шумодаву', 'st-ceil': 'Межа гучності' };
   function setPage(view, pg) {
     var v = $(view), h = v.querySelector('.phead'), prev = navState();
+    // leaving the first page for one of its pages: its scroll position comes back on return
+    var back = !pg && !!PG[view];
+    if (!PG[view] && pg) SCR[view] = v.scrollTop;
     PG[view] = pg || '';
     v.querySelectorAll('[data-pg]').forEach(function (el) { el.classList.toggle('pgoff', el.dataset.pg !== PG[view]); });
     // a wrapper of blocks (the settings groups) with none of this page's: out too, or its gap stays
     [].forEach.call(v.children, function (w) { if (w.dataset.pg === undefined && !w.classList.contains('phead') && w.querySelector('[data-pg]')) w.classList.toggle('pgoff', !w.querySelector('[data-pg="' + PG[view] + '"]')); });
     h.classList.toggle('hide', !pg);
     if (pg) h.querySelector('.pt').textContent = pg === 'hs' && S && S.device && S.device.name ? S.device.name : tx(PGT[pg]);
-    v.scrollTop = 0;
+    v.scrollTop = back ? (SCR[view] || 0) : 0;
     if (!inShow && view === tab) navPush(prev);
   }
   // ---------- back / forward (mouse buttons 4 and 5): the tabs and pages visited, as in a browser ----------
@@ -421,15 +428,32 @@
       if (t === 'mouseup') { if (e.button === 3) navBack(); else navFwd(); }
     });
   });
-  document.querySelectorAll('.phead .pback').forEach(function (b) { b.onclick = function () { setPage(b.closest('.view').id, ''); }; });
+  // "back" goes where the user came from (a page of the settings opened from the home goes back home)
+  document.querySelectorAll('.phead .pback').forEach(function (b) { b.onclick = function () { navBack(); }; });
+  // a page of another view, as one step of the history
+  function go(v, pg, anchor) {
+    var prev = navState();
+    navMute = true;
+    show(v, pg ? undefined : anchor);
+    if ((PG[v] || '') !== (pg || '')) setPage(v, pg || '');
+    navMute = false;
+    navPush(prev);
+    // a block further down that page (the cables on the devices page)
+    if (pg && anchor && $(anchor)) setTimeout(function () { $(anchor).scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
+  }
   document.querySelectorAll('[data-page]').forEach(function (b) { b.onclick = function () { setPage(b.closest('.view').id, b.dataset.page); }; });
   // the page rows: an icon tile each, as the setting rows have (About — the app mark)
-  var PGIC = { order: 'list', cables: 'route', dev: 'speaker', hs: 'headphones', keys: 'keyboard', look: 'palette', gen: 'toggle', help: 'help' };
+  var PGIC = { order: 'list', cables: 'cable', dev: 'speaker', hs: 'headphones', keys: 'keyboard', look: 'palette', gen: 'toggle', help: 'help', tray: 'window', prof: 'user' };
   document.querySelectorAll('[data-page]').forEach(function (b) {
     var ic = b.dataset.page === 'about' ? '<svg class="tic" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 21 20Q12 14 3 20Z" fill="currentColor"/></svg>' : icon(PGIC[b.dataset.page], 15);
     b.insertAdjacentHTML('afterbegin', '<span class="ri">' + ic + '</span>');
   });
+  [['hsEq', 'sliders'], ['hsOrder', 'list']].forEach(function (d) { $(d[0]).insertAdjacentHTML('afterbegin', '<span class="ri">' + icon(d[1], 15) + '</span>'); });
   setPage('sound', ''); setPage('settings', ''); setPage('micTab', '');
+  $('outMore').onclick = function () { go('settings', 'hs'); };
+  $('micMore').onclick = function () { go('micTab', ''); };
+  $('hsEq').onclick = function () { go('sound', ''); };
+  $('hsOrder').onclick = function () { go('settings', 'dev'); };
   $('pinBtn').onclick = function () { if (S) patch({ keepOpen: !S.cfg.keepOpen }); };
   document.querySelectorAll('[data-url]').forEach(function (b) { b.onclick = function () { api('/api/open', { url: b.dataset.url }); }; });
 
@@ -799,8 +823,10 @@
   }
 
   // ---------- швидкі перемикачі ----------
+  // where a "›" leads: the view and its page
+  var GOTO = { mfxCard: ['micTab', ''], monCard: ['micTab', ''], duckCard: ['sound', ''], rtCard: ['settings', 'dev'], eqCard: ['sound', ''], profCard: ['sound', ''] };
   document.querySelectorAll('[data-goto]').forEach(function (b) {
-    b.onclick = function (e) { e.stopPropagation(); var id = b.dataset.goto; if (id === 'rtCard') { show('sound'); setPage('sound', 'cables'); } else show(id === 'mfxCard' ? 'micTab' : 'sound', id); };
+    b.onclick = function (e) { e.stopPropagation(); var g = GOTO[b.dataset.goto] || ['sound', '']; go(g[0], g[1], b.dataset.goto); };
   });
   // вимикаємо лише шумодав: обробка (і кабель, який обрано мікрофоном у Discord) лишається
   function quickNs() {
@@ -814,8 +840,8 @@
     try { prev = +localStorage.getItem('duckPrev') || 60; } catch (x) { }
     if (l < 100) { try { localStorage.setItem('duckPrev', l); } catch (x) { } patch({ duckLevel: 100 }); } else patch({ duckLevel: prev });
   }
-  function quickRt() { $('swRt').onclick(); }
-  [['qNs', quickNs], ['qDuck', quickDuck], ['qRt', quickRt]].forEach(function (d) {
+  function quickMon() { $('swMonLive').onclick(); }
+  [['qNs', quickNs], ['qDuck', quickDuck], ['qMon', quickMon], ['qEq', function () { go('sound', ''); }]].forEach(function (d) {
     var el = $(d[0]);
     el.onclick = function () { if (S) d[1](); };
     el.onkeydown = function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target === el) { e.preventDefault(); if (S) d[1](); } };
@@ -979,7 +1005,7 @@
     var mrow = function (title, sub, btn) { return '<div class="row aeq"><span class="ri">' + icon('layers', 15) + '</span><div class="grow"><div>' + title + '</div><div class="sub">' + sub + '</div></div>' + btn + '</div>'; };
     if (md.busy) {
       // installing or removing: the audio services restart and the device is gone for a few seconds
-      h = '<div style="margin-bottom:8px">' + mrow(tx('Модуль Arcmix'), tx(md.busy === 'install' ? 'встановлюю на «%s» — звук на кілька секунд зникне' : 'прибираю з «%s» — звук на кілька секунд зникне').replace('%s', esc(md.busyName || dn)), '<button class="chip sm" disabled>…</button>') + '</div>';
+      h = '<div style="margin-bottom:8px">' + mrow(tx('Модуль Arcmix'), tx(md.busy === 'install' ? 'встановлюю на «%s»: підтвердіть дозвіл у вікні Windows, потім звук на кілька секунд зникне' : 'прибираю з «%s»: підтвердіть дозвіл у вікні Windows, потім звук на кілька секунд зникне').replace('%s', esc(md.busyName || dn)), '<button class="chip sm" disabled aria-label="' + tx('Зачекайте') + '"><span class="spin"></span></button>') + '</div>';
     } else if (!a.dev && (md.inst || md.free)) {
       // the Arcmix module: on any device without Equalizer APO
       h = md.inst
@@ -1261,6 +1287,7 @@
     var k = hwOn ? 'hw' : eqP;
     $('eqDropI').innerHTML = picon(hwOn ? 'game' : presetIcon(k));
     $('eqDropT').textContent = hwOn ? tx('Пресети, вбудовані в гарнітуру') : presetLabel(k) + (userChanged() ? ' •' : '');
+    $('qEqV').textContent = $('rvHsEq').textContent = hwOn ? tx('Пресети гарнітури') : presetLabel(k);
     if (!$('eqPop').classList.contains('off')) eqPopRender();
     renderBar();
   }
@@ -1418,6 +1445,7 @@
     else if (d.active) { st.textContent = tx('У чаті говорять — гру приглушено'); st.className = 'sub st-ok'; }
     else { st.textContent = tx('У чаті тиша — гра звучить як завжди'); st.className = 'sub'; }
     $('qDuck').classList.toggle('on', l < 100); $('qDuck').setAttribute('aria-checked', l < 100);
+    $('qDuck').classList.toggle('live', l < 100 && !!d.watching);
     $('qDuckV').textContent = l >= 100 ? tx('Вимкнено') : (d.active ? tx('приглушено') : tx('до %s').replace('%s', l + '%'));
     // Windows сама приглушує інші звуки під час дзвінків — показуємо, щоб не плутати з ChatMix
     var wc = s.winCall || {}, amt = wc.pref === 3 ? '' : (wc.pref === 0 ? '−100 %' : wc.pref === 2 ? '−50 %' : '−80 %');
@@ -1448,6 +1476,11 @@
     })();
   }
   $('winDuckGo').onclick = function () { api('/api/winducking', {}); };
+  // the tile: the chat sound, green while it ducks the game
+  function duckTileDraw(d) {
+    $('qDuckLvl').style.width = (d.watching ? pct60(smooth('tduck', d.db)) : 0) + '%';
+    $('qDuckLvl').style.background = d.voice ? 'var(--okc)' : 'var(--ol)';
+  }
 
   // ---------- маршрутизація та обробка мікрофона ----------
   var DEVS = null, devsCb = [], devsRetry = 0;
@@ -1466,7 +1499,9 @@
       var l = devsCb; devsCb = []; l.forEach(function (f) { f(); });
     }).catch(function () { });
   }
-  function virt() { return ((DEVS && DEVS.render) || []).filter(function (d) { return d.virtual; }); }
+  // virtual cables; a vendor mixer's virtual inputs (SteelSeries Sonar) are not cables: what plays there the mixer
+  // plays again to the headset
+  function virt() { return ((DEVS && DEVS.render) || []).filter(function (d) { return d.virtual && !/sonar/i.test(d.name); }); }
   // a cable switched off in Windows is listed too: picking it switches it on (audio::enable_cable)
   function cabName(d) { return d.name + (d.off ? ' · ' + tx('вимкнено у Windows') : ''); }
   function opt(v, label, cur, dis) { return '<option value="' + esc(v) + '"' + (v === cur ? ' selected' : '') + (dis ? ' disabled' : '') + '>' + esc(label) + '</option>'; }
@@ -1480,6 +1515,7 @@
     if (!p || !p.on) return [tx('Вимкнено'), ''];
     if (p.err) return [tx('Помилка') + ': ' + (p.hint ? tx(p.hint) : p.err), 'st-err'];
     if (!ready) return [tx('Оберіть віртуальний кабель'), ''];
+    if (p.asleep) return [tx('Пауза: мікрофон зараз ніхто не слухає'), ''];
     if (p.running) return [tx('Працює') + ' · ' + tx('затримка') + ' ~' + p.latency + ' ' + tx('мс'), 'st-ok'];
     return [tx('Запуск…'), ''];
   }
@@ -1497,16 +1533,33 @@
   // settings in a fixed layout; the processing order is a setting of its own (micTab page "order")
   var STAGES = ['denoise', 'comp', 'plugins', 'gate'], STAGE_N = { denoise: 'Шумодав', plugins: 'VST-плагіни', gate: 'Поріг шумодаву', comp: 'Компресор' };
   var ordSig = '', ordDrag = false;
-  function renderOrder(o) {
+  // a stage: on or off, and what it does now
+  function stageInfo(k, s) {
+    var mf = s.cfg.micFx || {}, nv = s.nv || {};
+    if (k === 'denoise') return [!!mf.denoise, mf.denoise ? (mf.denoiseKind === 'nv' && nv.state === 'ready' ? 'NVIDIA RTX · ' + (mf.nvStrength == null ? 100 : mf.nvStrength) + '%' : 'RNNoise') : tx('Вимк.')];
+    if (k === 'comp') return [!!mf.comp, mf.comp ? dbLabel(mf.compDb == null ? -24 : mf.compDb) + ' · ' + (mf.compRatio || 3) + ':1' : tx('Вимк.')];
+    if (k === 'plugins') {
+      var on = (mf.plugins || []).filter(function (x) { return x.on; }).map(function (x) { return x.id; });
+      var names = (s.vst || []).filter(function (v) { return on.indexOf(v.id) >= 0; }).map(function (v) { return v.name; });
+      return [names.length > 0, names.length ? names.join(', ') : tx('Вимк.')];
+    }
+    var g = mf.gate == null ? -100 : mf.gate;
+    return [g > -80, dbLabel(g, g <= -80)];
+  }
+  function renderOrder(o, s) {
     var l = [];
     (o || []).concat(STAGES).forEach(function (k) { if (STAGES.indexOf(k) >= 0 && l.indexOf(k) < 0) l.push(k); });
-    $('ordSum').textContent = l.map(function (k) { return tx(STAGE_N[k]); }).join(' → ');
-    var sig = l.join() + I18.lang;
+    // a stage whose feature is off is not in the chain
+    l = l.filter(function (k) { return !(k === 'denoise' && !feat('denoise')) && !(k === 'plugins' && !feat('vst')); });
+    var info = l.map(function (k) { return stageInfo(k, s); });
+    var sig = JSON.stringify([l, info, I18.lang]);
     if (ordDrag || sig === ordSig) return;
     ordSig = sig;
     $('ordList').innerHTML = l.map(function (k, i) {
-      return '<div class="od" data-id="' + k + '"><button class="dh" data-act="grip" aria-label="' + esc(tx('Перетягнути')) + ' ' + esc(tx(STAGE_N[k])) + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg></button><span class="pn">' + (i + 2) + '</span><div class="dn"><span class="t">' + tx(STAGE_N[k]) + '</span></div></div>';
+      return '<div class="od" data-id="' + k + '"><button class="dh" data-act="grip" aria-label="' + esc(tx('Перетягнути')) + ' ' + esc(tx(STAGE_N[k])) + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg></button><span class="pn">' + (i + 2) + '</span>' +
+        '<button class="dn go" data-st="' + k + '"><span class="sdot' + (info[i][0] ? ' on' : '') + '"></span><span class="t">' + tx(STAGE_N[k]) + '</span><span class="v">' + esc(info[i][1]) + '</span>' + icon('chev', 13) + '</button></div>';
     }).join('');
+    $('ordList').querySelectorAll('[data-st]').forEach(function (b) { b.onclick = function () { setPage('micTab', 'st-' + b.dataset.st); }; });
     $('ordList').querySelectorAll('.dh').forEach(function (h) {
       listDrag(h, $('micTab'), function (busy) { ordDrag = busy; }, function (ids) {
         [].forEach.call($('ordList').children, function (r, i) { r.querySelector('.pn').textContent = i + 2; });
@@ -1533,6 +1586,7 @@
     p.classList.remove('off');
   };
   $('ordReset').onclick = function () { ordSig = ''; api('/api/micfx', { order: [] }); };
+  document.querySelector('#ordCard [data-st=ceil]').onclick = function () { setPage('micTab', 'st-ceil'); };
   // a short list reordered by a row's handle: the neighbours move around the held row (the held one
   // stays in the DOM, so its pointer capture lasts); ↑ / ↓ on the handle move it one place
   function listDrag(h, scroller, busy, done) {
@@ -1625,15 +1679,12 @@
       nvSl.set(nst); if (!nvSl.busy()) $('nvStrV').textContent = nst + '%';
     }
     $('qNs').classList.toggle('on', !!(mf.on && mf.denoise)); $('qNs').setAttribute('aria-checked', !!(mf.on && mf.denoise));
-    $('qNsV').textContent = !(mf.on && mf.denoise) ? tx('Вимкнено') : cableTrouble(s) ? tx('Немає кабелю') : (s.micFx && s.micFx.running ? (kind === 'nv' && nv.state === 'ready' ? 'NVIDIA RTX' : 'RNNoise') : (s.micFx && s.micFx.err ? tx('Помилка') : tx('Запуск…')));
-    // routing: on, and which categories play through a cable
-    var rcq = c.route || {}, rcats = ['game', 'chat', 'media'].filter(function (k) { return rcq[k] && !(mf.on && rcq[k] === mf.out); });
-    $('qRt').classList.toggle('on', !!rcq.on); $('qRt').setAttribute('aria-checked', !!rcq.on);
-    $('qRtV').textContent = !rcq.on ? tx('Вимкнено') : (s.route && s.route.running ? rcats.map(function (k) { return tx({ game: 'Гра', chat: 'Чат', media: 'Медіа' }[k]); }).join(', ') : (s.route && s.route.err ? tx('Помилка') : tx('Запуск…')));
-    $('rtSum').textContent = $('qRtV').textContent;
+    $('qNs').classList.toggle('live', !!(mf.on && mf.denoise && s.micFx && s.micFx.running) && !cableTrouble(s));
+    $('qNsV').textContent = !(mf.on && mf.denoise) ? tx('Вимкнено') : cableTrouble(s) ? tx('Немає кабелю') : (s.micFx && s.micFx.asleep ? tx('пауза') : s.micFx && s.micFx.running ? (kind === 'nv' && nv.state === 'ready' ? 'NVIDIA RTX' : 'RNNoise') : (s.micFx && s.micFx.err ? tx('Помилка') : tx('Запуск…')));
     $('mfxNoCable').classList.toggle('hide', !noCable);
     $('vstSafe').classList.toggle('hide', !s.cfg.vstSafe);
     $('mfxBody').classList.toggle('hide', !mf.on || noCable);
+    $('ordCard').classList.toggle('hide', !mf.on || noCable);
     var used = [rc.on && rc.game, rc.on && rc.chat, rc.on && rc.media];
     if (have) {
       var md = c.micDev || '';
@@ -1650,7 +1701,7 @@
     compDbSl.set(cd); if (!compDbSl.busy()) $('compDbV').textContent = dbLabel(cd);
     compRatioSl.set(cr); if (!compRatioSl.busy()) $('compRatioV').textContent = cr / 10 + ':1';
     compGainSl.set(cg); if (!compGainSl.busy()) $('compGainV').textContent = '+' + dbLabel(cg);
-    renderOrder(mf.order);
+    renderOrder(mf.order, s);
     renderVst(s);
     t = rc.on && c.cables === false ? [tx('Вимкнено разом з віртуальними кабелями'), ''] : pipeText(s.route, ['game', 'chat', 'media'].some(function (k) { return rc[k] && !(mf.on && rc[k] === mf.out); }));
     $('rtStatus').textContent = t[0]; $('rtStatus').className = 'sub ' + t[1];
@@ -1739,8 +1790,8 @@
     var cl = (S && S.cable) || {}; if (cl.out) api('/api/micfx', { on: true, out: cl.out });
   };
   $('swRt').onclick = function () {
-    var rc = S.cfg.route || {}, o = { on: !rc.on };
-    if (o.on && !rc.game && !rc.chat && !rc.media) { // самі обираємо вільні кабелі: перший — грі, другий — чату, третій — медіа
+    var rc = S.cfg.route || {}, o = { on: !rc.on }, has = function (id) { return !!id && virt().some(function (d) { return d.id === id; }); };
+    if (o.on && !has(rc.game) && !has(rc.chat) && !has(rc.media)) { // free cables picked here: the first for the game, the second for chat, the third for media (also when the ones picked before are gone)
       var mo = (S.cfg.micFx || {}).on ? (S.cfg.micFx || {}).out : '', free = virt().filter(function (d) { return d.id !== mo; });
       if (free[0]) o.game = free[0].id;
       if (free[1]) o.chat = free[1].id;
@@ -1783,6 +1834,13 @@
       $('vuDbIn').textContent = m.ok ? dbTxt(db) + ' ' + tx('дБ') : '—';
       $('vuDbOut').textContent = run ? dbTxt(m.out) + ' ' + tx('дБ') : '—';
     })();
+  }
+
+  // the tile: the microphone before processing (dim) and what is left after it
+  function nsTileDraw(m) {
+    var run = !!m.run && !!m.ok;
+    $('qNsIn').style.width = (run ? pct60(smooth('tin', m.in)) : 0) + '%';
+    $('qNsOut').style.width = (run ? pct60(smooth('tout', m.out)) : 0) + '%';
   }
 
   // ---------- VST-плагіни ----------
@@ -1837,6 +1895,8 @@
     $('monBar').style.width = ((rec || play) ? Math.round(m.progress * 100) : 0) + '%';
     $('monProg').classList.toggle('idle', !rec && !play);
     setSw('swMonLive', live);
+    $('qMon').classList.toggle('on', live); $('qMon').setAttribute('aria-checked', live);
+    $('qMonV').textContent = live ? tx('наживо') : tx('Вимкнено');
     $('monHint').textContent = (m.tap ? tx('Чути так, як вас чують інші — після обробки мікрофона.') : tx('Чути мікрофон без обробки. Увімкніть обробку нижче, щоб почути шумодав.')) + ' ' + tx('Слухайте в навушниках, щоб не було луни.');
   }
   $('monRec').onclick = function () { api('/api/monitor', { op: S && S.monitor && S.monitor.mode === 'record' ? 'stop' : 'record' }); };
@@ -1919,9 +1979,12 @@
   $('swAuto').onclick = function () { patch({ autostart: !S.cfg.autostart }); };
   $('swFull').onclick = function () { patch({ fullNotify: !S.cfg.fullNotify }); };
   $('swOled').onclick = function () { patch({ customOled: !S.cfg.customOled }); };
+  $('swMeters').onclick = function () { patch({ homeMeters: S.cfg.homeMeters === false }); };
+  $('swMfxSleep').onclick = function () { api('/api/micfx', { sleep: (S.cfg.micFx || {}).sleep === false }); };
   $('swSwitch').onclick = function () { patch({ autoSwitch: !S.cfg.autoSwitch }); };
   $('swTaskbar').onclick = function () { patch({ taskbar: !S.cfg.taskbar }); };
-  $('trayShow').querySelectorAll('button').forEach(function (b) { b.onclick = function () { patch({ trayBattery: b.dataset.v === 'battery', battIcon: b.dataset.v === 'both' }); }; });
+  $('battStyle').querySelectorAll('button').forEach(function (b) { b.onclick = function () { patch({ battGlyph: b.dataset.v === 'glyph' }); }; });
+  $('trayShow').querySelectorAll('button').forEach(function (b) { b.onclick = function () { patch({ trayBattery: b.dataset.v === 'battery' }); }; });
   $('swSwitchMic').onclick = function () { patch({ switchMic: !S.cfg.switchMic }); };
   $('swCables').onclick = function () { patch({ cables: S.cfg.cables === false }); };
   $('swOnLost').onclick = function () { patch({ outOnLost: S.cfg.outOnLost === false }); };
@@ -2147,7 +2210,7 @@
     } else if (obStep === 2) { // EQ Windows everywhere: the Arcmix module on every output device by itself (apoAuto)
       var md = S.apoMod || {}, auto = S.cfg.apoAuto !== false;
       obModSig = obModKey(S);
-      var st = md.busy ? tx(md.busy === 'install' ? 'встановлюю на «%s» — звук на кілька секунд зникне' : 'прибираю з «%s» — звук на кілька секунд зникне').replace('%s', md.busyName || '')
+      var st = md.busy ? tx(md.busy === 'install' ? 'встановлюю на «%s»: підтвердіть дозвіл у вікні Windows, потім звук на кілька секунд зникне' : 'прибираю з «%s»: підтвердіть дозвіл у вікні Windows, потім звук на кілька секунд зникне').replace('%s', md.busyName || '')
         : md.allDevs && md.onDevs >= md.allDevs ? tx('працює на всіх пристроях виводу')
         : md.onDevs ? tx('працює на %s з %s пристроїв виводу').replace('%s', md.onDevs).replace('%s', md.allDevs) : '';
       b.innerHTML = '<h1>' + tx('Еквалайзер для всього звуку') + '</h1><div class="sub" style="font-size:13px;line-height:1.45">' + tx('Крива «EQ Windows» діє на все, що грає, на будь-якому пристрої — без кабелів і без затримки. Для цього Arcmix сам додає свій модуль у звук Windows на всі пристрої виводу, а згодом і на нові. Windows просить дозволу адміністратора — один раз на всі пристрої, що є зараз; звук на мить зникне.') + '</div>' +
@@ -2179,7 +2242,11 @@
   var MS = {}, MV = {}, SM = {}, meterRaf = 0;
   // a fast rise and a smooth fall, as level meters do
   function smooth(k, v) { var o = SM[k]; SM[k] = o === undefined || v >= o ? v : o + (v - o) * 0.2; return SM[k]; }
-  var DRAW = { mic: micMeterDraw, fx: vuDraw, duck: duckDraw };
+  var DRAW = {
+    mic: micMeterDraw,
+    fx: function (m) { if (tab === 'micTab') vuDraw(m); else nsTileDraw(m); },
+    duck: function (d) { if (tab === 'sound') duckDraw(d); else duckTileDraw(d); }
+  };
   function meterLoop() {
     var any = false;
     for (var k in MS) { any = true; if (MV[k]) DRAW[k](MV[k]); }
@@ -2196,7 +2263,9 @@
   var tMon = 0;
   function pollers() {
     var vis = !document.hidden;
-    var wantMic = vis && tab === 'mix', wantFx = vis && tab === 'micTab', wantDuck = vis && tab === 'sound';
+    // the Mix tab: the microphone level, and the noise and ducking tiles while they work (unless turned off)
+    var home = vis && tab === 'mix' && !!S && S.cfg.homeMeters !== false;
+    var wantMic = home, wantFx = vis && tab === 'micTab' || home && $('qNs').classList.contains('live'), wantDuck = vis && tab === 'sound' || home && $('qDuck').classList.contains('live');
     var m = S && S.monitor, wantMon = vis && m && (m.mode === 'record' || m.mode === 'play');
     if (!wantMic && MS.mic) $('micLvl').style.width = '0';
     if (!wantFx && MS.fx) { $('vuIn').style.width = '0'; $('vuOut').style.width = '0'; }
@@ -2233,19 +2302,21 @@
     $('winNote').classList.toggle('hide', !isWin); $('oledNote').classList.toggle('hide', c.theme !== 'black');
     $('modeLbl').classList.toggle('hide', fixedMode); $('modeSeg').classList.toggle('hide', fixedMode);
     $('oledRow').classList.toggle('hide', modeOf(c) !== 'dark'); setSw('swOled', !!c.customOled);
+    setSw('swMeters', c.homeMeters !== false); setSw('swMfxSleep', (c.micFx || {}).sleep !== false); $('mix').classList.toggle('nolvl', c.homeMeters === false);
     $('slotA').style.background = c.customA || '#FF6A3D'; $('slotB').style.background = c.customB || '#3DC8FF'; $('slotS').style.background = c.customS || '#151618';
     // the look: corners
     document.documentElement.dataset.corn = c.corners || 'round';
     pressed('cornSeg', c.corners || 'round');
     if (c.theme === 'custom' && !(hH.busy() || hS.busy() || hL.busy())) syncHSL();
     // the tray icon: what it shows, and the wheel over it flips that for a while (or moves the balance)
-    pressed('trayShow', c.battIcon ? 'both' : c.trayBattery ? 'battery' : 'icon');
-    $('trayBothHint').classList.toggle('hide', !c.battIcon);
-    // the battery in an icon of its own: the wheel has nothing to flip (tray.rs wheel_mode)
+    pressed('trayShow', c.trayBattery ? 'battery' : 'icon');
+    // when the tray shows the battery at all (tray.rs batt_source)
+    $('trayHint').textContent = c.trayBattery ? tx('заряд, поки грає пристрій, що його повідомляє: увімкнена гарнітура чи Bluetooth-навушники; інакше — знак') : '';
+    $('trayHint').classList.toggle('hide', !c.trayBattery);
+    $('battStyleRow').classList.toggle('hide', !c.trayBattery);
+    pressed('battStyle', c.battGlyph ? 'glyph' : 'num');
     var wm = c.wheelMode || 'battery';
-    if (c.battIcon && wm === 'battery') wm = 'off';
     pressed('wheelSeg', wm);
-    $('wheelSeg').querySelector('[data-v=battery]').classList.toggle('hide', !!c.battIcon);
     $('wheelSeg').querySelector('[data-v=battery]').textContent = tx(c.trayBattery ? 'Іконка' : 'Заряд');
     $('wheelHint').textContent = { battery: tx(c.trayBattery ? 'Прокрутка над іконкою ненадовго показує іконку замість заряду.' : 'Прокрутка над іконкою ненадовго показує заряд.'), balance: tx('Прокрутка над іконкою змінює баланс гра / чат, як повзунок у вікні.'), off: '' }[wm];
     pressed('modeSeg', c.mode === 'light' || c.mode === 'auto' ? c.mode : 'dark'); pressed('sideSeg', c.sidetone); $('offDropT').textContent = offLabel(c.autoOff); pressed('gainSeg', c.micGain); setSw('swLed', c.muteLed !== 0);
@@ -2269,7 +2340,11 @@
     renderFeatures(c);
     renderMon(s.monitor);
     $('ver').textContent = tx('Версія') + ' ' + s.version;
-    $('grpAbout').querySelector('.sub').textContent = tx('Версія') + ' ' + s.version;
+    $('rvAbout').textContent = s.version;
+    $('rvDev').textContent = tx(c.autoSwitch ? 'Увімк.' : 'Вимк.');
+    var th = THEMES.filter(function (t) { return t.k === c.theme; })[0];
+    $('rvLook').textContent = th ? tx(th.n) : '';
+    $('rvHs').textContent = s.connected && s.haveBattery ? s.battery + '%' : '';
     var dev = s.device || {};
     renderOut(s);
     setTtl('devTitle', dev.name || tx('Гарнітура'));
@@ -2294,9 +2369,10 @@
     if (canSW) {
       $('eqTarget').querySelector('[data-t=hw]').classList.toggle('hide', !hwEq);
       $('eqTarget').querySelector('[data-t=hw]').textContent = 'EQ' + (dev.name ? ' ' + dev.name : '');
-      ['game', 'chat', 'media'].forEach(function (k) { $('eqTarget').querySelector('[data-t=' + k + ']').classList.toggle('hide', !rcfg[k]); });
+      // the curves per group through the cables are left out: the headset's own and the one of everything
+      ['game', 'chat', 'media'].forEach(function (k) { $('eqTarget').querySelector('[data-t=' + k + ']').classList.add('hide'); });
     }
-    if (eqT !== 'hw' && (!canSW || !rcfg[eqT])) setTarget('hw');
+    if (eqT !== 'hw' && (eqT !== 'all' || !canSW)) setTarget('hw');
     // no headset equalizer: the software one of everything
     if (eqT === 'hw' && !hwEq && canSW) setTarget('all');
     // the headset is off or gone: what plays is the curve of everything, so it comes into focus (once
@@ -2321,21 +2397,27 @@
     $('devCard').classList.toggle('hide', !s.connected);
     // the headset's settings page: named after it, only while it is connected
     $('grpHs').classList.toggle('hide', !s.connected);
+    $('outMore').classList.toggle('hide', !s.connected);
     $('grpHs').querySelector('.grow div').textContent = (s.device || {}).name || tx('Гарнітура');
     if (!s.connected && PG.settings === 'hs') setPage('settings', '');
     $('battCard').classList.toggle('hide', !(s.connected && s.haveBattery));
     $('devNone').classList.toggle('hide', !!s.connected);
     renderGen(dev.native === false ? (dev.settings || []) : []);
     var bo = s.out || {}, bt = !bo.headset && bo.batt >= 0;
-    var pct = bt ? bo.batt : s.battery, lvl = pct / 25;
+    var pct = bt ? bo.batt : s.battery;
     // the colours of the headset LED (as icon::battery_color): older Arctis — red below 20 %, yellow below 50 %;
     // Nova — red up to 5 %, orange up to 14 %, yellow below 50 %
     var nova = !bt && /nova/i.test(dev.name || '');
     var bcol = (nova ? pct <= 5 : pct < 20) ? 'var(--red)' : nova && pct <= 14 ? 'var(--orange)' : pct < 50 ? 'var(--warn)' : 'var(--g)';
-    document.querySelectorAll('#bchip .bc').forEach(function (b, i) { b.style.fill = i < lvl ? bcol : 'var(--tr)'; });
+    // filled smoothly to the level: a headset that reports 4 steps and one that reports every percent read alike;
+    // charging — the rest of it breathes towards full
+    var bw = pct > 0 ? Math.max(1.2, 15.4 * Math.min(100, pct) / 100) : 0, chg = !bt && !!s.charging;
+    $('bfill').setAttribute('width', bw.toFixed(2)); $('bfill').style.fill = bcol;
+    $('bchg').setAttribute('x', (0.5 + bw).toFixed(2)); $('bchg').setAttribute('width', chg ? (15.4 - bw).toFixed(2) : 0);
+    $('bchg').style.fill = bcol; $('bchg').classList.toggle('on', chg);
     $('bpct').textContent = bt ? bo.batt + '%' : s.connected && s.haveBattery ? s.battery + '%' : '—';
-    // the hours left (or charging) after the charge
-    var hrs = !bt && s.connected && s.haveBattery ? (s.charging ? '⚡ ' + tx('заряджається') : (s.battHours > 0 ? '≈' + (s.battHours >= 10 ? Math.round(s.battHours) : s.battHours) + ' ' + tx('год') : '')) : '';
+    // the hours left after the charge (charging: the battery itself breathes instead)
+    var hrs = !bt && s.connected && s.haveBattery ? (s.charging ? '' : (s.battHours > 0 ? '≈' + (s.battHours >= 10 ? Math.round(s.battHours) : s.battHours) + ' ' + tx('год') : '')) : '';
     $('heroSub').textContent = hrs; $('heroSub').classList.toggle('hide', !hrs);
     if (!dragging) { pos = s.pos; drawPos(pos, !first); }
     var m = s.mic || {};

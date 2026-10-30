@@ -5,6 +5,7 @@ mod activity;
 pub(crate) mod btbatt;
 pub mod com;
 mod duck;
+mod listen;
 pub mod echo;
 mod output;
 pub mod outprio;
@@ -198,6 +199,7 @@ pub fn app_route_ok() -> bool {
 
 pub use activity::{win_call_state, win_ducking_pref};
 pub use duck::duck_meter;
+pub use listen::{cable_idle, watch_cable};
 
 // ---------- the engine thread ----------
 
@@ -531,6 +533,8 @@ pub struct Engine {
     pm: procmeter::ProcMeters,
     act: activity::Activity,
     wincall: activity::WinCall,
+    /// who records from the cable of microphone processing (micFx.sleep)
+    listen: listen::Listen,
     devs: output::DevWatch,
     sig: String,
     mic_hold_log: Option<Instant>,
@@ -580,6 +584,7 @@ fn engine_loop(rx: Receiver<Msg>) {
         pm: procmeter::ProcMeters::default(),
         act: activity::Activity::default(),
         wincall: activity::WinCall::default(),
+        listen: listen::Listen::default(),
         devs: output::DevWatch::default(),
         sig: String::new(),
         mic_hold_log: None,
@@ -639,6 +644,7 @@ fn engine_loop(rx: Receiver<Msg>) {
                     }
                 });
                 e.pm.sync(false);
+                e.listen.stop();
                 let _ = done.send(());
                 return;
             }
@@ -663,6 +669,7 @@ fn engine_loop(rx: Receiver<Msg>) {
             util::safely("devices", || {
                 e.refresh_out();
                 e.refresh_outs(false);
+                e.listen_look(true); // the cable may have come, gone or got a new id
             });
             // a receiver plugged in brings audio devices: its HID side is looked for now
             crate::devs::hid::rescan();
@@ -682,6 +689,7 @@ fn engine_loop(rx: Receiver<Msg>) {
                 e.refresh_cable();
                 e.refresh_out();
                 e.watch_win_calls(); // the default output may have changed
+                e.listen_look(false); // the events may have been missed
             });
             if e.ticks % 5 == 0 {
                 // every 15 s: the enumerator may have been recreated

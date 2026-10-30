@@ -221,6 +221,7 @@ struct MicFxReq {
     #[serde(rename = "compGain")]
     comp_gain: Option<f64>,
     order: Option<Vec<String>>,
+    sleep: Option<bool>,
 }
 
 fn route(r: &Request, s: &mut TcpStream) -> Reply {
@@ -566,6 +567,9 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
                     if let Some(x) = v.order {
                         m.order = x.into_iter().filter(|n| crate::dsp::MIC_STAGES.contains(&n.as_str())).collect();
                     }
+                    if let Some(x) = v.sleep {
+                        m.sleep = x;
+                    }
                 });
                 if let Some(x) = &v.out {
                     audio::enable_cable(x, true);
@@ -748,6 +752,8 @@ fn meters(s: &mut TcpStream, kind: &str) {
         return;
     }
     let r1 = |v: f64| (v * 10.0).round() / 10.0;
+    // the processing levels are shown: it does not sleep meanwhile
+    let _watch = (kind == "fx").then(crate::router::FxWatch::new);
     loop {
         if fly::HIDDEN.load(Ordering::Relaxed) {
             return;

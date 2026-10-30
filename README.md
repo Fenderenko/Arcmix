@@ -8,10 +8,10 @@ processing and headset settings in one window next to the clock.
 Arcmix started from the idea of Swiftlyx's [OpenChatMix](https://github.com/Swiftlyx/OpenChatMix); this repository is a fork of it.
 
 <p align="center">
-  <img src="docs/main.png?v=5" width="200" alt="Mix: output and microphone, game / chat balance, quick tiles and app groups">
-  <img src="docs/equalizer.png?v=5" width="200" alt="Equalizer: EQ Windows with a preset and AutoEQ">
-  <img src="docs/microphone.png?v=5" width="200" alt="Microphone processing: level, noise suppression, compressor, VST plugins">
-  <img src="docs/settings.png?v=5" width="200" alt="Settings: devices, headset, hotkeys, appearance, general">
+  <img src="docs/main.png?v=6" width="200" alt="Mix: output and microphone, game / chat balance, quick tiles and app groups">
+  <img src="docs/equalizer.png?v=6" width="200" alt="Equalizer: EQ Windows with a preset and AutoEQ">
+  <img src="docs/microphone.png?v=6" width="200" alt="Microphone: the level and the processing chain">
+  <img src="docs/settings.png?v=6" width="200" alt="Settings: general, devices, headset, hotkeys, look; about, backup and help">
 </p>
 
 ## Features
@@ -23,23 +23,23 @@ Arcmix started from the idea of Swiftlyx's [OpenChatMix](https://github.com/Swif
 - **Equalizer presets.** Built-in presets, your own presets (edit, save, rename, delete) and the headset's own equalizer with the presets built into it, where it has them. With [Equalizer APO](https://sourceforge.net/projects/equalizerapo/) installed, Arcmix drives it too and adds AutoEQ correction for your headphone model.
 - **Microphone.** Volume, mute hotkey, push-to-talk on a key or a mouse button, soft sound cues and a mute badge on the tray icon.
 - **Hear yourself.** Record 5 seconds and play them back, or listen to your microphone live, after processing.
-- **Microphone processing.** Neural noise suppression — light RNNoise, or NVIDIA's on RTX graphics cards (with the NVIDIA Audio Effects SDK installed), which also removes room echo, with adjustable strength — a compressor, a noise gate, a loudness ceiling and 64-bit VST2 / VST3 plugins, in an order you can change. Needs a virtual audio cable, e.g. the free [VB-CABLE](https://vb-audio.com/Cable/) or Virtual Audio Cable; a cable disabled in Windows is switched on when you pick it.
+- **Microphone processing.** Neural noise suppression — light RNNoise, or NVIDIA's on RTX graphics cards (with the NVIDIA Audio Effects SDK installed), which also removes room echo, with adjustable strength — a compressor, a noise gate, a loudness ceiling and 64-bit VST2 / VST3 plugins, in an order you can change. Needs a virtual audio cable, e.g. the free [VB-CABLE](https://vb-audio.com/Cable/) or Virtual Audio Cable; a cable disabled in Windows is switched on when you pick it. While no app records from the cable, processing pauses (less load on the CPU, and on the graphics card with NVIDIA) and starts again the moment an app opens the microphone.
 - **Bluetooth headphones battery** in the header, as Windows knows it.
 - **Headset settings.** Battery with alerts and a time estimate, sidetone, auto power-off, mute light and more, depending on the model.
 - **Output devices by priority.** Sound goes to the highest connected device in your list: headset on, to the headset; off, to the next one. The headset microphone can follow it. You choose what happens when a device connects (switch to it if it is higher in the list, always, or never) and when one disconnects.
-- **Audio routing** *(experimental)*. Game, chat and media into separate virtual cables, for streaming or a separate equalizer per group.
+- **Audio routing** *(experimental)*. Game, chat and media into separate virtual cables, e.g. for streaming.
 - **One switch for the virtual cables.** Settings → Devices → *Virtual cables* turns routing and the processed microphone off together: sound and the microphone go direct, the settings stay.
 - **On-screen hint.** Changing the balance or switching the output or input device with hotkeys shows a small hint on the screen.
-- **Tray icon.** The app mark while the balance is equal; two capsules in the theme's game / chat colours once it moves — or the headset battery instead of the mark, or the battery as a second icon of its own (any device that reports it, Bluetooth headphones too). The mouse wheel over it changes the balance or shows the battery.
-- **A compact window.** Four tabs — Mix, Sound, Microphone, Settings; settings open as pages, and the mouse back / forward buttons move through tabs and pages.
+- **Tray icon.** The app mark while the balance is equal; two capsules in the theme's game / chat colours once it moves — or the battery instead of the mark (as a number or a battery), while the device that plays reports one: the headset or Bluetooth headphones. While it charges, the battery pulses towards full. The mouse wheel over the icon changes the balance or shows the battery.
+- **A compact window.** Four tabs — Mix, Sound, Microphone, Settings. Mix: the output and the microphone with their volume, the balance, quick tiles (noise suppression and ducking show their level live) and the apps; Microphone: processing and its chain, each step on a page of its own. Pages open in place, *back* returns to where you were, and the mouse back / forward buttons move through tabs and pages. The live levels can be turned off (Settings → General).
 - **Features you can turn off.** Settings → General → Features: a feature that is off disappears from the window and does not run.
 - **Updates in one click.** Settings → About → *Check for updates* asks GitHub for the latest release; *Update to …* downloads it, puts it in place of `Arcmix.exe` and restarts the app (settings and autostart stay). Nothing is checked on its own.
-- **Portable settings.** Settings → Settings and help → *Settings next to Arcmix.exe* keeps `config.json` and the rest in the app folder instead of `%APPDATA%`.
+- **Portable settings.** Settings → Backup and help → *Settings next to Arcmix.exe* keeps `config.json` and the rest in the app folder instead of `%APPDATA%`.
 - **Themes (Black hole by default, or your own colours), profiles, hotkeys, settings in a file, 9 languages** (English, Українська, Deutsch, Français, Español, Português (Brasil), Polski, Italiano, Türkçe).
 
 ## Download and install
 
-1. Download `Arcmix-1.2.3.zip` from [Releases](../../releases) and unpack it to any folder (e.g. `C:\Programs\Arcmix`).
+1. Download `Arcmix-1.4.2.zip` from [Releases](../../releases) and unpack it to any folder (e.g. `C:\Programs\Arcmix`).
 2. Run `Arcmix.exe`. The exe is not code-signed, so Windows SmartScreen may warn you: click **More info → Run anyway**.
 3. The icon appears in the tray (click it to open the window). A short first-run guide walks through the basics, the equalizer module included.
 
@@ -65,7 +65,7 @@ They can be changed in **Settings → Hotkeys** (click an action, then press the
 **Equalizer.** **Sound → Equalizer**: pick a preset or drag the curve. A changed curve can be saved as a new
 preset; your presets can be overwritten, renamed and deleted. *EQ* with the headset's name is the headset's own
 equalizer; *EQ Windows* is one curve for everything on the output device: the Arcmix module goes on every output
-device by itself (the switch is in the first-run guide; Settings → Settings and help → *Introduction* runs it again).
+device by itself (the switch is in the first-run guide; Settings → Backup and help → *Introduction* runs it again).
 On a headset with its own equalizer, turn on *EQ Windows on the headset* to add both curves.
 
 **Microphone processing** (noise suppression, gate, VST):
@@ -75,7 +75,8 @@ On a headset with its own equalizer, turn on *EQ Windows on the headset* to add 
    use the default microphone hear the processed voice (an app set to a particular microphone needs **CABLE Output**
    picked there). Picking a microphone in Arcmix then changes only what is processed; with processing off, Windows
    gets that microphone back. **Hear yourself** lets you check the voice. The cable adds about 45 ms of latency, noise suppression about 10 ms more.
-   *Processing order* at the end of the chain changes the order of the steps.
+   The *Processing chain* card below sets the order of the steps (drag a row); each step opens on a page of its own.
+   With *Pause while nobody listens to the microphone* on, processing runs only while some app records from the cable.
 
 **Audio routing** *(experimental)*: sends Game, Chat and Media into their own virtual cables, e.g. to capture
 them separately in OBS. Each group needs a free cable. The cable used by microphone processing is never
@@ -136,8 +137,8 @@ Battery, sidetone, the hardware equalizer and other headset settings need the he
 
 ## Known limitations
 
-- **A separate equalizer for game / chat / media** is only possible through audio routing with virtual cables:
-  Windows captures an app's sound after its volume, so the original cannot be muted while a processed copy plays.
+- **There is no separate equalizer for game / chat / media:** Windows captures an app's sound after its volume,
+  so the original cannot be muted while a processed copy plays.
 - **Bluetooth headsets:** when an app opens the headset microphone, Windows switches it to the Hands-Free mode
   (mono, lower quality). That is how Bluetooth works in Windows, not an Arcmix setting.
 - **Vendor headset software** that creates its own virtual devices or changes per-app volume can fight with
@@ -150,12 +151,13 @@ Battery, sidetone, the hardware equalizer and other headset settings need the he
 - **Auto power-off** is the headset's own timer: an Arctis 7 may turn off while quiet music plays (SteelSeries GG
   sees the same). Pick a longer time or *Never*.
 - **Not tested live yet:** audio routing, push-to-talk and the microphone sound cues, the taskbar button,
-  disabling a Windows device from the device list, headsets other than the Arctis 7+ family and the Arctis 7.
+  disabling a Windows device from the device list, the pause of microphone processing, headsets other than the
+  Arctis 7+ family and the Arctis 7.
 - VST plugins must be 64-bit.
 
 ## Troubleshooting
 
-**Settings → Settings and help → Diagnostic report** puts a zip with the log, the crash report and the settings on the
+**Settings → Backup and help → Diagnostic report** puts a zip with the log, the crash report and the settings on the
 desktop. Please attach it when you open an [issue](../../issues).
 
 ## Building from source

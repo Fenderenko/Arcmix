@@ -68,6 +68,8 @@ pub(super) struct DuckGame {
     sav: ISimpleAudioVolume,
     /// game (ChatMix applies too), otherwise media
     game: bool,
+    /// the app, for the log
+    exe: String,
 }
 
 pub(super) struct Ducker {
@@ -304,7 +306,7 @@ impl Engine {
             }
         }
         if cat == "game" || (cat == "media" && d.media) {
-            d.games.push(DuckGame { key: key.into(), sav: s.sav.clone(), game: cat == "game" });
+            d.games.push(DuckGame { key: key.into(), sav: s.sav.clone(), game: cat == "game", exe: exe.into() });
         }
     }
 
@@ -317,12 +319,15 @@ impl Engine {
         if active && d.next.is_none() {
             d.next = Some(Instant::now() + DUCK_TICK);
         }
-        // what is listened to — into the log (only when it changed)
+        // what is listened to and what gets quieter — into the log (only when it changed)
         let names: Vec<&str> = d.meters.iter().map(|m| m.exe.as_str()).collect();
-        let sig = format!("{}|{}", names.join(","), d.games.len());
+        let mut ducked: Vec<&str> = d.games.iter().map(|g| g.exe.as_str()).collect();
+        ducked.sort_unstable();
+        ducked.dedup();
+        let sig = format!("{}|{}", names.join(","), ducked.join(","));
         if active && sig != d.logged {
             d.logged = sig;
-            logf!("duck: listening to {}, {} game/media sessions, level {:.0}%", names.join(", "), d.games.len(), d.level * 100.0);
+            logf!("duck: listening to {}; quieter: {}; level {:.0}%", names.join(", "), ducked.join(", "), d.level * 100.0);
         }
         if !active {
             d.next = None;

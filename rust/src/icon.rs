@@ -1,5 +1,5 @@
-//! Tray icon frames: the app mark in balance, two capsules off it, the battery number morph and the
-//! microphone badge, in one colour. Signed distance fields on a 32x32 grid, rendered at the system icon
+//! Tray icon frames: the app mark in balance, two capsules off it, the battery number morph (or a battery
+//! glyph) and the microphone badge, in one colour. Signed distance fields on a 32x32 grid, rendered at the system icon
 //! size. Also the mark alone (the tray menu).
 
 use std::sync::LazyLock;
@@ -42,6 +42,12 @@ pub struct IconParams {
     /// the game and chat colours of the theme (the capsules off balance)
     pub cg: [u8; 3],
     pub cc: [u8; 3],
+    /// the battery as a battery glyph filled to the level, instead of the number
+    pub glyph: bool,
+    /// the window's corners are round (else sharper)
+    pub round: bool,
+    /// charging: the phase of the pulse towards full, 0..1 (below 0 — not charging)
+    pub charge: f64,
 }
 
 pub fn clampf(v: f64, lo: f64, hi: f64) -> f64 {
@@ -266,6 +272,24 @@ pub(crate) fn battery_color(level: i32, light: bool, nova: bool) -> [f64; 3] {
     }
 }
 
+/// A battery on the 32-unit grid, as the window's icons draw shapes: filled, without an outline — the body a
+/// dim track in ink, filled from the left to `level` % in the LED colour; the corners as the window's (round
+/// or sharper, never square). The fill runs smoothly, so a headset that reports 4 steps and one that reports
+/// every percent read the same way. Distances to the body with its cap, to the fill, and to the rest of the
+/// body (from the fill to full: the charging pulse).
+fn battery_glyph(px: f64, py: f64, level: i32, round: bool) -> (f64, f64, f64) {
+    let (cx, hw, hh) = (14.5, 12.0, 7.5);
+    let r = if round { 3.4 } else { 1.8 };
+    let body = sd_box(px, py, cx, 16.0, hw, hh, r);
+    let cap = sd_box(px, py, cx + hw + 2.3, 16.0, 1.5, 3.4, r.min(1.2));
+    let lv = level.clamp(0, 100) as f64;
+    // a sliver stays visible down to 1 %
+    let end = cx - hw + if lv > 0.0 { (2.0 * hw * lv / 100.0).max(2.0) } else { 0.0 };
+    let fill = if lv > 0.0 { body.max(px - end) } else { 40.0 };
+    let rest = body.max(end - px);
+    (body.min(cap), fill, rest)
+}
+
 /// BGRA (straight alpha), size*size.
 pub fn render(p: &IconParams) -> Vec<u8> {
     let n = p.size;
@@ -276,7 +300,9 @@ pub fn render(p: &IconParams) -> Vec<u8> {
     // at the end of the animation the battery number takes the level colour
     let stat_c = battery_color(p.level, p.light, p.nova);
     let stat_t = smoother((p.bat - 0.75) / 0.25);
-    let num_col = lerp3(ink, stat_c, stat_t);
+    // charging: the number breathes, the glyph's empty part fills and fades towards full
+    let pulse = if p.charge >= 0.0 { 0.5 - 0.5 * (p.charge * std::f64::consts::TAU).cos() } else { 0.0 };
+    let num_col = lerp3(lerp3(ink, stat_c, stat_t), ink, 0.45 * pulse);
     let label = p.level.clamp(0, 100).to_string();
     let glyphs = layout_number(label.as_bytes());
     let morph = p.bat > 0.001;
@@ -303,6 +329,16 @@ pub fn render(p: &IconParams) -> Vec<u8> {
             let mut d = Pix::default();
             if !morph {
                 d.over(col, coverage(sd_m, k));
+            } else if p.glyph {
+                // the mark fades into the battery glyph
+                let t = smoother(p.bat);
+                let (body, fill, rest) = battery_glyph(px, py, p.level, p.round);
+                d.over(col, coverage(sd_m, k) * (1.0 - t));
+                d.over(ink, coverage(body, k) * t * 0.3);
+                d.over(stat_c, coverage(fill, k) * t);
+                if pulse > 0.0 {
+                    d.over(stat_c, coverage(rest, k) * t * 0.55 * pulse);
+                }
             } else {
                 // mark → a ball → digits that thin down from "drops"
                 let ball = (px - 16.0).hypot(py - 16.0) - 8.5;
@@ -378,7 +414,28 @@ mod tests {
 
     fn params(size: usize, bat: f64, light: bool) -> IconParams {
         // the colours of the Black hole theme
-        IconParams { size, pos: 0.0, b: 1.0, bat, level: 75, nova: false, light, mic: 0, cg: [0xE9, 0xEA, 0xEE], cc: [0x8F, 0xB2, 0xE3] }
+        IconParams { size, pos: 0.0, b: 1.0, bat, level: 75, nova: false, light, mic: 0, cg: [0xE9, 0xEA, 0xEE], cc: [0x8F, 0xB2, 0xE3], glyph: false, round: false, charge: -1.0 }
+    }
+
+    #[test]
+    fn the_battery_glyph_fills_to_the_level() {
+        // at 32 px, across the middle: the fill from the left end, the dim track after it
+        let at = |level: i32, x: usize| {
+            let p = IconParams { level, glyph: true, ..params(32, 1.0, false) };
+            let v = render(&p);
+            let o = (16 * 32 + x) * 4;
+            (v[o], v[o + 1], v[o + 2], v[o + 3])
+        };
+        let full = at(100, 24);
+        assert!(full.3 > 200 && full.1 > 150, "full: green to the right end");
+        let quarter = at(25, 24);
+        assert!(quarter.3 > 40 && quarter.3 < 120, "a quarter: only the track at the right end");
+        assert!(at(25, 5).3 > 200 && at(25, 5).2 > 200, "a quarter: red-yellow fill at the left end");
+        assert!(at(1, 3).3 > 120, "1 % still shows a sliver");
+        assert!(at(0, 5).3 < 120, "empty: the track only");
+        // charging: the empty part lights up towards full
+        let p = IconParams { level: 25, glyph: true, charge: 0.5, ..params(32, 1.0, false) };
+        assert!(render(&p)[(16 * 32 + 24) * 4 + 3] > quarter.3);
     }
 
     #[test]
@@ -446,6 +503,11 @@ mod tests {
                 let (cg, cc) = THEMES[i % 4];
                 IconParams { pos: 50.0, b: 0.0, cg, cc, ..params([32, 20][i / 4], 0.0, true) }
             }).collect(), [0xF3, 0xF3, 0xF3]),
+            // the battery glyph: the mark turning into it, levels of the older Arctis and of the Nova line, sizes
+            ((0..cols).map(|i| IconParams { glyph: true, ..params(n, i as f64 / 7.0, false) }).collect(), [0x20, 0x20, 0x20]),
+            ((0..cols).map(|i| IconParams { glyph: true, level: [100, 75, 54, 30, 15, 8, 3, 0][i], nova: i >= 4, ..params(n, 1.0, false) }).collect(), [0x20, 0x20, 0x20]),
+            ((0..cols).map(|i| IconParams { glyph: true, round: i >= 4, level: [100, 54, 25, 10][i % 4], ..params([16, 20, 24, 32][i % 4], 1.0, false) }).collect(), [0x20, 0x20, 0x20]),
+            ((0..cols).map(|i| IconParams { glyph: true, level: 40, charge: i as f64 / 8.0, ..params(n, 1.0, i >= 4) }).collect(), [0x60, 0x60, 0x60]),
         ];
         let (w, h) = (cols * n * z, rows.len() * n * z);
         let mut img = vec![0u8; w * h * 4];

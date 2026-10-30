@@ -34,6 +34,8 @@ pub struct CfgPatch {
     custom_b: Option<String>,
     #[serde(rename = "customOled")]
     custom_oled: Option<bool>,
+    #[serde(rename = "homeMeters")]
+    home_meters: Option<bool>,
     #[serde(rename = "customS")]
     custom_s: Option<String>,
     corners: Option<String>,
@@ -77,8 +79,8 @@ pub struct CfgPatch {
     taskbar: Option<bool>,
     #[serde(rename = "trayBattery")]
     tray_battery: Option<bool>,
-    #[serde(rename = "battIcon")]
-    batt_icon: Option<bool>,
+    #[serde(rename = "battGlyph")]
+    batt_glyph: Option<bool>,
     #[serde(rename = "outOnNew")]
     out_on_new: Option<String>,
     #[serde(rename = "outOnLost")]
@@ -134,6 +136,7 @@ pub fn apply(p: CfgPatch) {
             c.custom_b = v.clone();
         }
         set_b(&mut c.custom_oled, p.custom_oled);
+        set_b(&mut c.home_meters, p.home_meters);
         if let Some(v) = p.custom_s.as_ref().filter(|v| v.is_empty() || config::parse_hex(v).is_some()) {
             c.custom_s = v.clone();
         }
@@ -172,7 +175,7 @@ pub fn apply(p: CfgPatch) {
         set_b(&mut c.keep_open, p.keep_open);
         set_b(&mut c.taskbar, p.taskbar);
         set_b(&mut c.tray_battery, p.tray_battery);
-        set_b(&mut c.batt_icon, p.batt_icon);
+        set_b(&mut c.batt_glyph, p.batt_glyph);
         set_b(&mut c.out_on_lost, p.out_on_lost);
         set_b(&mut c.cables, p.cables);
         if let Some(v) = p.out_on_new.as_deref().filter(|v| ["order", "always", "never"].contains(v)) {

@@ -45,7 +45,7 @@ def page(query=''):
         js = ("setTimeout(function(){var q=%s;document.querySelector('#nav [data-tab='+q.shot+']').click();"
               "if(q.sub)document.querySelector('.view:not(.off) [data-page='+q.sub+']').click();"
               "if(q.eqt)document.querySelector('#eqTarget [data-t='+q.eqt+']').click();"
-              "setTimeout(function(){if(q.to){var e=document.getElementById(q.to),v=e.closest('.view');v.scrollTop=e.offsetTop-62;}},300);},700);") % json.dumps(q)
+              "setTimeout(function(){if(q.to){var e=document.getElementById(q.to),v=e.closest('.view'),d=v.querySelector('.vu-dock');v.scrollTop=e.offsetTop-62-(d?d.offsetHeight:0);}},300);},700);") % json.dumps(q)
         # headless browsers keep windows at least ~500 px wide: the page is held to the app's 400 px;
         # no live event stream, so a headless browser's virtual time can run out and take the picture
         html = html.replace('<head>', '<head><script>window.EventSource=function(u){var o={close:function(){}};var k=(u.match(/[?&]m=(\\w+)/)||[])[1];var d={mic:{db:-14,ok:true},fx:{in:-18,out:-20,open:true,ok:true,run:true}}[k];if(d)setTimeout(function(){o.onmessage&&o.onmessage({data:JSON.stringify(d)});},50);return o;};</script>', 1)
@@ -62,7 +62,9 @@ VSTFOUND=[{"path":"C:\\Program Files\\Common Files\\VST3\\TDR Nova.vst3","name":
 def status():
     c=STATE['cfg']; r=c['route']; m=c['micFx']
     STATE['route']={"on":r['on'],"running":r['on'] and bool(r['game'] or r['chat'] or r['media']),"latency":31}
-    STATE['micFx']={"on":m['on'],"running":m['on'] and bool(m['out']),"latency":24}
+    # micFx.sleep: asleep while nobody records from the cable (POST /api/mock_set {"listened": false})
+    sl=m['on'] and bool(m['out']) and m.get('sleep',True) and not STATE.get('listened',True)
+    STATE['micFx']={"on":m['on'],"running":m['on'] and bool(m['out']) and not sl,"asleep":sl,"latency":24}
     STATE['appRoute']=True
     STATE['monitor']['tap']=STATE['micFx']['running']
     mo=STATE['monitor']

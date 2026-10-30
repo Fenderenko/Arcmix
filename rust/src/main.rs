@@ -327,8 +327,8 @@ fn handle(h: HWND, m: u32, wp: WPARAM, lp: LPARAM) -> Option<LRESULT> {
             match (lp.0 & 0xffff) as u32 {
                 WM_LBUTTONUP => fly::toggle(),
                 WM_RBUTTONUP => tray::show_menu(),
-                // the cursor is over the main icon (the battery icon has wParam 2)
-                WM_MOUSEMOVE if wp.0 == 1 => tray::on_hover(),
+                // the cursor is over the icon
+                WM_MOUSEMOVE => tray::on_hover(),
                 _ => {}
             }
         }
@@ -337,6 +337,7 @@ fn handle(h: HWND, m: u32, wp: WPARAM, lp: LPARAM) -> Option<LRESULT> {
         WM_WHEEL_BAL => {
             let p = tray::pos() + if wp.0 == 1 { 5.0 } else { -5.0 };
             tray::set_pos(p);
+            tray::peek_balance();
             tray::update(true); // the tip with percentages right away
             osd::show_balance(tray::pos());
         }
@@ -356,6 +357,7 @@ fn handle(h: HWND, m: u32, wp: WPARAM, lp: LPARAM) -> Option<LRESULT> {
         WM_TIMER => match wp.0 {
             tray::TIMER_ANIM => tray::anim_tick(),
             tray::TIMER_BATT => tray::set_battery(false),
+            tray::TIMER_CHG => tray::charge_tick(),
             tray::TIMER_TRAY => tray::retry(),
             TIMER_PTT => mic::ptt_release(),
             TIMER_HKCAP => hotkeys::capture(false),
