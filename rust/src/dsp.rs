@@ -147,6 +147,8 @@ struct FifoState {
     primed: bool,
     /// seconds without underruns (to bring the latency back to the minimum gradually)
     calm: f64,
+    /// the lowest the reserve fell to after a read in this calm spell, frames
+    low: f64,
 }
 
 pub struct StreamFifo {
@@ -204,6 +206,7 @@ impl StreamFifo {
                 max_t,
                 primed: false,
                 calm: 0.0,
+                low: f64::MAX,
             }),
             underruns: AtomicI32::new(0),
             last_data: AtomicI64::new(0),
@@ -258,6 +261,7 @@ impl StreamFifo {
                 self.underruns.fetch_add(1, Ordering::Relaxed);
                 f.target = f.max_t.min(f.target * 1.25 + 0.002 * f.in_rate);
                 f.calm = 0.0;
+                f.low = f64::MAX;
                 break;
             }
             let t = (f.rd - i as f64) as f32;
@@ -271,12 +275,21 @@ impl StreamFifo {
         f.compact();
         // tuning: fill above the target — read a bit faster, below — slower
         fill = f.frames() as f64 - f.rd;
+        if f.primed {
+            f.low = f.low.min(fill);
+        }
         let dt = n as f64 / f.out_rate;
-        // after an underrun the reserve grows; 20 s without trouble bring the minimum latency back gradually
+        // after an underrun the reserve grows; 20 s without trouble bring the minimum latency back gradually,
+        // but only as far as the lowest point of those 20 s keeps 3 ms spare after the cut: otherwise the
+        // stalls that made it grow (a heavy load) would run it dry again, an underrun every minute or so
         f.calm += dt;
-        if f.calm > 20.0 && f.target > f.min_t {
-            f.target = f.min_t.max(f.target * 0.85);
+        if f.calm > 20.0 {
+            let next = f.min_t.max(f.target * 0.85);
+            if next < f.target && f.low - (f.target - next) > 0.003 * f.in_rate {
+                f.target = next;
+            }
             f.calm = 0.0;
+            f.low = f64::MAX;
         }
         f.avg += (fill - f.avg) * (dt / 0.5).min(1.0); // ~0.5 s smoothing
         let e = (f.avg - f.target) / f.target.max(1.0);
@@ -857,6 +870,35 @@ mod tests {
             let (adj, target) = f.adj_target();
             println!("{ppm:+.0} ppm: adj {adj:.5}, target {:.1} ms, max latency {max_lat:.1} ms, startup underruns {settle}", target / 48.0);
         }
+    }
+
+    /// The capture thread stalls now and then (30 ms every 5 s, as under a heavy load) and catches up
+    /// with a burst. After the first underruns the reserve covers the stalls and stays: no underrun every
+    /// minute or so from shrinking it back after each calm spell.
+    #[test]
+    fn fifo_stalls_do_not_repeat() {
+        let f = StreamFifo::new(1, 48000, 48000, 10.0);
+        let (mut ph, mut owed, mut settle) = (0.0, 0, 0);
+        let mut b = vec![0f32; 480];
+        for i in 0..66000 {
+            // 10 ms ticks; a 3-packet stall every 500 ticks, the packets come together after it
+            if i % 500 < 3 {
+                owed += 1;
+            } else {
+                for _ in 0..=owed {
+                    f.push(&sine(440.0, 48000.0, 480, 1, 0.3, &mut ph));
+                }
+                owed = 0;
+            }
+            f.pull(&mut b, 480);
+            if i == 6000 {
+                settle = f.underruns.load(Ordering::Relaxed);
+            }
+        }
+        let u = f.underruns.load(Ordering::Relaxed) - settle;
+        let (_, target) = f.adj_target();
+        println!("startup underruns {settle}, later {u}, target {:.1} ms", target / 48.0);
+        assert_eq!(u, 0, "underruns keep coming after the first minute");
     }
 
     /// The input is quiet (nothing plays into the cable) — silence at the output without glitches,

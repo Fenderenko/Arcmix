@@ -517,6 +517,14 @@ struct SessVol {
     /// the factor `last` was set with
     fac: f32,
     seen: bool,
+    exe: String,
+}
+
+/// The user's level of an app scaled right now (ChatMix, ducking) in another session, or when its last
+/// session ended scaled: Windows starts the app's next session (a new device, a restart) at the scaled
+/// volume, which must not become its level.
+fn known_base(vols: &HashMap<String, SessVol>, lost: &mut HashMap<String, f32>, exe: &str) -> Option<f32> {
+    vols.values().find(|v| v.exe == exe).map(|v| v.base).or_else(|| lost.remove(exe))
 }
 
 pub struct Engine {
@@ -526,6 +534,8 @@ pub struct Engine {
     ticks: u64,
     /// key — the session instance id
     vols: HashMap<String, SessVol>,
+    /// exe → the user's level of an app whose session ended while scaled (see known_base)
+    lost: HashMap<String, f32>,
     /// pid → device the app was routed to ("" — the default)
     routed: HashMap<u32, String>,
     routing: Option<com::AppRouting>,
@@ -578,6 +588,7 @@ fn engine_loop(rx: Receiver<Msg>) {
         chat: 100,
         ticks: 0,
         vols: HashMap::new(),
+        lost: HashMap::new(),
         routed: HashMap::new(),
         routing: None,
         dk: duck::Ducker::default(),
@@ -887,8 +898,13 @@ impl Engine {
                 }
             };
             if !self.vols.contains_key(&s.key) {
+                let known = if has_pend { None } else { known_base(&self.vols, &mut self.lost, &exe) };
                 if factor >= 0.999 {
-                    if has_pend && !restore && (cur - pv).abs() > 0.004 {
+                    if let Some(b) = known.filter(|b| (cur - b).abs() > 0.004) {
+                        logf!("volume: {exe} came back at {:.0}% (left scaled by the balance or ducking), set to its {:.0}%", cur * 100.0, b * 100.0);
+                        com::set_vol(&s.sav, b);
+                        cur = b;
+                    } else if has_pend && !restore && (cur - pv).abs() > 0.004 {
                         if !pend.contains_key(&exe) {
                             self.log_vol_restore(&exe, cur, pv);
                         }
@@ -898,8 +914,8 @@ impl Engine {
                     note(&mut seen, cur);
                     continue; // ChatMix leaves this session alone
                 }
-                let base = if has_pend { pv } else { cur };
-                self.vols.insert(s.key.clone(), SessVol { base, last: cur, fac: 1.0, seen: false });
+                let base = if has_pend { pv } else { known.unwrap_or(cur) };
+                self.vols.insert(s.key.clone(), SessVol { base, last: cur, fac: 1.0, seen: false, exe: exe.clone() });
             } else if let Some(sv) = self.vols.get_mut(&s.key) {
                 if has_pend {
                     sv.base = pv;
@@ -929,7 +945,11 @@ impl Engine {
                 self.vols.remove(&s.key); // the user's level is back — no more tracking
             }
         }
-        self.vols.retain(|_, v| v.seen); // finished sessions
+        // finished sessions; one that ended scaled leaves the app's level for its next session
+        for v in self.vols.values().filter(|v| !v.seen && v.fac < 0.999) {
+            self.lost.insert(v.exe.clone(), v.base);
+        }
+        self.vols.retain(|_, v| v.seen);
         self.duck_end(game);
         // a volume set for an app with no sound yet is kept: volume memory puts it in place once it plays
         for (exe, &v) in &pend {

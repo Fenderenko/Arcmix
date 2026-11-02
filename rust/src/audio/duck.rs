@@ -494,7 +494,8 @@ impl Engine {
                     if f >= 0.999 {
                         continue;
                     }
-                    self.vols.entry(g.key.clone()).or_insert(super::SessVol { base: v, last: v, fac: 1.0, seen: true })
+                    let base = super::known_base(&self.vols, &mut self.lost, &g.exe).unwrap_or(v);
+                    self.vols.entry(g.key.clone()).or_insert(super::SessVol { base, last: v, fac: 1.0, seen: true, exe: g.exe.clone() })
                 }
                 Some(sv) => {
                     if (v - sv.last).abs() > 0.01 && sv.fac > 0.05 {

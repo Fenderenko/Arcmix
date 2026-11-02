@@ -134,6 +134,11 @@ struct Pipeline {
     stop_cv: Condvar,
     stopping: AtomicBool,
     running: AtomicBool,
+    /// glitches after the warm-up: capture gaps (the device dropped data), output underruns
+    gaps: AtomicU32,
+    dry: AtomicU32,
+    /// halted to start again at once (the glitches kept coming), not on an error
+    restart: AtomicBool,
     err: Mutex<String>,
     lat_ms: AtomicU64,
     started: Instant,
@@ -159,6 +164,9 @@ impl Pipeline {
             stop_cv: Condvar::new(),
             stopping: AtomicBool::new(false),
             running: AtomicBool::new(false),
+            gaps: AtomicU32::new(0),
+            dry: AtomicU32::new(0),
+            restart: AtomicBool::new(false),
             err: Mutex::new(String::new()),
             lat_ms: AtomicU64::new(0),
             started: Instant::now(),
@@ -225,6 +233,13 @@ fn soft_clip(b: &mut [f32]) {
         }
     }
 }
+
+/// The first seconds of a stream: it is still settling, its glitches do not count.
+const WARMUP: Duration = Duration::from_secs(3);
+/// Microphone glitches are summed up per window; streams that keep glitching start again, not sooner
+/// than RESTART_AFTER after their start.
+const GLITCH_WINDOW: Duration = Duration::from_secs(10);
+const RESTART_AFTER: Duration = Duration::from_secs(60);
 
 fn eq_active(w: &[f64]) -> bool {
     w.iter().any(|&g| g != 0.0)
@@ -343,8 +358,11 @@ fn render_loop(p: &Pipeline, out: &wasapi::Client) {
     let mut eq_gens = vec![0u32; n];
     let (mut master, mut master_gen) = (None::<EqChain>, 0u32);
     let mut last_lat = Instant::now();
+    // the microphone: glitches per window (buffer underruns, capture gaps, output underruns) and the
+    // windows with any of them (the last three, bits)
+    let (mut last_check, mut prev, mut bad_hist) = (Instant::now(), (0u32, 0u32, 0u32), 0u8);
     while !p.stopped() {
-        if !ok_logged && started.elapsed() > Duration::from_secs(3) {
+        if !ok_logged && started.elapsed() > WARMUP {
             pipe_log_ok(kind); // runs steadily — the next error gets logged again
             ok_logged = true;
         }
@@ -356,8 +374,11 @@ fn render_loop(p: &Pipeline, out: &wasapi::Client) {
                 return;
             }
         };
+        if pad == 0 && started.elapsed() > WARMUP {
+            p.dry.fetch_add(1, Ordering::Relaxed);
+        }
         // the first seconds do not count: threads are still "warming up", the margin would grow for nothing
-        if pad < of.rate / 1000 && target_pad < out.buf_frames && started.elapsed() > Duration::from_secs(3) {
+        if pad < of.rate / 1000 && target_pad < out.buf_frames && started.elapsed() > WARMUP {
             // the sound nearly ran out — 2 ms more margin
             margin += of.rate * 2 / 1000;
             target_pad = out.buf_frames.min(out.period + margin);
@@ -427,6 +448,28 @@ fn render_loop(p: &Pipeline, out: &wasapi::Client) {
                 }
             }
             p.lat_ms.store((lat + worst + 10.0).to_bits(), Ordering::Relaxed); // + a capture packet ~10 ms
+        }
+        if kind == "mic" && last_check.elapsed() >= GLITCH_WINDOW {
+            last_check = Instant::now();
+            let under = fifos.iter().flatten().map(|f| f.underruns.load(Ordering::Relaxed).max(0) as u32).sum::<u32>();
+            let now = (under, p.gaps.load(Ordering::Relaxed), p.dry.load(Ordering::Relaxed));
+            let d = (now.0.saturating_sub(prev.0), now.1.saturating_sub(prev.1), now.2.saturating_sub(prev.2));
+            prev = now;
+            let bad = d.0 + d.1 + d.2 > 0;
+            bad_hist = (bad_hist << 1 | bad as u8) & 0b111;
+            if bad {
+                let lat = f64::from_bits(p.lat_ms.load(Ordering::Relaxed));
+                logf!("{kind}: glitches in {} s: {} buffer underruns, {} capture gaps, {} output underruns; latency ~{lat:.0} ms", GLITCH_WINDOW.as_secs(), d.0, d.1, d.2);
+            }
+            // glitches in 2 of the last 3 windows: the streams start again — a heavy load (shaders
+            // compiling) can leave them crackling until then
+            if bad_hist.count_ones() >= 2 && started.elapsed() > RESTART_AFTER {
+                logf!("{kind}: glitches keep coming — starting the streams again");
+                p.restart.store(true, Ordering::Relaxed);
+                p.halt();
+                wake();
+                return;
+            }
         }
     }
 }
@@ -509,9 +552,15 @@ fn run_input(p: &Pipeline, inp: &Arc<PipeIn>, of: SampleFmt) {
             map_channels(mo, buf, frames, cf.channels, of.channels);
             f.push(mo);
         });
-        if let Err(e) = r {
-            p.fail(&wasapi::hr_err("input", &e));
-            return;
+        match r {
+            Ok(g) if g > 0 && p.started.elapsed() > WARMUP => {
+                p.gaps.fetch_add(g, Ordering::Relaxed);
+            }
+            Ok(_) => {}
+            Err(e) => {
+                p.fail(&wasapi::hr_err("input", &e));
+                return;
+            }
         }
     }
 }
@@ -774,6 +823,14 @@ impl Mgr {
             && p.started.elapsed() > Duration::from_secs(10)
         {
             self.tries.insert(kind, 0);
+        }
+        if let Some(p) = &cur
+            && p.finished()
+            && p.restart.load(Ordering::Relaxed)
+        {
+            // halted on purpose (the glitches kept coming): it starts again at once
+            p.join(None);
+            cur = None;
         }
         if let Some(p) = &cur
             && p.finished()

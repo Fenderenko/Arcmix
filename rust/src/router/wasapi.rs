@@ -20,6 +20,8 @@ const STREAM_LOOPBACK: u32 = 0x0002_0000;
 const STREAM_EVENT: u32 = 0x0004_0000;
 const STREAM_NO_PERSIST: u32 = 0x0008_0000;
 const BUF_SILENT: u32 = 0x2;
+/// the device dropped data before this packet (the thread came too late)
+const BUF_GAP: u32 = 0x1;
 
 pub fn hr_err(what: &str, e: &windows::core::Error) -> String {
     format!("{what}: 0x{:08x}", e.code().0 as u32)
@@ -123,7 +125,7 @@ pub fn open(en: &IMMDeviceEnumerator, id: &str, render: bool, loopback: bool) ->
     if render {
         flags |= STREAM_EVENT;
     } else {
-        dur = 400_000; // more slack for capture
+        dur = 1_000_000; // 100 ms: room for a thread that comes late under a heavy load; packets are read as they come, no latency
         if loopback {
             flags |= STREAM_LOOPBACK;
         } else {
@@ -197,15 +199,20 @@ impl Client {
         unsafe { rc.ReleaseBuffer(n, 0) }
     }
 
-    /// Reads all ready packets; f gets f32 (the device channels) and the frame count.
-    pub fn capture_all(&self, tmp: &mut Vec<f32>, mut f: impl FnMut(&mut [f32], usize)) -> windows::core::Result<()> {
-        let Some(cc) = &self.cc else { return Ok(()) };
+    /// Reads all ready packets; f gets f32 (the device channels) and the frame count. Returns how many
+    /// came after a gap (the device dropped data the thread was too late for).
+    pub fn capture_all(&self, tmp: &mut Vec<f32>, mut f: impl FnMut(&mut [f32], usize)) -> windows::core::Result<u32> {
+        let Some(cc) = &self.cc else { return Ok(0) };
+        let mut gaps = 0;
         loop {
             if unsafe { cc.GetNextPacketSize() }? == 0 {
-                return Ok(());
+                return Ok(gaps);
             }
             let (mut data, mut frames, mut flags) = (std::ptr::null_mut::<u8>(), 0u32, 0u32);
             unsafe { cc.GetBuffer(&mut data, &mut frames, &mut flags, None, None) }?;
+            if flags & BUF_GAP != 0 {
+                gaps += 1;
+            }
             if frames > 0 {
                 let n = frames as usize * self.fmt.channels;
                 let buf = scratch(tmp, n);

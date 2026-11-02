@@ -272,6 +272,9 @@ pub fn on_cfg_changed() {
     server::notify_subs();
 }
 
+/// The balance last taken from the headset dial (i32::MIN — none since the headset connected).
+static DIAL_POS: AtomicI32 = AtomicI32::new(i32::MIN);
+
 /// Headset state changed (HID threads post WM_HID).
 fn on_hid() {
     let (conn, powered, fresh, game, chat, have, lvl, chg) = {
@@ -281,20 +284,27 @@ fn on_hid() {
     };
     devices::on_state(conn, powered);
     if !conn {
+        DIAL_POS.store(i32::MIN, Ordering::Relaxed);
         tray::set_pos_quiet(0.0);
         audio::set(100, 100);
         tray::start_anim();
         tray::update(true);
         return;
     }
-    if fresh {
-        let p = if game < 100 {
-            (100 - game) as f64
-        } else if chat < 100 {
-            -((100 - chat) as f64)
-        } else {
-            0.0
-        };
+    let p = if game < 100 {
+        (100 - game) as f64
+    } else if chat < 100 {
+        -((100 - chat) as f64)
+    } else {
+        0.0
+    };
+    // a dial at rest may read a point or two off now and then (its own frames too: 100 / 99 / 98 at the
+    // end of its travel): such a wobble neither moves the balance nor shows the indicator; the middle and
+    // the ends always count, a real turn adds up past the step
+    let prev = DIAL_POS.load(Ordering::Relaxed);
+    let wobble = prev != i32::MIN && (p as i32 - prev).abs() < 3 && p != 0.0 && p.abs() != 100.0;
+    if fresh && !wobble {
+        DIAL_POS.store(p as i32, Ordering::Relaxed);
         tray::set_pos_quiet(p);
         tray::apply_audio();
         tray::start_anim();
