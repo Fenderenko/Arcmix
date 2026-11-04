@@ -196,29 +196,16 @@ Made by **Fenderenko**, written together with Claude Code (Anthropic). Arcmix st
 - **elegos** and contributors — [Linux-Arctis-Manager](https://github.com/elegos/Linux-Arctis-Manager) (GPL-3.0):
   the device descriptions (`web/devices.json`), the description engine ported to Rust (`rust/src/devs/engine.rs`)
   and writing the equalizer to the headset memory once on exit.
-- **Sapd** and contributors — [HeadsetControl](https://github.com/Sapd/HeadsetControl) (GPL-3.0): a reference for
-  the Arctis 7+ commands.
-- **File-New-Project** — [EarTrumpet](https://github.com/File-New-Project/EarTrumpet) (MIT): the layout of the
-  Windows interface for an app's own output device.
 - **Xiph.Org, Mozilla, Jean-Marc Valin** — [RNNoise](https://github.com/xiph/rnnoise) (BSD-3-Clause): noise
   suppression, ported to Rust together with its model.
-- **loteran** — [Arctis Sound Manager](https://github.com/loteran/Arctis-Sound-Manager) (GPL-3.0): a reference for the
-  parametric headset equalizer of Nova 7 Gen 2 and others.
 - **Jaakko Pasanen** — [AutoEq](https://github.com/jaakkopasanen/AutoEq) (MIT): the headphone correction curves,
   downloaded when you pick a model.
-- **Robert Bristow-Johnson** — the Audio EQ Cookbook: the equalizer filters.
-- **Microsoft** — [windows-rs](https://github.com/microsoft/windows-rs) (MIT / Apache-2.0) and the WebView2 loader
-  from the WebView2 SDK.
-- **wravery** — [webview2-com](https://github.com/wravery/webview2-rs) (MIT).
-- **dtolnay** and contributors — [serde, serde_json](https://serde.rs/) (MIT / Apache-2.0).
 - **The Onest Project Authors** — the [Onest](https://github.com/googlefonts/onest) font (SIL OFL 1.1).
 - **Lucide Contributors** — the [Lucide](https://lucide.dev) icons of the window (ISC).
 - **Steinberg** — the [VST 3 SDK](https://github.com/steinbergmedia/vst3_pluginterfaces) interfaces (MIT).
   VST is a registered trademark of Steinberg Media Technologies GmbH.
-- **VB-Audio** — [VB-CABLE](https://vb-audio.com/Cable/), the virtual cable the microphone processing and routing
-  rely on. It is not included with Arcmix.
 
-License texts and notices: [THIRD_PARTY.md](THIRD_PARTY.md).
+The other libraries (windows-rs, webview2-com, serde…), license texts and notices: [THIRD_PARTY.md](THIRD_PARTY.md).
 
 ## License
 

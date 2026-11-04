@@ -195,27 +195,16 @@ Arcmix безкоштовний. Якщо він вам знадобився, м
 - **elegos** і співавтори — [Linux-Arctis-Manager](https://github.com/elegos/Linux-Arctis-Manager) (GPL-3.0): описи
   пристроїв (`web/devices.json`), рушій описів, перенесений на Rust (`rust/src/devs/engine.rs`), і запис еквалайзера
   в пам'ять гарнітури один раз при виході.
-- **Sapd** і співавтори — [HeadsetControl](https://github.com/Sapd/HeadsetControl) (GPL-3.0): довідка щодо команд Arctis 7+.
-- **File-New-Project** — [EarTrumpet](https://github.com/File-New-Project/EarTrumpet) (MIT): будова інтерфейсу Windows
-  для власного пристрою виводу програми.
 - **Xiph.Org, Mozilla, Jean-Marc Valin** — [RNNoise](https://github.com/xiph/rnnoise) (BSD-3-Clause): шумодав,
   перенесений на Rust разом із моделлю.
-- **loteran** — [Arctis Sound Manager](https://github.com/loteran/Arctis-Sound-Manager) (GPL-3.0): довідка щодо
-  параметричного еквалайзера Nova 7 Gen 2 та інших гарнітур.
 - **Jaakko Pasanen** — [AutoEq](https://github.com/jaakkopasanen/AutoEq) (MIT): криві корекції навушників, що
   завантажуються, коли ви обираєте модель.
-- **Robert Bristow-Johnson** — Audio EQ Cookbook: фільтри еквалайзера.
-- **Microsoft** — [windows-rs](https://github.com/microsoft/windows-rs) (MIT / Apache-2.0) і завантажувач WebView2 з WebView2 SDK.
-- **wravery** — [webview2-com](https://github.com/wravery/webview2-rs) (MIT).
-- **dtolnay** і співавтори — [serde, serde_json](https://serde.rs/) (MIT / Apache-2.0).
 - **The Onest Project Authors** — шрифт [Onest](https://github.com/googlefonts/onest) (SIL OFL 1.1).
 - **Lucide Contributors** — значки вікна [Lucide](https://lucide.dev) (ISC).
 - **Steinberg** — інтерфейси [VST 3 SDK](https://github.com/steinbergmedia/vst3_pluginterfaces) (MIT).
   VST — зареєстрована торгова марка Steinberg Media Technologies GmbH.
-- **VB-Audio** — [VB-CABLE](https://vb-audio.com/Cable/), віртуальний кабель, на який спираються обробка мікрофона й
-  маршрутизація. До Arcmix не входить.
 
-Тексти ліцензій і повідомлення: [THIRD_PARTY.md](THIRD_PARTY.md).
+Інші бібліотеки (windows-rs, webview2-com, serde…), тексти ліцензій і повідомлення: [THIRD_PARTY.md](THIRD_PARTY.md).
 
 ## Ліцензія
 
