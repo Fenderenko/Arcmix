@@ -185,6 +185,10 @@ cargo build --release
 
 ## Підтримати
 
+<p align="center">
+  <a href="https://send.monobank.ua/jar/6VR4c6nxzz"><img src="docs/heart.png" width="96" alt="Підтримати Arcmix"></a>
+</p>
+
 Arcmix безкоштовний. Якщо він вам знадобився, можна підтримати розробку: [банка monobank](https://send.monobank.ua/jar/6VR4c6nxzz).
 
 ## Подяки

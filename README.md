@@ -186,6 +186,10 @@ Tools in `tools/` need Python 3:
 
 ## Support
 
+<p align="center">
+  <a href="https://send.monobank.ua/jar/6VR4c6nxzz"><img src="docs/heart.png" width="96" alt="Support Arcmix"></a>
+</p>
+
 Arcmix is free. If it is useful to you, you can support it: [monobank jar](https://send.monobank.ua/jar/6VR4c6nxzz).
 
 ## Credits
