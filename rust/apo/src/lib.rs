@@ -178,8 +178,10 @@ fn take_curves(sh: &Shared, path: &std::path::Path, stamp: &mut Option<SystemTim
     if *stamp == Some(m) {
         return;
     }
-    let Some(entries) = std::fs::read(path).ok().and_then(|b| shared::decode_curves(&b)) else { return };
+    let Ok(b) = std::fs::read(path) else { return };
+    let Some(entries) = shared::decode_curves(&b) else { return };
     *stamp = Some(m);
+    sh.level.store(shared::decode_level(&b), Ordering::Release);
     let seq = sh.seq.load(Ordering::Acquire);
     sh.seq.store(seq.wrapping_add(1) | 1, Ordering::Release); // odd: being written
     let base = sh.entries.as_ptr() as *mut Entry;
@@ -237,6 +239,53 @@ struct St {
     stamp: u32,
     /// the effect the module took the slot from: it runs first, the curve after it
     inner: Option<Inner>,
+    /// levelling: the mode its settings are for, the level detector (linear peak) and their factors
+    lev: u32,
+    env: f64,
+    lv: Leveller,
+}
+
+/// A loudness target of the levelling (a compressor with a soft knee, then a soft ceiling below 0 dBFS).
+#[derive(Clone, Copy, Default)]
+struct Leveller {
+    thr: f64,
+    slope: f64,
+    knee: f64,
+    makeup: f64,
+    att: f64,
+    rel: f64,
+}
+
+impl Leveller {
+    /// quiet, balanced, loud: the threshold is the loudness target, the rest keeps 0 dBFS in sight
+    fn of(mode: u32, fs: f64) -> Leveller {
+        let (thr, ratio, makeup, att_ms, rel_ms, knee) = match mode {
+            1 => (-27.0, 3.5, 2.0, 5.0, 200.0, 8.0),
+            2 => (-18.0, 2.5, 4.0, 10.0, 200.0, 6.0),
+            _ => (-9.0, 2.0, 6.0, 15.0, 300.0, 4.0),
+        };
+        let k = |ms: f64| 1.0 - (-1.0 / (ms / 1000.0 * fs)).exp();
+        Leveller { thr, slope: 1.0 / ratio - 1.0, knee, makeup, att: k(att_ms), rel: k(rel_ms) }
+    }
+
+    /// The gain (dB) for a detected level (dB): a soft knee around the threshold, the make-up on top.
+    fn gain_db(&self, lvl: f64) -> f64 {
+        let over = lvl - self.thr;
+        let gr = if 2.0 * over < -self.knee {
+            0.0
+        } else if 2.0 * over.abs() <= self.knee {
+            self.slope * (over + self.knee / 2.0).powi(2) / (2.0 * self.knee)
+        } else {
+            self.slope * over
+        };
+        gr + self.makeup
+    }
+}
+
+/// Above 0.85 the sample bends softly towards 0.95 (about −0.5 dBFS) instead of clipping.
+fn soft_ceiling(x: f64) -> f64 {
+    let a = x.abs();
+    if a <= 0.85 { x } else { x.signum() * (0.85 + 0.1 * ((a - 0.85) / 0.1).tanh()) }
 }
 
 /// The effect a driver (or Windows) had in the slot, hosted by the module.
@@ -268,7 +317,7 @@ impl Inner {
 
 impl St {
     fn new() -> St {
-        St { guid: [0; GUID_LEN], key: 0, ch: 2, rate: 48000.0, locked: false, float: false, frame_bytes: 0, seq: 1, on: false, pre: 1.0, n: 0, co: [Coef::default(); BANDS], z: [[[0.0; 2]; BANDS]; MAXCH], slot: ENTRIES, stamp: 0, inner: None }
+        St { guid: [0; GUID_LEN], key: 0, ch: 2, rate: 48000.0, locked: false, float: false, frame_bytes: 0, seq: 1, on: false, pre: 1.0, n: 0, co: [Coef::default(); BANDS], z: [[[0.0; 2]; BANDS]; MAXCH], slot: ENTRIES, stamp: 0, inner: None, lev: 0, env: 0.0, lv: Leveller::default() }
     }
 
     /// Takes a new curve from the app when there is one (seqlock).
@@ -333,21 +382,44 @@ impl St {
         }
     }
 
-    fn process(&mut self, buf: &mut [f32]) {
+    /// The curve (when on), then the levelling (mode > 0) with one gain for all channels.
+    fn process(&mut self, buf: &mut [f32], mode: u32) {
         let ch = self.ch.max(1);
         let pch = ch.min(MAXCH);
-        let (pre, n) = (self.pre, self.n);
-        for frame in buf.chunks_exact_mut(ch) {
-            for (c, s) in frame.iter_mut().take(pch).enumerate() {
-                let mut x = (*s * pre) as f64;
-                for (co, z) in self.co[..n].iter().zip(self.z[c][..n].iter_mut()) {
-                    let y = co.b0 * x + z[0];
-                    z[0] = co.b1 * x - co.a1 * y + z[1];
-                    z[1] = co.b2 * x - co.a2 * y;
-                    x = y;
+        if self.on {
+            let (pre, n) = (self.pre, self.n);
+            for frame in buf.chunks_exact_mut(ch) {
+                for (c, s) in frame.iter_mut().take(pch).enumerate() {
+                    let mut x = (*s * pre) as f64;
+                    for (co, z) in self.co[..n].iter().zip(self.z[c][..n].iter_mut()) {
+                        let y = co.b0 * x + z[0];
+                        z[0] = co.b1 * x - co.a1 * y + z[1];
+                        z[1] = co.b2 * x - co.a2 * y;
+                        x = y;
+                    }
+                    // denormals in a tail of silence cost much CPU
+                    *s = if x.abs() < 1e-20 { 0.0 } else { x as f32 };
                 }
-                // denormals in a tail of silence cost much CPU
-                *s = if x.abs() < 1e-20 { 0.0 } else { x as f32 };
+            }
+        }
+        if mode == 0 {
+            return;
+        }
+        if mode != self.lev {
+            self.lev = mode;
+            self.lv = Leveller::of(mode, self.rate);
+        }
+        let lv = self.lv;
+        for frame in buf.chunks_exact_mut(ch) {
+            let peak = frame.iter().take(pch).fold(0f64, |m, s| m.max((*s as f64).abs()));
+            let k = if peak > self.env { lv.att } else { lv.rel };
+            self.env += (peak - self.env) * k;
+            if self.env < 1e-9 {
+                self.env = 0.0;
+            }
+            let g = 10f64.powf(lv.gain_db(20.0 * (self.env + 1e-9).log10()) / 20.0);
+            for s in frame.iter_mut() {
+                *s = soft_ceiling(*s as f64 * g) as f32;
             }
         }
     }
@@ -699,11 +771,12 @@ unsafe extern "system" fn rt_process(this: *mut c_void, nin: u32, pin: *const *c
         st.refresh(sh);
         st.alive(sh);
     }
-    if !st.float || !st.on || o.u32BufferFlags == BUFFER_SILENT {
+    let mode = shared_now().map_or(0, |sh| sh.level.load(Ordering::Acquire).min(shared::LEVEL_MAX));
+    if !st.float || (!st.on && mode == 0) || o.u32BufferFlags == BUFFER_SILENT {
         return;
     }
     let buf = unsafe { std::slice::from_raw_parts_mut(o.pBuffer as *mut f32, o.u32ValidFrameCount as usize * st.ch) };
-    st.process(buf);
+    st.process(buf, mode);
 }
 
 unsafe extern "system" fn rt_input_frames(this: *mut c_void, n: u32) -> u32 {
@@ -799,11 +872,36 @@ mod tests {
         st.co[0] = peaking(48000.0, 1000.0, 6.0, 1.41).unwrap();
         st.n = 1;
         st.pre = 1.0;
+        st.on = true;
         let mut buf: Vec<f32> = (0..48000).map(|i| (i as f32 * std::f32::consts::TAU * 1000.0 / 48000.0).sin() * 0.25).collect();
-        st.process(&mut buf);
+        st.process(&mut buf, 0);
         let peak = buf[24000..].iter().fold(0f32, |m, v| m.max(v.abs()));
         assert!((peak / 0.25 - 2.0).abs() < 0.05, "+6 dB at the centre: {peak}");
         assert!(peaking(48000.0, 1000.0, 0.0, 1.41).is_none());
+    }
+
+    /// Levelling: a quiet passage comes up, a loud one goes down, nothing goes past 0 dBFS (the curve off).
+    #[test]
+    fn levelling_evens_out_and_never_clips() {
+        let tone = |amp: f32, n: usize| -> Vec<f32> { (0..n).flat_map(|i| { let v = (i as f32 * std::f32::consts::TAU * 440.0 / 48000.0).sin() * amp; [v, v] }).collect() };
+        let peak = |b: &[f32]| b[b.len() / 2..].iter().fold(0f32, |m, v| m.max(v.abs()));
+        for mode in 1..=shared::LEVEL_MAX {
+            let mut st = St::new();
+            st.ch = 2;
+            let mut quiet = tone(0.02, 48000);
+            st.process(&mut quiet, mode);
+            let mut loud = tone(1.0, 48000);
+            st.process(&mut loud, mode);
+            let (q, l) = (peak(&quiet) / 0.02, peak(&loud));
+            assert!(q > 1.1, "mode {mode}: the quiet one comes up ({q:.2}x)");
+            assert!(l <= 1.0 && l < 0.999, "mode {mode}: the loud one stays below 0 dBFS ({l:.3})");
+            assert!(loud.iter().all(|v| v.is_finite()));
+        }
+        let mut st = St::new();
+        let mut buf = tone(0.5, 4800);
+        let before = buf.clone();
+        st.process(&mut buf, 0);
+        assert_eq!(buf, before, "off and no curve: unchanged");
     }
 
     #[test]
@@ -821,8 +919,10 @@ mod tests {
         e.on = 1;
         e.n = 2;
         e.gain_db[1] = -3.5;
-        let b = shared::encode_curves(&[e, Entry::EMPTY]);
+        let b = shared::encode_curves(&[e, Entry::EMPTY], 2);
         let d = shared::decode_curves(&b).unwrap();
+        assert_eq!(shared::decode_level(&b), 2);
+        assert_eq!(shared::decode_level(&b[..100]), shared::LEVEL_OFF);
         assert_eq!(d.len(), 2);
         assert_eq!((d[0].on, d[0].n, d[0].gain_db[1]), (1, 2, -3.5));
         assert_eq!(shared::key_of(&d[0].guid), shared::key_of(&e.guid));

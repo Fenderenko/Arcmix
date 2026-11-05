@@ -718,6 +718,26 @@
    "pt": "Medições e curvas: o projeto AutoEQ (Jaakko Pasanen).",
    "tr": "Ölçümler ve eğriler: AutoEQ projesi (Jaakko Pasanen)."
   },
+  "Вирівнювання гучності": {
+   "de": "Lautstärkeausgleich",
+   "en": "Volume levelling",
+   "es": "Nivelación de volumen",
+   "fr": "Nivellement du volume",
+   "it": "Livellamento del volume",
+   "pl": "Wyrównywanie głośności",
+   "pt": "Nivelamento de volume",
+   "tr": "Ses seviyesi dengeleme"
+  },
+  "Вирівнювання працює в модулі Arcmix, а його ще немає на жодному пристрої виводу: увімкніть «EQ Windows».": {
+   "de": "Der Ausgleich läuft im Arcmix-Modul, das noch auf keinem Ausgabegerät ist: „EQ Windows“ einschalten.",
+   "en": "Levelling runs in the Arcmix module, which is not on any output device yet: turn on “EQ Windows”.",
+   "es": "La nivelación funciona en el módulo de Arcmix, que aún no está en ningún dispositivo de salida: activa «EQ Windows».",
+   "fr": "Le nivellement passe par le module Arcmix, absent de tous les périphériques de sortie : activez « EQ Windows ».",
+   "it": "Il livellamento funziona nel modulo Arcmix, che non è ancora su nessun dispositivo di uscita: attiva «EQ Windows».",
+   "pl": "Wyrównywanie działa w module Arcmix, którego nie ma jeszcze na żadnym urządzeniu wyjściowym: włącz „EQ Windows”.",
+   "pt": "O nivelamento funciona no módulo do Arcmix, que ainda não está em nenhum dispositivo de saída: ative “EQ Windows”.",
+   "tr": "Dengeleme Arcmix modülünde çalışır ve modül henüz hiçbir çıkış aygıtında yok: “EQ Windows”u açın."
+  },
   "Висока": {
    "de": "Hoch",
    "en": "High",
@@ -1007,6 +1027,16 @@
    "pl": "Ekran główny",
    "pt": "Tela inicial",
    "tr": "Ana ekran"
+  },
+  "Голосно": {
+   "de": "Laut",
+   "en": "Loud",
+   "es": "Alto",
+   "fr": "Fort",
+   "it": "Alto",
+   "pl": "Głośno",
+   "pt": "Alto",
+   "tr": "Yüksek"
   },
   "Гостріші": {
    "de": "Schärfer",
@@ -2138,6 +2168,26 @@
    "pt": "Módulo do Arcmix (teste)",
    "tr": "Arcmix modülü (test)"
   },
+  "Модуль Arcmix встановлюється: підтвердіть дозвіл у вікні Windows.": {
+   "de": "Das Arcmix-Modul wird installiert: Berechtigung im Windows-Fenster bestätigen.",
+   "en": "The Arcmix module is being installed: confirm the permission in the Windows prompt.",
+   "es": "Instalando el módulo de Arcmix: confirma el permiso en la ventana de Windows.",
+   "fr": "Installation du module Arcmix : confirmez l'autorisation dans la fenêtre de Windows.",
+   "it": "Installazione del modulo Arcmix: conferma il permesso nella finestra di Windows.",
+   "pl": "Instaluję moduł Arcmix: potwierdź uprawnienia w oknie Windows.",
+   "pt": "Instalando o módulo do Arcmix: confirme a permissão na janela do Windows.",
+   "tr": "Arcmix modülü kuruluyor: Windows penceresinde izni onaylayın."
+  },
+  "Модуль Arcmix на пристроях старіший за програму і вирівнювання ще не вміє. Оновлення попросить дозволу адміністратора, звук на кілька секунд зникне.": {
+   "de": "Das Arcmix-Modul auf den Geräten ist älter als die App und kann noch nicht ausgleichen. Das Update fragt nach Administratorrechten, der Ton fällt einige Sekunden aus.",
+   "en": "The Arcmix module on your devices is older than the app and cannot level yet. Updating asks for administrator permission; sound drops for a few seconds.",
+   "es": "El módulo de Arcmix de los dispositivos es más antiguo que la app y aún no sabe nivelar. La actualización pide permiso de administrador; el sonido se corta unos segundos.",
+   "fr": "Le module Arcmix des périphériques est plus ancien que l'app et ne sait pas encore niveler. La mise à jour demande l'autorisation d'administrateur ; le son se coupe quelques secondes.",
+   "it": "Il modulo Arcmix sui dispositivi è più vecchio dell'app e non sa ancora livellare. L'aggiornamento chiede il permesso di amministratore; l'audio si interrompe per qualche secondo.",
+   "pl": "Moduł Arcmix na urządzeniach jest starszy niż aplikacja i nie umie jeszcze wyrównywać. Aktualizacja poprosi o uprawnienia administratora, dźwięk zniknie na kilka sekund.",
+   "pt": "O módulo do Arcmix nos dispositivos é mais antigo que o app e ainda não sabe nivelar. A atualização pede permissão de administrador; o som some por alguns segundos.",
+   "tr": "Aygıtlardaki Arcmix modülü uygulamadan eski ve henüz dengeleme yapamıyor. Güncelleme yönetici izni ister; ses birkaç saniye kesilir."
+  },
   "Мої пресети": {
    "de": "Meine Presets",
    "en": "My presets",
@@ -2768,6 +2818,16 @@
    "pt": "Processar microfone",
    "tr": "Mikrofonu işle"
   },
+  "Окрема крива групи працює, коли група грає у свій віртуальний кабель: Налаштування → Пристрої → Маршрутизація": {
+   "de": "Die eigene Kurve einer Gruppe wirkt, wenn die Gruppe in ihr eigenes virtuelles Kabel spielt: Einstellungen → Geräte → Audio-Routing",
+   "en": "A group's own curve works while the group plays into a virtual cable of its own: Settings → Devices → Audio routing",
+   "es": "La curva propia de un grupo funciona cuando suena en su propio cable virtual: Ajustes → Dispositivos → Enrutamiento de audio",
+   "fr": "La courbe propre d'un groupe fonctionne quand il joue dans son propre câble virtuel : Paramètres → Périphériques → Routage audio",
+   "it": "La curva propria di un gruppo funziona quando suona nel proprio cavo virtuale: Impostazioni → Dispositivi → Instradamento audio",
+   "pl": "Własna krzywa grupy działa, gdy grupa gra do własnego kabla wirtualnego: Ustawienia → Urządzenia → Routing dźwięku",
+   "pt": "A curva própria de um grupo funciona quando ele toca no seu próprio cabo virtual: Configurações → Dispositivos → Roteamento de áudio",
+   "tr": "Bir grubun kendi eğrisi, grup kendi sanal kablosuna çaldığında çalışır: Ayarlar → Aygıtlar → Ses yönlendirme"
+  },
   "Оновити до %s": {
    "de": "Auf %s aktualisieren",
    "en": "Update to %s",
@@ -2777,6 +2837,16 @@
    "pl": "Zaktualizuj do %s",
    "pt": "Atualizar para %s",
    "tr": "%s sürümüne güncelle"
+  },
+  "Оновити модуль": {
+   "de": "Modul aktualisieren",
+   "en": "Update the module",
+   "es": "Actualizar el módulo",
+   "fr": "Mettre à jour le module",
+   "it": "Aggiorna il modulo",
+   "pl": "Zaktualizuj moduł",
+   "pt": "Atualizar o módulo",
+   "tr": "Modülü güncelle"
   },
   "Основне": {
    "de": "Grundlegend",
@@ -3808,6 +3878,16 @@
    "pt": "Plano",
    "tr": "Düz"
   },
+  "Рівно": {
+   "de": "Ausgewogen",
+   "en": "Even",
+   "es": "Equilibrado",
+   "fr": "Équilibré",
+   "it": "Bilanciato",
+   "pl": "Równo",
+   "pt": "Equilibrado",
+   "tr": "Dengeli"
+  },
   "Світла": {
    "de": "Hell",
    "en": "Light",
@@ -4027,6 +4107,16 @@
    "pl": "Domyślnie",
    "pt": "Padrão",
    "tr": "Varsayılan"
+  },
+  "Тихо": {
+   "de": "Leise",
+   "en": "Quiet",
+   "es": "Suave",
+   "fr": "Doux",
+   "it": "Basso",
+   "pl": "Cicho",
+   "pt": "Suave",
+   "tr": "Sessiz"
   },
   "Тихіше": {
    "de": "Leiser",
@@ -5507,6 +5597,16 @@
    "pl": "świeci na słuchawkach, gdy mikrofon jest wyciszony",
    "pt": "acende no headset quando o microfone está mudo",
    "tr": "mikrofon kapalıyken kulaklıkta yanar"
+  },
+  "тихе стає голоснішим, гучне — тихішим: кроки чути, вибухи не б’ють по вухах; на весь звук пристрою виводу": {
+   "de": "Leises wird lauter, Lautes leiser: Schritte sind hörbar, Explosionen schmerzen nicht; für den ganzen Ton des Ausgabegeräts",
+   "en": "quiet sounds come up, loud ones go down: footsteps are heard, blasts do not hurt; on all sound of the output device",
+   "es": "lo suave sube y lo fuerte baja: se oyen los pasos y las explosiones no duelen; en todo el sonido del dispositivo de salida",
+   "fr": "le faible monte, le fort descend : on entend les pas, les explosions ne font pas mal ; sur tout le son du périphérique de sortie",
+   "it": "il debole sale, il forte scende: i passi si sentono, le esplosioni non fanno male; su tutto l'audio del dispositivo di uscita",
+   "pl": "ciche staje się głośniejsze, głośne cichsze: słychać kroki, wybuchy nie ranią uszu; na cały dźwięk urządzenia wyjściowego",
+   "pt": "o baixo fica mais alto e o alto mais baixo: os passos se ouvem e as explosões não machucam; em todo o som do dispositivo de saída",
+   "tr": "sessiz sesler yükselir, yüksekler alçalır: adımlar duyulur, patlamalar kulağı acıtmaz; çıkış aygıtının tüm sesinde"
   },
   "тихий звук": {
    "de": "leise",

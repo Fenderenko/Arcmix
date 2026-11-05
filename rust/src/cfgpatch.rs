@@ -39,6 +39,7 @@ pub struct CfgPatch {
     #[serde(rename = "customS")]
     custom_s: Option<String>,
     corners: Option<String>,
+    loudness: Option<String>,
 
     #[serde(rename = "autoSwitch")]
     auto_switch: Option<bool>,
@@ -142,6 +143,9 @@ pub fn apply(p: CfgPatch) {
         }
         if let Some(v) = p.corners.filter(|v| matches!(v.as_str(), "round" | "sharp")) {
             c.corners = v;
+        }
+        if let Some(v) = p.loudness.filter(|v| matches!(v.as_str(), "" | "quiet" | "balanced" | "loud")) {
+            c.loudness = v;
         }
         if let Some(v) = p.auto_off.filter(|v| (0..=90).contains(v)) {
             c.auto_off = v;

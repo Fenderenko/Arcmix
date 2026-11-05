@@ -696,3 +696,5 @@ html[data-corn=sharp] #bchip rect{rx:1.1px}
 /* live levels on the Mix tab turned off */
 #mix.nolvl .qbar,#mix.nolvl #micLvlBox{display:none}
 #mix.nolvl .lvlrow:has(.hwm.hide){display:none}
+/* an equalizer group without a cable of its own */
+#eqTarget button.dim{opacity:.45}

@@ -141,9 +141,9 @@ pub fn live_on(id: &str) -> bool {
 }
 
 /// Writes curves.bin when it changed: a temporary file renamed over it, so the module never reads half.
-fn write_curves(entries: &[Entry]) {
+fn write_curves(entries: &[Entry], level: u32) {
     static LAST: Mutex<Vec<u8>> = Mutex::new(Vec::new());
-    let b = shared::encode_curves(entries);
+    let b = shared::encode_curves(entries, level);
     let Ok(mut last) = LAST.lock() else { return };
     if *last == b {
         return;
@@ -202,6 +202,25 @@ pub struct ModStatus {
     pub all_devs: u32,
     #[serde(rename = "onDevs")]
     pub on_devs: u32,
+    /// the module registered in Windows is an older build than this app's: it lacks what came since
+    /// (volume levelling) until it goes on again
+    pub old: bool,
+}
+
+/// The registered module file differs from the one in this exe (checked at most every 30 s: the file is
+/// read whole).
+fn module_old() -> bool {
+    static C: Mutex<Option<(std::time::Instant, bool)>> = Mutex::new(None);
+    let Ok(mut c) = C.lock() else { return false };
+    if let Some((t, v)) = *c
+        && t.elapsed() < std::time::Duration::from_secs(30)
+    {
+        return v;
+    }
+    let path = util::reg_open_hklm64(&format!(r"SOFTWARE\Classes\CLSID\{CLSID}\InprocServer32")).and_then(|k| k.string(""));
+    let old = path.is_some_and(|p| std::fs::read(p.trim()).is_ok_and(|b| b != DLL));
+    *c = Some((std::time::Instant::now(), old));
+    old
 }
 
 /// The install or removal in progress: the operation and the device name.
@@ -218,7 +237,8 @@ pub fn status(out_id: &str, out_name: &str) -> ModStatus {
             all_devs += 1;
         }
     }
-    ModStatus { inst: installed_on(out_id), live: live_on(out_id), free: free_on(out_id), sysfx: apo::sysfx_off(out_id), hs: apo::is_hw_headset(out_name), busy, busy_name, all_devs, on_devs }
+    let old = on_devs > 0 && module_old();
+    ModStatus { inst: installed_on(out_id), live: live_on(out_id), free: free_on(out_id), sysfx: apo::sysfx_off(out_id), hs: apo::is_hw_headset(out_name), busy, busy_name, all_devs, on_devs, old }
 }
 
 /// The module applies the "everything" curve on this device.
@@ -235,6 +255,12 @@ pub fn sync(c: &Config) {
         if devs.is_empty() {
             return;
         }
+        let level = match c.loudness.as_str() {
+            "quiet" => 1,
+            "balanced" => 2,
+            "loud" => 3,
+            _ => shared::LEVEL_OFF,
+        };
         let user = c.soft_eq.get("all").filter(|s| s.bands.len() == 10 && s.preset != "flat" && s.bands.iter().any(|b| *b != 0.0));
         let freqs = [32.0f32, 64.0, 125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0, 16000.0];
         let mut entries = Vec::new();
@@ -255,7 +281,7 @@ pub fn sync(c: &Config) {
             }
             entries.push(e);
         }
-        write_curves(&entries);
+        write_curves(&entries, level);
     });
 }
 
@@ -650,6 +676,16 @@ pub fn install_all() {
     let want = missing_on(&outs);
     if !want.is_empty() {
         run_on("install", want);
+    }
+}
+
+/// (from the window) The module goes on again where it is, with one prompt: the newer build from this exe
+/// takes the place of the registered one.
+pub fn update_all() {
+    let devs: Vec<(String, String)> = crate::audio::list_devices().0.into_iter().filter(|d| installed_on(&d.id)).map(|d| (d.id, d.name)).collect();
+    if !devs.is_empty() {
+        logf!("apomod: updating the module on {} device(s)", devs.len());
+        run_on("install", devs);
     }
 }
 

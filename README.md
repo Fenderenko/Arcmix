@@ -27,7 +27,8 @@ Arcmix started from the idea of Swiftlyx's [OpenChatMix](https://github.com/Swif
 - **Bluetooth headphones battery** in the header, as Windows knows it.
 - **Headset settings.** Battery with alerts and a time estimate, sidetone, auto power-off, mute light and more, depending on the model.
 - **Output devices by priority.** Sound goes to the highest connected device in your list: headset on, to the headset; off, to the next one. The headset microphone can follow it. You choose what happens when a device connects (switch to it if it is higher in the list, always, or never) and when one disconnects.
-- **Audio routing** *(experimental)*. Game, chat and media into separate virtual cables, e.g. for streaming.
+- **Volume levelling.** Sound → *Volume levelling* (Quiet / Even / Loud): quiet sounds come up and loud ones go down, on all sound of the output device, through the Arcmix module. A module installed by an older version is updated with one button (administrator permission).
+- **Audio routing** *(experimental)*. Game, chat and media into separate virtual cables, e.g. for streaming; each group that plays into a cable of its own gets its own equalizer curve (Game / Chat / Media tabs).
 - **One switch for the virtual cables.** Settings → Devices → *Virtual cables* turns routing and the processed microphone off together: sound and the microphone go direct, the settings stay.
 - **On-screen hint.** Changing the balance or switching the output or input device with hotkeys shows a small hint on the screen.
 - **Tray icon.** The app mark while the balance is equal; two capsules in the theme's game / chat colours once it moves — or the battery instead of the mark (as a number or a battery), while the device that plays reports one: the headset or Bluetooth headphones. While it charges, the battery pulses towards full. The mouse wheel over the icon changes the balance or shows the battery.
@@ -39,7 +40,7 @@ Arcmix started from the idea of Swiftlyx's [OpenChatMix](https://github.com/Swif
 
 ## Download and install
 
-1. Download `Arcmix-1.4.4.zip` from [Releases](../../releases) and unpack it to any folder (e.g. `C:\Programs\Arcmix`).
+1. Download `Arcmix-1.4.5.zip` from [Releases](../../releases) and unpack it to any folder (e.g. `C:\Programs\Arcmix`).
 2. Run `Arcmix.exe`. The exe is not code-signed, so Windows SmartScreen may warn you: click **More info → Run anyway**.
 3. The icon appears in the tray (click it to open the window). A short first-run guide walks through the basics, the equalizer module included.
 
@@ -137,8 +138,8 @@ Battery, sidetone, the hardware equalizer and other headset settings need the he
 
 ## Known limitations
 
-- **There is no separate equalizer for game / chat / media:** Windows captures an app's sound after its volume,
-  so the original cannot be muted while a processed copy plays.
+- **A separate equalizer for game / chat / media** needs audio routing with a virtual cable per group: Windows
+  captures an app's sound after its volume, so the original cannot be muted while a processed copy plays.
 - **Bluetooth headsets:** when an app opens the headset microphone, Windows switches it to the Hands-Free mode
   (mono, lower quality). That is how Bluetooth works in Windows, not an Arcmix setting.
 - **Vendor headset software** that creates its own virtual devices or changes per-app volume can fight with

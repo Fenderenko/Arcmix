@@ -69,6 +69,9 @@ pub struct Config {
     pub custom_s: String,
     /// "round" | "sharp"
     pub corners: String,
+    /// volume levelling through the Arcmix module on every output device: "" — off, "quiet", "balanced",
+    /// "loud" (the loudness target)
+    pub loudness: String,
     #[serde(deserialize_with = "null_default")]
     pub pinned: Vec<String>,
     /// apps removed from the groups: not shown, even while they play, until added again with "+"
@@ -373,6 +376,7 @@ impl Default for Config {
             custom_a: "#FF6A3D".into(),
             custom_s: String::new(),
             corners: "sharp".into(),
+            loudness: String::new(),
             custom_b: "#3DC8FF".into(),
             custom_oled: false,
             home_meters: true,

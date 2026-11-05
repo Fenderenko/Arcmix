@@ -57,6 +57,7 @@ pub struct CfgJson {
     #[serde(rename = "customS")]
     pub custom_s: String,
     pub corners: String,
+    pub loudness: String,
     pub route: RouteCfg,
     #[serde(rename = "micFx")]
     pub mic_fx: MicFxCfg,
@@ -282,6 +283,7 @@ pub fn build() -> StateJson {
             home_meters: c.home_meters,
             custom_s: c.custom_s.clone(),
             corners: c.corners.clone(),
+            loudness: c.loudness.clone(),
             custom_b: c.custom_b.clone(),
             route: c.route.clone(),
             mic_fx: c.mic_fx.clone(),

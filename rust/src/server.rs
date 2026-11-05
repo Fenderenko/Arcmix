@@ -329,6 +329,9 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
                 Some("modInstallAll") => {
                     std::thread::spawn(crate::apomod::install_all);
                 }
+                Some("modUpdate") => {
+                    std::thread::spawn(crate::apomod::update_all);
+                }
                 Some(op @ ("modInstall" | "modRemove")) => {
                     let id = crate::audio::out_state().id;
                     let op = if op == "modInstall" { "install" } else { "remove" };

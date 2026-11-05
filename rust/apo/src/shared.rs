@@ -65,21 +65,29 @@ pub struct Shared {
     pub count: AtomicU32,
     pub entries: [Entry; ENTRIES],
     pub seen: [Seen; ENTRIES],
+    /// volume levelling on every device (see LEVEL_*)
+    pub level: AtomicU32,
 }
 
-/// curves.bin: magic, version, count, then ENTRIES entries.
+/// Volume levelling (a compressor after the curve): off, and the three loudness targets.
+pub const LEVEL_OFF: u32 = 0;
+pub const LEVEL_MAX: u32 = 3;
+
+/// curves.bin: magic, version, count, the levelling mode (a word modules before it never read), then
+/// ENTRIES entries.
 const HEAD: usize = 16;
 pub const CURVES_SIZE: usize = HEAD + ENTRIES * std::mem::size_of::<Entry>();
 /// live.bin: per endpoint a key (8 bytes) and a tick (4) with padding (4).
 const LIVE_ITEM: usize = 16;
 
 #[allow(dead_code)] // used by the app
-pub fn encode_curves(entries: &[Entry]) -> Vec<u8> {
+pub fn encode_curves(entries: &[Entry], level: u32) -> Vec<u8> {
     let n = entries.len().min(ENTRIES);
     let mut b = vec![0u8; CURVES_SIZE];
     b[0..4].copy_from_slice(&MAGIC.to_le_bytes());
     b[4..8].copy_from_slice(&VERSION.to_le_bytes());
     b[8..12].copy_from_slice(&(n as u32).to_le_bytes());
+    b[12..16].copy_from_slice(&level.min(LEVEL_MAX).to_le_bytes());
     for (i, e) in entries.iter().take(n).enumerate() {
         let at = HEAD + i * std::mem::size_of::<Entry>();
         // SAFETY: Entry is plain repr(C) data without padding
@@ -104,6 +112,15 @@ pub fn decode_curves(b: &[u8]) -> Option<Vec<Entry>> {
             })
             .collect(),
     )
+}
+
+/// The levelling mode of curves.bin (checked like the curves; anything unknown — off).
+pub fn decode_level(b: &[u8]) -> u32 {
+    if b.len() < CURVES_SIZE || b[0..4] != MAGIC.to_le_bytes() || b[4..8] != VERSION.to_le_bytes() {
+        return LEVEL_OFF;
+    }
+    let v = u32::from_le_bytes([b[12], b[13], b[14], b[15]]);
+    if v <= LEVEL_MAX { v } else { LEVEL_OFF }
 }
 
 pub fn encode_live(items: &[(u64, u32)]) -> Vec<u8> {

@@ -289,6 +289,7 @@
     off('mfxCard', !mfx); off('ordCard', !mfx);
     off('monCard', !feat('monitor'));
     off('rtCard', !feat('route'));
+    off('lvlCard', !feat('eq'));
     var snd = feat('eq') || feat('profiles') || feat('duck');
     document.querySelector('#nav [data-tab=sound]').classList.toggle('foff', !snd);
     if (!snd && tab === 'sound') show('mix');
@@ -1358,7 +1359,8 @@
   $('eqSaveP').onclick = nameOk;
   $('eqNameX').onclick = function () { nameMode(''); };
   $('eqName').addEventListener('keydown', function (e) { if (e.key === 'Enter') nameOk(); if (e.key === 'Escape') nameMode(''); });
-  $('eqTarget').querySelectorAll('button').forEach(function (b) { b.onclick = function () { setTarget(b.dataset.t); }; });
+  // a group without a cable of its own: its tab leads to the routing settings
+  $('eqTarget').querySelectorAll('button').forEach(function (b) { b.onclick = function () { if (b.classList.contains('dim')) go('settings', 'dev', 'rtCard'); else setTarget(b.dataset.t); }; });
 
   // ---------- профілі ----------
   $('profName').placeholder = tx('Назва профілю');
@@ -1980,6 +1982,7 @@
   $('swFull').onclick = function () { patch({ fullNotify: !S.cfg.fullNotify }); };
   $('swOled').onclick = function () { patch({ customOled: !S.cfg.customOled }); };
   $('swMeters').onclick = function () { patch({ homeMeters: S.cfg.homeMeters === false }); };
+  $('lvlUpd').onclick = function () { api('/api/apo', { op: 'modUpdate' }); };
   $('swMfxSleep').onclick = function () { api('/api/micfx', { sleep: (S.cfg.micFx || {}).sleep === false }); };
   $('swSwitch').onclick = function () { patch({ autoSwitch: !S.cfg.autoSwitch }); };
   $('swTaskbar').onclick = function () { patch({ taskbar: !S.cfg.taskbar }); };
@@ -2085,7 +2088,7 @@
     $(SLOTE[slot]).style.background = v;
   });
   $('hexIn').addEventListener('blur', function () { this.value = slotHex().toUpperCase(); });
-  [['cornSeg', 'corners']].forEach(function (x) {
+  [['cornSeg', 'corners'], ['lvlSet', 'loudness']].forEach(function (x) {
     $(x[0]).querySelectorAll('button').forEach(function (b) { b.onclick = function () { var o = {}; o[x[1]] = b.dataset.v; patch(o); }; });
   });
   $('creditLink').onclick = function () { api('/api/open', { url: 'https://github.com/Swiftlyx/OpenChatMix' }); };
@@ -2307,6 +2310,14 @@
     // the look: corners
     document.documentElement.dataset.corn = c.corners || 'round';
     pressed('cornSeg', c.corners || 'round');
+    // volume levelling runs in the Arcmix module: without it, or with an older build, the note says what to do
+    var lm = s.apoMod || {};
+    pressed('lvlSet', c.loudness || '');
+    var lvlMsg = !c.loudness ? '' : lm.busy ? tx('Модуль Arcmix встановлюється: підтвердіть дозвіл у вікні Windows.')
+      : !lm.onDevs ? tx('Вирівнювання працює в модулі Arcmix, а його ще немає на жодному пристрої виводу: увімкніть «EQ Windows».')
+      : lm.old ? tx('Модуль Arcmix на пристроях старіший за програму і вирівнювання ще не вміє. Оновлення попросить дозволу адміністратора, звук на кілька секунд зникне.') : '';
+    $('lvlNote').classList.toggle('hide', !lvlMsg); $('lvlNoteT').textContent = lvlMsg;
+    $('lvlUpd').classList.toggle('hide', !(c.loudness && lm.old && !lm.busy && lm.onDevs));
     if (c.theme === 'custom' && !(hH.busy() || hS.busy() || hL.busy())) syncHSL();
     // the tray icon: what it shows, and the wheel over it flips that for a while (or moves the balance)
     pressed('trayShow', c.trayBattery ? 'battery' : 'icon');
@@ -2369,10 +2380,17 @@
     if (canSW) {
       $('eqTarget').querySelector('[data-t=hw]').classList.toggle('hide', !hwEq);
       $('eqTarget').querySelector('[data-t=hw]').textContent = 'EQ' + (dev.name ? ' ' + dev.name : '');
-      // the curves per group through the cables are left out: the headset's own and the one of everything
-      ['game', 'chat', 'media'].forEach(function (k) { $('eqTarget').querySelector('[data-t=' + k + ']').classList.add('hide'); });
+      // a group's own curve works only while the group plays into a virtual cable of its own (routing);
+      // without one its tab is dimmed and leads to the routing settings
+      ['game', 'chat', 'media'].forEach(function (k) {
+        var b = $('eqTarget').querySelector('[data-t=' + k + ']'), on = !!(rcfg[k] && s.route && s.route.running);
+        b.classList.toggle('hide', !feat('route'));
+        b.classList.toggle('dim', !on);
+        b.title = on ? '' : tx('Окрема крива групи працює, коли група грає у свій віртуальний кабель: Налаштування → Пристрої → Маршрутизація');
+      });
     }
-    if (eqT !== 'hw' && (eqT !== 'all' || !canSW)) setTarget('hw');
+    var grpOn = function (k) { return !!(rcfg[k] && s.route && s.route.running); };
+    if (eqT !== 'hw' && !(eqT === 'all' ? canSW : grpOn(eqT))) setTarget('hw');
     // no headset equalizer: the software one of everything
     if (eqT === 'hw' && !hwEq && canSW) setTarget('all');
     // the headset is off or gone: what plays is the curve of everything, so it comes into focus (once
