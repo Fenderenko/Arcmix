@@ -36,6 +36,8 @@ const RATE: u32 = 48000;
 /// The wanted mode (index in MODES) and strength (f32 bits, 0..1), set from the config.
 static MODE: AtomicU8 = AtomicU8::new(0);
 static STRENGTH: AtomicU32 = AtomicU32::new(0x3F80_0000); // 1.0
+/// The mode + 1 of the effect a microphone stream runs (0 — none): no spare one of it is loaded.
+static IN_USE: AtomicU8 = AtomicU8::new(0);
 
 pub fn mode_index(name: &str) -> Option<u8> {
     MODES.iter().position(|m| m.0 == name).map(|i| i as u8)
@@ -133,6 +135,8 @@ pub struct Model {
     mode: u8,
     /// intensity_ratio in effect
     strength: f32,
+    /// taken by a microphone stream (IN_USE)
+    taken: bool,
 }
 
 // SAFETY: the SDK handle has no thread affinity (the effect uses the primary CUDA context of the
@@ -141,6 +145,9 @@ unsafe impl Send for Model {}
 
 impl Drop for Model {
     fn drop(&mut self) {
+        if self.taken {
+            let _ = IN_USE.compare_exchange(self.mode + 1, 0, Ordering::AcqRel, Ordering::Relaxed);
+        }
         unsafe { (self.api.destroy)(self.h) };
     }
 }
@@ -161,7 +168,7 @@ impl Model {
         }
         let strength = f32::from_bits(STRENGTH.load(Ordering::Relaxed));
         // destroyed on any error below
-        let m = Model { h, api, frame: (RATE / 100) as usize, mode, strength };
+        let m = Model { h, api, frame: (RATE / 100) as usize, mode, strength, taken: false };
         let path = cs(&dir.join(model).to_string_lossy());
         let r = unsafe { (api.set_string)(h, cs("model_path").as_ptr(), path.as_ptr()) };
         if r != 0 {
@@ -225,10 +232,11 @@ pub fn status() -> NvStatus {
     NvStatus { state, modes }
 }
 
-/// Loads the effect of the wanted mode in the background unless it waits already or loading failed.
+/// Loads the effect of the wanted mode in the background unless it waits already, a stream runs it
+/// already (a spare one would only hold GPU and process memory), or loading failed.
 pub fn preload() {
     let mode = MODE.load(Ordering::Relaxed);
-    let waits = SLOT.lock().map(|s| s.as_ref().is_some_and(|m| m.mode == mode)).unwrap_or(true);
+    let waits = IN_USE.load(Ordering::Acquire) == mode + 1 || SLOT.lock().map(|s| s.as_ref().is_some_and(|m| m.mode == mode)).unwrap_or(true);
     if !available() || LOAD.load(Ordering::Relaxed) == 3 || waits || LOADING.swap(true, Ordering::AcqRel) {
         return;
     }
@@ -272,9 +280,13 @@ pub fn release() {
 /// uses RNNoise meanwhile. Never blocks.
 pub fn take() -> Option<Model> {
     let mode = MODE.load(Ordering::Relaxed);
-    let m = SLOT.try_lock().ok().and_then(|mut s| if s.as_ref().is_some_and(|m| m.mode == mode) { s.take() } else { None });
-    if m.is_none() {
-        preload();
+    let mut m = SLOT.try_lock().ok().and_then(|mut s| if s.as_ref().is_some_and(|m| m.mode == mode) { s.take() } else { None });
+    match &mut m {
+        Some(e) => {
+            e.taken = true;
+            IN_USE.store(mode + 1, Ordering::Release);
+        }
+        None => preload(),
     }
     m
 }

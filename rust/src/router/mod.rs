@@ -750,18 +750,21 @@ pub fn sync(c: &Config) {
     crate::nvafx::set(&mc.nv_mode, mc.nv_strength);
     let comp = if mc.comp { (mc.comp_db, mc.comp_ratio, mc.comp_gain) } else { (0.0, 1.0, 0.0) };
     let order = crate::dsp::order_code(&mc.order);
-    if quality {
-        crate::nvafx::preload(); // the effect waits for the stream, loaded off the audio thread
-    } else {
-        crate::nvafx::release();
-    }
     // asleep (micFx.sleep): no app records from the cable, and neither the Microphone tab's levels nor
-    // "listen to yourself" need the processed sound; the plugins and the NVIDIA effect stay loaded
+    // "listen to yourself" need the processed sound; the plugins stay loaded
     let sleepy = want_mic && mc.sleep;
     crate::audio::watch_cable(if sleepy { &mc.out } else { "" });
     let asleep = sleepy && crate::audio::cable_idle() && FX_WATCH.load(Ordering::Relaxed) == 0 && !(monitor_wanted() && c.on("monitor"));
     if MIC_ASLEEP.swap(asleep, Ordering::Relaxed) != asleep {
         crate::server::notify_subs();
+    }
+    // the NVIDIA effect only while it processes sound: loading it brings CUDA and TensorRT into the process
+    // (hundreds of MB that stay until exit), so not for processing that sleeps or uses RNNoise; a waiting
+    // effect is freed meanwhile (its GPU memory), the next wake loads it again in a fraction of a second
+    if quality && !asleep {
+        crate::nvafx::preload(); // the effect waits for the stream, loaded off the audio thread
+    } else {
+        crate::nvafx::release();
     }
     // the same microphone whose volume and mute the app controls
     let msig = format!("{}|{}", c.mic_dev, mc.out);
@@ -795,7 +798,9 @@ pub fn sync(c: &Config) {
     }
 
     // ----- "listen to yourself" -----
-    let tap = r.mic.as_ref().is_some_and(|p| p.running.load(Ordering::Relaxed));
+    // the processed sound as soon as processing starts (it may have just woken for this): not the bare
+    // microphone for the seconds until it runs
+    let tap = r.mic.as_ref().is_some_and(|p| !p.stopped());
     let src = if tap { "tap".to_string() } else { format!("dev:{}", c.mic_dev) };
     let cur = r.mon.take();
     r.mon = r.keep(cur, "monitor", monitor_wanted() && c.on("monitor"), &src, || Pipeline::new("monitor", src.clone(), String::new(), vec![PipeIn::new(&c.mic_dev, false, tap)]));

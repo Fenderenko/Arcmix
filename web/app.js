@@ -1665,7 +1665,7 @@
     var kind = mf.denoiseKind === 'nv' ? 'nv' : 'rnn', nv = s.nv || {};
     $('dnBox').classList.toggle('hide', !mf.denoise);
     pressed('dnKind', kind);
-    $('dnHint').textContent = tx(kind === 'nv' ? 'NVIDIA RTX · найчистіший голос, на відеокарті; програма займатиме ~200 МБ пам’яті більше' : 'RNNoise · найменша затримка, +10 мс');
+    $('dnHint').textContent = tx(kind === 'nv' ? 'NVIDIA RTX · найчистіший голос, на відеокарті. Вантажиться, лише коли мікрофон слухають; відтоді бібліотеки NVIDIA (~300 МБ пам’яті) лишаються до виходу з Arcmix' : 'RNNoise · найменша затримка, +10 мс');
     var nvNote = kind === 'nv' && nv.state !== 'ready' ? (nv.state === 'loading' ? tx('Шумодав NVIDIA завантажується (перший раз — до пів хвилини). Поки що працює RNNoise.')
       : nv.state === 'failed' ? tx('Шумодав NVIDIA не запустився — працює RNNoise. Потрібна відеокарта NVIDIA RTX.')
       : tx('Потрібна відеокарта NVIDIA RTX і NVIDIA Audio Effects (безкоштовно, з сайту NVIDIA): оберіть свою серію RTX у розділі Audio Effects. Поки його немає, працює RNNoise.')) : '';

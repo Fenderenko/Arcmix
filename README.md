@@ -23,7 +23,7 @@ Arcmix started from the idea of Swiftlyx's [OpenChatMix](https://github.com/Swif
 - **Equalizer presets.** Built-in presets, your own presets (edit, save, rename, delete) and the headset's own equalizer with the presets built into it, where it has them. With [Equalizer APO](https://sourceforge.net/projects/equalizerapo/) installed, Arcmix drives it too and adds AutoEQ correction for your headphone model.
 - **Microphone.** Volume, mute hotkey, push-to-talk on a key or a mouse button, soft sound cues and a mute badge on the tray icon.
 - **Hear yourself.** Record 5 seconds and play them back, or listen to your microphone live, after processing.
-- **Microphone processing.** Neural noise suppression — light RNNoise, or NVIDIA's on RTX graphics cards (with the NVIDIA Audio Effects SDK installed), which also removes room echo, with adjustable strength — a compressor, a noise gate, a loudness ceiling and 64-bit VST2 / VST3 plugins, in an order you can change. Needs a virtual audio cable, e.g. the free [VB-CABLE](https://vb-audio.com/Cable/) or Virtual Audio Cable; a cable disabled in Windows is switched on when you pick it. While no app records from the cable, processing pauses (less load on the CPU, and on the graphics card with NVIDIA) and starts again the moment an app opens the microphone.
+- **Microphone processing.** Neural noise suppression — light RNNoise, or NVIDIA's on RTX graphics cards (with the NVIDIA Audio Effects SDK installed), which also removes room echo, with adjustable strength (it loads only while someone listens to the microphone; from then on the NVIDIA libraries, about 300 MB of memory, stay until Arcmix exits) — a compressor, a noise gate, a loudness ceiling and 64-bit VST2 / VST3 plugins, in an order you can change. Needs a virtual audio cable, e.g. the free [VB-CABLE](https://vb-audio.com/Cable/) or Virtual Audio Cable; a cable disabled in Windows is switched on when you pick it. While no app records from the cable, processing pauses (less load on the CPU, and on the graphics card with NVIDIA) and starts again the moment an app opens the microphone.
 - **Bluetooth headphones battery** in the header, as Windows knows it.
 - **Headset settings.** Battery with alerts and a time estimate, sidetone, auto power-off, mute light and more, depending on the model.
 - **Output devices by priority.** Sound goes to the highest connected device in your list: headset on, to the headset; off, to the next one. The headset microphone can follow it. You choose what happens when a device connects (switch to it if it is higher in the list, always, or never) and when one disconnects.
@@ -40,7 +40,7 @@ Arcmix started from the idea of Swiftlyx's [OpenChatMix](https://github.com/Swif
 
 ## Download and install
 
-1. Download `Arcmix-1.4.5.zip` from [Releases](../../releases) and unpack it to any folder (e.g. `C:\Programs\Arcmix`).
+1. Download `Arcmix-1.5.0.zip` from [Releases](../../releases) and unpack it to any folder (e.g. `C:\Programs\Arcmix`).
 2. Run `Arcmix.exe`. The exe is not code-signed, so Windows SmartScreen may warn you: click **More info → Run anyway**.
 3. The icon appears in the tray (click it to open the window). A short first-run guide walks through the basics, the equalizer module included.
 

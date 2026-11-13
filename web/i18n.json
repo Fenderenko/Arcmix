@@ -168,15 +168,15 @@
    "pt": "O Equalizer APO ainda não funciona em “%s”. Na janela que abrir, marque este dispositivo, clique em OK e reinicie o PC.",
    "tr": "Equalizer APO henüz “%s” üzerinde çalışmıyor. Açılan pencerede bu aygıtı işaretleyin, Tamam'a basın ve bilgisayarı yeniden başlatın."
   },
-  "NVIDIA RTX · найчистіший голос, на відеокарті; програма займатиме ~200 МБ пам’яті більше": {
-   "de": "NVIDIA RTX · die klarste Stimme, auf der Grafikkarte; die App braucht ~200 MB mehr Speicher",
-   "en": "NVIDIA RTX · the cleanest voice, on the graphics card; the app will use ~200 MB more memory",
-   "es": "NVIDIA RTX · la voz más limpia, en la tarjeta gráfica; la aplicación usará ~200 MB más de memoria",
-   "fr": "NVIDIA RTX · la voix la plus nette, sur la carte graphique ; l'application utilisera ~200 Mo de mémoire en plus",
-   "it": "NVIDIA RTX · la voce più pulita, sulla scheda video; l'app userà ~200 MB di memoria in più",
-   "pl": "NVIDIA RTX · najczystszy głos, na karcie graficznej; aplikacja zajmie ~200 MB pamięci więcej",
-   "pt": "NVIDIA RTX · a voz mais limpa, na placa de vídeo; o aplicativo usará ~200 MB a mais de memória",
-   "tr": "NVIDIA RTX · en temiz ses, ekran kartında; uygulama ~200 MB daha fazla bellek kullanır"
+  "NVIDIA RTX · найчистіший голос, на відеокарті. Вантажиться, лише коли мікрофон слухають; відтоді бібліотеки NVIDIA (~300 МБ пам’яті) лишаються до виходу з Arcmix": {
+   "de": "NVIDIA RTX · die klarste Stimme, auf der Grafikkarte. Wird nur geladen, wenn jemand das Mikrofon hört; danach bleiben die NVIDIA-Bibliotheken (~300 MB Speicher) bis zum Beenden von Arcmix",
+   "en": "NVIDIA RTX · the cleanest voice, on the graphics card. It loads only while someone listens to the microphone; from then on the NVIDIA libraries (~300 MB of memory) stay until Arcmix exits",
+   "es": "NVIDIA RTX · la voz más limpia, en la tarjeta gráfica. Se carga solo cuando alguien escucha el micrófono; desde entonces las bibliotecas de NVIDIA (~300 MB de memoria) quedan hasta cerrar Arcmix",
+   "fr": "NVIDIA RTX · la voix la plus nette, sur la carte graphique. Se charge seulement quand quelqu'un écoute le micro ; ensuite les bibliothèques NVIDIA (~300 Mo de mémoire) restent jusqu'à la fermeture d'Arcmix",
+   "it": "NVIDIA RTX · la voce più pulita, sulla scheda video. Si carica solo quando qualcuno ascolta il microfono; da allora le librerie NVIDIA (~300 MB di memoria) restano fino alla chiusura di Arcmix",
+   "pl": "NVIDIA RTX · najczystszy głos, na karcie graficznej. Ładuje się tylko, gdy ktoś słucha mikrofonu; od tej chwili biblioteki NVIDIA (~300 MB pamięci) zostają do zamknięcia Arcmix",
+   "pt": "NVIDIA RTX · a voz mais limpa, na placa de vídeo. Só carrega quando alguém ouve o microfone; depois disso as bibliotecas da NVIDIA (~300 MB de memória) ficam até fechar o Arcmix",
+   "tr": "NVIDIA RTX · en temiz ses, ekran kartında. Yalnızca mikrofonu biri dinlerken yüklenir; o andan sonra NVIDIA kitaplıkları (~300 MB bellek) Arcmix kapanana kadar kalır"
   },
   "RNNoise · найменша затримка, +10 мс": {
    "de": "RNNoise · geringste Verzögerung, +10 ms",
