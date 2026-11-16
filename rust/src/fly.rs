@@ -12,8 +12,9 @@ use webview2_com::{
     Microsoft::Web::WebView2::Win32::{
         COREWEBVIEW2_COLOR, COREWEBVIEW2_MEMORY_USAGE_TARGET_LEVEL_LOW, COREWEBVIEW2_MEMORY_USAGE_TARGET_LEVEL_NORMAL, COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC, CreateCoreWebView2EnvironmentWithOptions, GetAvailableCoreWebView2BrowserVersionString, ICoreWebView2,
         ICoreWebView2_19, ICoreWebView2Controller, ICoreWebView2Controller2, ICoreWebView2Settings3, ICoreWebView2Settings5, ICoreWebView2Settings6,
+        COREWEBVIEW2_PROCESS_FAILED_KIND,
     },
-    NavigationCompletedEventHandler,
+    NavigationCompletedEventHandler, ProcessFailedEventHandler,
 };
 use windows::{
     Win32::{
@@ -69,12 +70,14 @@ struct Fly {
     shown_at: Instant,
     recreated: Option<Instant>,
     class_ok: bool,
+    /// when the window was created, while WebView2 is not ready yet
+    creating_at: Instant,
 }
 
 thread_local! {
     static FLY: RefCell<Fly> = RefCell::new(Fly {
         hwnd: HWND::default(), ctl: None, wv: None, st: St::None, visible: false, hidden_at: None,
-        shown_at: Instant::now(), recreated: None, class_ok: false,
+        shown_at: Instant::now(), recreated: None, class_ok: false, creating_at: Instant::now(),
     });
 }
 
@@ -89,6 +92,10 @@ pub static SHOWN: AtomicBool = AtomicBool::new(false);
 /// When the page answered last (UnixNano) and its size in physical pixels (w<<32 | h).
 pub static ALIVE: AtomicI64 = AtomicI64::new(0);
 pub static ALIVE_SIZE: AtomicI64 = AtomicI64::new(0);
+/// A WebView2 process failed (the event): the watchdog creates the window anew on its next tick.
+static FAILED: AtomicBool = AtomicBool::new(false);
+/// WebView2 not ready this long after the window was made: it is made again (an empty window otherwise).
+const CREATE_LIMIT: Duration = Duration::from_secs(10);
 
 fn now_nanos() -> i64 {
     std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_nanos() as i64).unwrap_or(0)
@@ -115,8 +122,15 @@ pub fn toggle() {
 }
 
 pub fn open() {
-    if server::port() == 0 || fly(|f| f.st == St::Creating) {
+    if server::port() == 0 {
         return;
+    }
+    if fly(|f| f.st == St::Creating) {
+        if fly(|f| f.creating_at.elapsed()) < CREATE_LIMIT {
+            return;
+        }
+        logf!("webview: not ready {} s after the window was made — making it again", CREATE_LIMIT.as_secs());
+        close();
     }
     if fly(|f| f.st == St::None) && !create() {
         return;
@@ -228,7 +242,12 @@ fn create() -> bool {
     fly(|f| {
         f.hwnd = hwnd;
         f.st = St::Creating;
+        f.creating_at = Instant::now();
     });
+    unsafe {
+        // the watchdog looks again if WebView2 never comes (no callback at all)
+        SetTimer(Some(util::main_hwnd()), TIMER_WATCH, CREATE_LIMIT.as_millis() as u32 + 500, None);
+    }
     set_icons(hwnd);
     unsafe {
         let pref = DWMWCP_ROUND;
@@ -248,34 +267,37 @@ fn create() -> bool {
     let data = HSTRING::from(util::data_dir().join("webview").as_os_str());
     let handler = CreateCoreWebView2EnvironmentCompletedHandler::create(Box::new(move |res, env| {
         let Some(env) = env.filter(|_| res.is_ok()) else {
-            fail("environment", res.err());
+            fail(hwnd, "environment", res.err());
             return Ok(());
         };
         let handler = CreateCoreWebView2ControllerCompletedHandler::create(Box::new(move |res, ctl| {
             match ctl.filter(|_| res.is_ok()) {
                 Some(ctl) => util::safely("webview", || ready(hwnd, ctl)),
                 None => {
-                    fail("controller", res.err());
+                    fail(hwnd, "controller", res.err());
                     true
                 }
             };
             Ok(())
         }));
         if let Err(e) = unsafe { env.CreateCoreWebView2Controller(hwnd, &handler) } {
-            fail("controller", Some(e));
+            fail(hwnd, "controller", Some(e));
         }
         Ok(())
     }));
     if let Err(e) = unsafe { CreateCoreWebView2EnvironmentWithOptions(PCWSTR::null(), &data, None, &handler) } {
-        fail("environment", Some(e));
+        fail(hwnd, "environment", Some(e));
         return false;
     }
     true
 }
 
 /// WebView2 could not start: the window is closed and the page opens in the browser.
-fn fail(what: &str, e: Option<windows::core::Error>) {
+fn fail(hwnd: HWND, what: &str, e: Option<windows::core::Error>) {
     logf!("failed to create WebView2 ({what}): {e:?}");
+    if fly(|f| f.hwnd) != hwnd {
+        return; // a window made before it was made again: nothing of the current one to undo
+    }
     let hwnd = fly(|f| std::mem::take(&mut f.hwnd));
     if !hwnd.is_invalid() {
         unsafe {
@@ -293,8 +315,13 @@ fn fail(what: &str, e: Option<windows::core::Error>) {
 }
 
 fn ready(hwnd: HWND, ctl: ICoreWebView2Controller) {
+    if fly(|f| f.hwnd) != hwnd {
+        // WebView2 came late for a window that was made again meanwhile: the current one waits for its own
+        let _ = unsafe { ctl.Close() };
+        return;
+    }
     let Ok(wv) = (unsafe { ctl.CoreWebView2() }) else {
-        fail("webview", None);
+        fail(hwnd, "webview", None);
         return;
     };
     unsafe {
@@ -313,6 +340,26 @@ fn ready(hwnd: HWND, ctl: ICoreWebView2Controller) {
                 let _ = s6.SetIsSwipeNavigationEnabled(false);
             }
         }
+        // the browser, the page or the GPU process of WebView2 died (sleep, a video driver reset): the
+        // window would stay empty — it is made anew by the watchdog (not inside this event)
+        let mut token = Default::default();
+        let _ = wv.add_ProcessFailed(
+            &ProcessFailedEventHandler::create(Box::new(|_, args| {
+                let mut kind = COREWEBVIEW2_PROCESS_FAILED_KIND::default();
+                if let Some(a) = args {
+                    let _ = a.ProcessFailedKind(&mut kind);
+                }
+                // 0 browser, 1 page, 2 page unresponsive, 6 GPU; the rest (frames, helpers) heal by themselves
+                let fatal = matches!(kind.0, 0 | 1 | 2 | 6);
+                logf!("webview: process failed (kind {}){}", kind.0, if fatal { " — making the window again" } else { "" });
+                if fatal {
+                    FAILED.store(true, Ordering::Relaxed);
+                    SetTimer(Some(util::main_hwnd()), TIMER_WATCH, 100, None);
+                }
+                Ok(())
+            })),
+            &mut token,
+        );
         let mut token = Default::default();
         let _ = wv.add_NavigationCompleted(
             &NavigationCompletedEventHandler::create(Box::new(|_, args| {
@@ -587,7 +634,20 @@ pub fn watch() {
     unsafe {
         let _ = KillTimer(Some(util::main_hwnd()), TIMER_WATCH);
     }
-    let (vis, has, shown_at, hwnd, recreated) = fly(|f| (f.visible, f.ctl.is_some(), f.shown_at, f.hwnd, f.recreated));
+    if FAILED.swap(false, Ordering::Relaxed) {
+        // a hidden window is only closed: it is made anew when opened
+        let vis = visible();
+        close();
+        if vis {
+            open();
+        }
+        return;
+    }
+    let (vis, has, shown_at, hwnd, recreated, st, creating) = fly(|f| (f.visible, f.ctl.is_some(), f.shown_at, f.hwnd, f.recreated, f.st, f.creating_at));
+    if vis && st == St::Creating && creating.elapsed() >= CREATE_LIMIT {
+        open(); // it makes the window again
+        return;
+    }
     if !vis || !has {
         return;
     }

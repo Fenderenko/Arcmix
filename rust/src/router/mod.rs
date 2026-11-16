@@ -680,13 +680,35 @@ fn same_bands(a: &Option<Arc<Vec<f64>>>, b: &Option<Arc<Vec<f64>>>) -> bool {
     }
 }
 
+static EQ_FILES: Mutex<Option<((u64, u64), Instant)>> = Mutex::new(None);
+
+/// Something outside the settings and the device list changed for Equalizer APO or the module (set up,
+/// its devices picked): the next sync writes their files again.
+pub fn eq_files_stale() {
+    *lock(&EQ_FILES) = None;
+}
+
 /// Brings the running pipelines in line with the settings.
 pub fn sync(c: &Config) {
     if util::main_hwnd().is_invalid() {
         return; // the app has not started yet (or tests)
     }
-    crate::apo::sync(c);
-    crate::apomod::sync(c);
+    // the files of Equalizer APO and of the module depend on the settings and the devices: written again
+    // when either changed, and once a minute (an install or a device's effects change outside the app);
+    // before, every 2 s took two threads and a full device list
+    let key = (config::generation(), crate::audio::dev_generation());
+    let due = {
+        let mut l = lock(&EQ_FILES);
+        let due = l.as_ref().is_none_or(|(k, t)| *k != key || t.elapsed() >= Duration::from_secs(60));
+        if due {
+            *l = Some((key, Instant::now()));
+        }
+        due
+    };
+    if due {
+        crate::apo::sync(c);
+        crate::apomod::sync(c);
+    }
     let mut g = lock(&MGR);
     let r = &mut *g;
 

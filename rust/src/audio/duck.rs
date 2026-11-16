@@ -34,6 +34,9 @@ use super::{
 use crate::{config::Config, logf, server};
 
 pub const DUCK_TICK: Duration = Duration::from_millis(25);
+/// While the chat is silent and nothing is ducked: half as many wakeups. Any sound above the background
+/// brings DUCK_TICK back for the next measurement, so ducking starts at most one DUCK_TICK later.
+const DUCK_TICK_IDLE: Duration = Duration::from_millis(50);
 /// Quieter is not talk (a normal voice in Discord is −30 dB and louder).
 const DUCK_MIN_DB: f64 = -42.0;
 /// A voice is at least this much above the background.
@@ -91,6 +94,8 @@ pub(super) struct Ducker {
     game_factor: f32,
     /// measurements in a row with voice in chat
     above: i32,
+    /// the step ran on DUCK_TICK_IDLE: it stands for two DUCK_TICK measurements
+    slow: bool,
     last_voice: Option<Instant>,
     speaking: bool,
     /// the next step (None when there is nothing to watch)
@@ -101,7 +106,7 @@ pub(super) struct Ducker {
     echo_at: Option<Instant>,
     loud_db: f64,
     loud_name: String,
-    // duck_step working tables (40 times a second) — the same every time, no new allocations
+    // duck_step working tables (20–40 times a second) — the same every time, no new allocations
     post: HashMap<String, f64>,
     ep_now: HashMap<String, f64>,
     sum_lin: HashMap<String, f64>,
@@ -128,6 +133,7 @@ impl Default for Ducker {
             cur: 1.0,
             game_factor: 1.0,
             above: 0,
+            slow: false,
             last_voice: None,
             speaking: false,
             next: None,
@@ -332,6 +338,7 @@ impl Engine {
         if !active {
             d.next = None;
             d.above = 0;
+            d.slow = false;
             d.last_voice = None;
             d.logged.clear();
             d.set_speaking(false, "", 0.0, 0.0);
@@ -345,7 +352,15 @@ impl Engine {
         }
     }
 
+    /// The time to the next step: the quiet one while nothing sounds in the chat and nothing is ducked.
+    pub(super) fn duck_tick(&self) -> Duration {
+        if self.dk.slow { DUCK_TICK_IDLE } else { DUCK_TICK }
+    }
+
     pub(super) fn duck_step(&mut self) {
+        // a quiet step stands for two: the level histories keep their DUCK_TICK grid (the value is held)
+        // and the background moves as much as in two steps
+        let n = if self.dk.slow { 2 } else { 1 };
         // the level of every device and the loudest other app on it (with its volume: the session
         // meter shows sound before the volume, and the copy in chat — after it); the tables keep
         // their keys between steps, so a step allocates nothing in the usual case
@@ -360,7 +375,9 @@ impl Engine {
         }
         for (dev, em) in &d.eps {
             if let Some(db) = peak_db(em) {
-                hist_push(&mut d.ep_hist, dev, db);
+                for _ in 0..n {
+                    hist_push(&mut d.ep_hist, dev, db);
+                }
                 set_val(&mut d.ep_now, dev, db);
             }
             set_val(&mut d.post, dev, -120.0);
@@ -372,7 +389,9 @@ impl Engine {
             let mute = sav.is_some_and(|s| unsafe { s.GetMute() }.map(|b| b.as_bool()).unwrap_or(false));
             let vol = sav.map(com::get_vol).unwrap_or(1.0);
             let pdb = if mute { -120.0 } else { db + 20.0 * (vol as f64).max(1e-6).log10() };
-            hist_push(&mut d.hist, &o.key, pdb);
+            for _ in 0..n {
+                hist_push(&mut d.hist, &o.key, pdb);
+            }
             if let Some(v) = d.post.get_mut(&o.dev) {
                 if pdb > *v {
                     *v = pdb;
@@ -389,7 +408,9 @@ impl Engine {
             }
         }
         for (dev, v) in &d.post {
-            hist_push(&mut d.post_hist, dev, *v);
+            for _ in 0..n {
+                hist_push(&mut d.post_hist, dev, *v);
+            }
         }
         d.loud_db = od;
         if let Some(i) = oname {
@@ -411,7 +432,9 @@ impl Engine {
             } else {
                 continue;
             };
-            hist_push(&mut d.hist, &m.key, db);
+            for _ in 0..n {
+                hist_push(&mut d.hist, &m.key, db);
+            }
             let mut db = db;
             if pm.is_none() && d.is_mirror(&m.key, &m.exe, &m.dev, db) {
                 // the session meter shows all headset sound; the chat voice is only what is above
@@ -421,8 +444,8 @@ impl Engine {
             // background: drops fast to quieter values, rises slowly (≈4 dB/s)
             let f = match d.floor.get(&m.key) {
                 None => db,
-                Some(&f) if db < f => f + (db - f) * 0.3,
-                Some(&f) => f + DUCK_FLOOR_RISE,
+                Some(&f) if db < f => f + (db - f) * if n == 2 { 0.51 } else { 0.3 }, // 1 − 0.7²
+                Some(&f) => f + DUCK_FLOOR_RISE * n as f64,
             }
             .max(DUCK_FLOOR_MIN);
             set_val(&mut d.floor, &m.key, f);
@@ -478,6 +501,8 @@ impl Engine {
         if (d.cur - target).abs() < 0.003 {
             d.cur = target;
         }
+        // the next step is the quiet one only with nothing in the chat and nothing ducked or fading
+        d.slow = !voice && !talking && d.cur == 1.0;
         if d.cur != prev {
             self.duck_set_volumes();
         }

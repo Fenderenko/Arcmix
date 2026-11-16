@@ -15,7 +15,7 @@ use std::{
     collections::{BTreeMap, HashMap, HashSet},
     sync::{
         LazyLock, Mutex,
-        atomic::{AtomicBool, AtomicI32, Ordering},
+        atomic::{AtomicBool, AtomicI32, AtomicU64, Ordering},
         mpsc::{self, Receiver, RecvTimeoutError, Sender},
     },
     time::{Duration, Instant},
@@ -370,6 +370,12 @@ fn cable_is_default_mic(en: &windows::Win32::Media::Audio::IMMDeviceEnumerator) 
 static FX_MIC: Mutex<Option<(bool, String)>> = Mutex::new(None);
 /// The devices changed: the same state is looked at again (its cable may have come or gone).
 static FX_RECHECK: AtomicBool = AtomicBool::new(false);
+/// Grows when the audio devices change (what depends on them can skip work while it stays).
+static DEV_GEN: AtomicU64 = AtomicU64::new(0);
+
+pub fn dev_generation() -> u64 {
+    DEV_GEN.load(Ordering::Acquire)
+}
 
 /// Microphone processing is running (router::sync) — as last passed to sync_fx_mic.
 fn fx_mic_on() -> bool {
@@ -668,8 +674,10 @@ fn engine_loop(rx: Receiver<Msg>) {
         }
         let now = Instant::now();
         if e.dk.next.is_some_and(|t| now >= t) {
-            e.dk.next = Some(now + duck::DUCK_TICK);
             util::safely("duck", || e.duck_step());
+            if e.dk.next.is_some() {
+                e.dk.next = Some(now + e.duck_tick());
+            }
         }
         if e.act.next.is_some_and(|t| now >= t) {
             e.act.next = Some(now + activity::ACT_TICK);
@@ -687,6 +695,7 @@ fn engine_loop(rx: Receiver<Msg>) {
             // the cable of microphone processing may have come or gone (installed, switched on in Windows):
             // the next router::sync looks again (the same state does nothing)
             FX_RECHECK.store(true, Ordering::Relaxed);
+            DEV_GEN.fetch_add(1, Ordering::AcqRel);
         }
         if start_due.is_some_and(|t| now >= t) {
             start_due = None;

@@ -319,10 +319,12 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
                 op: String,
             }
             // both wait for a UAC prompt and an elevated program: off the server thread
+            crate::router::eq_files_stale();
             match r.json::<V>().map(|v| v.op).as_deref() {
                 Some("setup") => {
                     std::thread::spawn(|| {
                         crate::apo::setup();
+                        crate::router::eq_files_stale();
                         notify_subs();
                     });
                 }
@@ -340,6 +342,7 @@ fn route(r: &Request, s: &mut TcpStream) -> Reply {
                 Some("devices") => {
                     std::thread::spawn(|| {
                         crate::apo::choose_devices();
+                        crate::router::eq_files_stale();
                         std::thread::spawn(|| crate::router::sync(&config::get()));
                         notify_subs();
                     });

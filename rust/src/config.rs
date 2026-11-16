@@ -4,7 +4,10 @@
 use std::{
     collections::BTreeMap,
     fs,
-    sync::{Mutex, MutexGuard},
+    sync::{
+        Mutex, MutexGuard,
+        atomic::{AtomicU64, Ordering},
+    },
     time::Duration,
 };
 
@@ -500,8 +503,16 @@ pub fn with<R>(f: impl FnOnce(&Config) -> R) -> R {
     }
 }
 
+/// Grows on every change of the settings (what depends on them can skip work while it stays).
+static GEN: AtomicU64 = AtomicU64::new(0);
+
+pub fn generation() -> u64 {
+    GEN.load(Ordering::Acquire)
+}
+
 pub fn replace(c: Config) {
     *lock() = Some(c);
+    GEN.fetch_add(1, Ordering::AcqRel);
 }
 
 /// Changes the settings and writes them right away.
@@ -512,6 +523,7 @@ pub fn set(f: impl FnOnce(&mut Config)) {
         f(c);
         c.clone()
     };
+    GEN.fetch_add(1, Ordering::AcqRel);
     save(&c);
 }
 
@@ -523,6 +535,7 @@ pub fn set_later(f: impl FnOnce(&mut Config)) {
         let mut g = lock();
         f(g.get_or_insert_with(Config::default));
     }
+    GEN.fetch_add(1, Ordering::AcqRel);
     let mut pending = SAVE_LATER.lock().unwrap();
     if !*pending {
         *pending = true;
