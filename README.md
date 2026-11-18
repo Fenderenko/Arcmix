@@ -1,6 +1,6 @@
 # Arcmix
 
-[Українська](README.uk.md) · **English**
+🌐 [Website](https://fenderenko.github.io/Arcmix/) · [Українська](README.uk.md) · **English**
 
 A small Windows tray app for headsets: a game / chat balance for any apps, an equalizer, microphone
 processing and headset settings in one window next to the clock.
