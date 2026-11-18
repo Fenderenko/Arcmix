@@ -89,10 +89,10 @@ a:hover { text-decoration: underline; }
 
 /* the screenshots row */
 .content p[align="center"] {
-  display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 30px 0 10px;
+  display: flex; gap: 12px; justify-content: center; flex-wrap: nowrap; margin: 30px 0 10px;
 }
 /* four in a row; an image may come wrapped in a link */
-.content p[align="center"] > img, .content p[align="center"] > a { flex: 0 1 calc((100% - 42px) / 4); max-width: 196px; }
+.content p[align="center"] > img, .content p[align="center"] > a { flex: 1 1 0; min-width: 0; max-width: 196px; }
 .content p[align="center"] img {
   display: block; width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line2);
   box-shadow: 0 12px 34px rgba(0, 0, 0, .35); background: var(--s1);
@@ -127,5 +127,6 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 36px 0; }
   .links a:not(.btn) { display: none; }
   .hero { padding-top: 40px; }
   .hero h1 { font-size: 34px; }
-  .content p[align="center"] > img, .content p[align="center"] > a { flex-basis: calc(50% - 8px); }
+  .content p[align="center"] { flex-wrap: wrap; }
+  .content p[align="center"] > img, .content p[align="center"] > a { flex: 0 1 calc(50% - 6px); }
 }
