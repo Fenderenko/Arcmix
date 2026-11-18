@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{%- assign uk = page.path contains '.uk.' -%}
+{%- assign uk = false -%}{%- if page.path contains '.uk.' -%}{%- assign uk = true -%}{%- endif -%}
 <html lang="{% if uk %}uk{% else %}en{% endif %}">
 <head>
   <meta charset="utf-8">
