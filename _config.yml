@@ -1,0 +1,19 @@
+# GitHub Pages: the README pages in Arcmix's own look (_layouts/default.html, assets/site.css).
+title: Arcmix
+description: Game / chat balance, an equalizer and microphone processing for any headset on Windows
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+# the app's sources are not part of the site
+exclude:
+  - rust
+  - tools
+  - testdata
+  - web/app.js
+  - web/app.css
+  - web/index.html
+  - web/i18n.json
+  - web/devices.json
+  - CLAUDE.md

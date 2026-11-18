@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+{%- assign uk = page.path contains '.uk.' -%}
+<html lang="{% if uk %}uk{% else %}en{% endif %}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ site.title }}{% if uk %} — баланс гри й чату, еквалайзер і мікрофон для будь-якої гарнітури{% else %} — {{ site.description }}{% endif %}</title>
+  <meta name="description" content="{% if uk %}Баланс гри й чату для будь-яких програм, еквалайзер, обробка мікрофона й налаштування гарнітури у Windows{% else %}{{ site.description }}{% endif %}">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" type="image/png" href="{{ '/assets/app.png' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/site.css' | relative_url }}">
+  <style>@font-face{font-family:"Onest";src:url({{ '/web/onest.ttf' | relative_url }}) format("truetype");font-weight:100 900;font-display:swap}</style>
+</head>
+<body>
+  <header class="bar">
+    <div class="wrap bar-in">
+      <a class="brand" href="{% if uk %}{{ '/README.uk.html' | relative_url }}{% else %}{{ '/' | relative_url }}{% endif %}">
+        <svg class="mark" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 21 20Q12 14 3 20Z" fill="currentColor"/></svg>
+        <span>Arcmix</span>
+      </a>
+      <nav class="links">
+        <a href="{% if uk %}{{ '/' | relative_url }}{% else %}{{ '/README.uk.html' | relative_url }}{% endif %}">{% if uk %}English{% else %}Українська{% endif %}</a>
+        <a href="https://github.com/Fenderenko/Arcmix">GitHub</a>
+        <a class="btn" href="https://github.com/Fenderenko/Arcmix/releases/latest">{% if uk %}Завантажити{% else %}Download{% endif %}</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="wrap">
+      <svg class="logo" width="88" height="88" viewBox="0 0 100 100" aria-hidden="true">
+        <defs>
+          <clipPath id="hc"><rect x="3" y="3" width="94" height="94" rx="21.5"/></clipPath>
+          <linearGradient id="hs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0C0E2C"/><stop offset="1" stop-color="#1E2460"/></linearGradient>
+          <linearGradient id="hp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2D3080"/><stop offset=".45" stop-color="#1F225A"/></linearGradient>
+          <path id="ht" d="M16 50Q41 46 50 13Q59 46 84 50Q50 34 16 50Z"/>
+        </defs>
+        <rect x="3" y="3" width="94" height="94" rx="21.5" fill="url(#hs)"/>
+        <g clip-path="url(#hc)">
+          <g fill="#C9C6F2"><circle cx="19" cy="19" r="1.2"/><circle cx="80" cy="15" r="1"/><circle cx="87" cy="34" r="1.2"/><circle cx="11" cy="40" r="1"/><circle cx="33" cy="10" r=".8"/><circle cx="62" cy="8" r=".7"/><circle cx="90" cy="57" r=".8"/></g>
+          <use href="#ht" y="0" fill="#3B2A9A"/><use href="#ht" y="3.6" fill="#5631C4"/><use href="#ht" y="7.2" fill="#7638DD"/><use href="#ht" y="10.8" fill="#9D44E6"/><use href="#ht" y="14.4" fill="#C855E2"/><use href="#ht" y="18" fill="#EE74D8"/><use href="#ht" y="21.6" fill="#FFCDEB"/>
+          <circle cx="50" cy="132.8" r="68" fill="url(#hp)"/>
+          <circle cx="50" cy="132.8" r="67.7" fill="none" stroke="#8C89E0" stroke-opacity=".45" stroke-width=".8"/>
+        </g>
+        <rect x="3.4" y="3.4" width="93.2" height="93.2" rx="21.1" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width=".8"/>
+      </svg>
+      <h1>Arcmix</h1>
+      <p class="tag">{% if uk %}Баланс гри й чату для будь-яких програм, еквалайзер, обробка мікрофона й налаштування гарнітури — в одному вікні біля годинника.{% else %}A game / chat balance for any apps, an equalizer, microphone processing and headset settings — in one window next to the clock.{% endif %}</p>
+      <div class="cta">
+        <a class="btn big" href="https://github.com/Fenderenko/Arcmix/releases/latest">{% if uk %}Завантажити для Windows{% else %}Download for Windows{% endif %}</a>
+        <a class="ghost big" href="https://github.com/Fenderenko/Arcmix">{% if uk %}Код на GitHub{% else %}Source on GitHub{% endif %}</a>
+      </div>
+      <p class="fine">{% if uk %}Windows 10 / 11 · безкоштовно · GPL-3.0{% else %}Windows 10 / 11 · free · GPL-3.0{% endif %}</p>
+    </div>
+  </section>
+
+  <main class="wrap content">
+{{ content }}
+  </main>
+
+  <footer class="wrap foot">
+    <span>Arcmix · Fenderenko</span>
+    <a href="https://github.com/Fenderenko/Arcmix/releases">{% if uk %}Усі випуски{% else %}All releases{% endif %}</a>
+  </footer>
+</body>
+</html>
